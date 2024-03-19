@@ -13,7 +13,7 @@ typedef struct method{
 	bool	GET;
 	bool	POST;
 	bool	DELETE;
-	// etc
+	// etc?
 } s_method;
 
 typedef struct ePage{
@@ -24,17 +24,19 @@ typedef struct ePage{
 class Server {
 
 	private:
-		s_port*		_ports;
-		std::string _name;
-		std::string _root;
-		s_method	_methods;
-		bool		_cgi;
-		uint32_t	_max_body;
-		s_ePage*	_error_pages;
+		s_port*			_ports;
+		std::string 	_name;
+		std::string 	_root;
+		s_method		_methods;
+		bool			_cgi;
+		uint32_t		_maxBody;
+		s_ePage*		_errorPages;
+		std::string*	_index;
+		bool			_autoIndex;
 
 	public:
-		Server();
-		Server(std::string);
+		Server(char **env);
+		Server(char *conf, char **env);
 		~Server();
 		Server(const Server &obj);
 
