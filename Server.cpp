@@ -1,11 +1,16 @@
 #include "Server.hpp"
+#include<fstream>
 
-static s_port* defaultPorts(){
-	s_port *ports = new s_port[2];
-	ports[0].nmb = 80;
-	ports[0].type = "default_server";
-	ports[1].nmb = 443;
-	ports[1].type = "ssl";
+static std::list<s_port> defaultPorts(){
+	std::list<s_port> ports;
+	s_port def;
+	def.nmb = 80;
+	def.type = "default_server";
+	s_port ssl;
+	ssl.nmb = 443;
+	ssl.type = "ssl";
+	ports.push_back(def);
+	ports.push_back(ssl);
 	return ports;
 }
 
@@ -14,11 +19,11 @@ static std::string defaultName(){
 }
 
 static bool compare(std::string s1, std::string s2){
-
 	if (s1.compare(0, 4, s2) == 0)
 		return true;
 	return false;
 }
+
 // TODO check if pwd even exist/find alternative?
 static std::string defaultRoot(char **env){
 	int i = 0;
@@ -36,20 +41,22 @@ static s_method defaultMethods(){
 	return methods;
 }
 
-static s_ePage *defaultErrorPages(std::string root){
-	s_ePage* errorPages = new s_ePage[2];
-	errorPages[0].err = 404;
-	errorPages[0].url = root + "errdir/404.html";
-	errorPages[1].err = 405;
-	errorPages[1].url = root + "errdir/405.html";
-	return errorPages;
+static std::list<s_ePage> defaultErrorPages(std::string root){
+	std::list<s_ePage> erorPages;
+	s_ePage fofo;
+	fofo.err = 404;
+	fofo.url = root + "errdir/404.html";
+	s_ePage fofv;
+	fofv.err = 405;
+	fofv.url = root + "errdir/405.html";
+	erorPages.push_back(fofo);
+	erorPages.push_back(fofv);
+	return erorPages;
 }
 
-static std::string* defaultIndex(){
-	std::string* index = new std::string[3];
-	index[0] = "index.php";
-	index[1] = "index.html";
-	index[2] = "index.htm";
+static std::list<std::string> defaultIndex(){
+	std::list<std::string> index = 
+		{"index.php", "index.html", "index.htm"};
 	return index;
 }
 
@@ -67,13 +74,10 @@ Server::Server(char **env):
 {}
 //TODO read from file and do stuff / habdle multiple server blocks?
 Server::Server(char* conf, char **env) {
-	// this->_name = n;
+	std::ifstream infile(conf, std::ios::in);
 }
 
 Server::~Server() {
-	delete []_ports;
-	delete []_errorPages;
-	delete []_index;
 }
 
 Server &Server::operator=(const Server &obj) {
@@ -82,4 +86,75 @@ Server &Server::operator=(const Server &obj) {
 
 Server::Server(const Server &obj) {
 	*this = obj;
+}
+
+std::list<s_port> Server::getPorts()	const{
+	return _ports;
+}
+
+std::string Server::getName()	const{
+	return _name;
+}
+
+std::string Server::getRoot()	const{
+	return _root;
+}
+
+s_method Server::getMethods()	const{
+	return _methods;
+}
+
+bool Server::getCGI()	const{
+	return _cgi;
+}
+
+uint32_t Server::getMaxBody()	const{
+	return _maxBody;
+}
+
+std::list<s_ePage> Server::getErrorPages()	const{
+	return _errorPages;
+}
+
+std::list<std::string> Server::getIndex()	const{
+	return _index;
+}
+
+bool Server::getAutoIndex()	const{
+	return _autoIndex;
+}
+
+std::string boolstring(const bool& src){
+	if (!src)
+		return "false";
+	else
+		return "true";
+}
+
+std::ostream & operator<< (std::ostream &out, const Server& src){
+
+	for (s_port port : src.getPorts()){
+		out << "port\t" << port.nmb << "\t" << port.type << "\n";
+	}
+	out << "name\t" << src.getName() << "\n";
+	out << "root\t" << src.getRoot() << "\n";
+	out << "methods\t";
+	if (src.getMethods().GET)
+		out << "GET\t";
+	if (src.getMethods().POST)
+		out << "POST\t";
+	if (src.getMethods().DELETE)
+		out << "DELETE\t";
+	out << "\n";
+	out << "cgi\t" << boolstring(src.getCGI()) << "\n";
+	out << "max_body\t" << src.getMaxBody() << "bytes" << "\n";
+	for (s_ePage ePage : src.getErrorPages()){
+		out << "Error\t" << ePage.err << "\t" << ePage.url << "\n";
+	}
+	for (std::string index : src.getIndex()){
+		out << "Index\t" << index << "\n";
+	}
+	out << "auto Index\t" << boolstring(src.getAutoIndex());
+	
+	return out;
 }
