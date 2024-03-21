@@ -33,11 +33,14 @@ static std::string defaultRoot(char **env){
 	return env[i] + 4;
 }
 
-static s_method defaultMethods(){
-	s_method methods;
-	methods.GET = true;
-	methods.POST = true;
-	methods.DELETE = true;
+static std::vector<bool> defaultMethods(){
+	std::vector<bool> methods;
+	for (int i = GET; i <= TRACE; i++){
+		if (i == GET || i == POST || i == DELETE)
+			methods.push_back(true);
+		else
+			methods.push_back(false);
+	}
 	return methods;
 }
 
@@ -60,7 +63,7 @@ static std::list<std::string> defaultIndex(){
 	return index;
 }
 
-//default consructor, called when conf could not be read / was formatted improperly
+//default consructor
 Server::Server(char **env):
 	_ports(defaultPorts()),
 	_name(defaultName()),
@@ -70,17 +73,22 @@ Server::Server(char **env):
 	_maxBody(1048576),
 	_errorPages(defaultErrorPages(_root)),
 	_index(defaultIndex()),
-	_autoIndex(true)
-{}
-//TODO read from file and do stuff / habdle multiple server blocks?
-Server::Server(char* conf, char **env) {
-	std::ifstream infile(conf, std::ios::in);
+	_autoIndex(true){
 }
 
 Server::~Server() {
 }
 
 Server &Server::operator=(const Server &obj) {
+	this->_ports = obj.getPorts();
+	this->_name = obj.getName();
+	this->_root = obj.getRoot();
+	this->_methods = obj.getMethods();
+	this->_cgi = obj.getCGI();
+	this->_maxBody = obj.getMaxBody();
+	this->_errorPages = obj.getErrorPages();
+	this->_index = obj.getIndex();
+	this->_autoIndex = obj.getAutoIndex();
 	return *this;
 }
 
@@ -100,7 +108,11 @@ std::string Server::getRoot()	const{
 	return _root;
 }
 
-s_method Server::getMethods()	const{
+bool Server::getMethod(int i)	const{
+	return _methods[i];
+}
+
+std::vector<bool> Server::getMethods()	const{
 	return _methods;
 }
 
@@ -124,6 +136,59 @@ bool Server::getAutoIndex()	const{
 	return _autoIndex;
 }
 
+void Server::clearPort(){
+	_ports.clear();
+}
+
+void Server::clearEPage(){
+	_errorPages.clear();
+}
+
+void Server::clearIndex(){
+	_index.clear();
+}
+
+void Server::clearMethods(){
+	for (int i = GET; i <= TRACE; i++)
+		_methods[i] = false;
+}
+
+void Server::setPort(s_port port){
+	_ports.push_back(port);
+}
+
+void Server::setName(std::string name){
+	_name = name;
+}
+
+void Server::setRoot(std::string root){
+
+}
+
+void Server::setMethod(int method, bool value){
+	_methods[method] = value;
+}
+
+void Server::setCGI(bool CGI){
+	_cgi = CGI;
+}
+
+void Server::setMaxBody(uint32_t body){
+	_maxBody = body;
+}
+
+void Server::setErrorPages(s_ePage ePage){
+	_errorPages.push_back(ePage);	
+}
+
+void Server::setIndex(std::string index){
+	_index.push_back(index);
+}
+
+void Server::setAutoIndex(bool autoIndex){
+	_autoIndex = autoIndex;
+}
+
 std::string boolstring(const bool& src){
 	if (!src)
 		return "false";
@@ -134,25 +199,22 @@ std::string boolstring(const bool& src){
 std::ostream & operator<< (std::ostream &out, const Server& src){
 
 	for (s_port port : src.getPorts()){
-		out << "port\t" << port.nmb << "\t" << port.type << "\n";
+		out << "port\t" << port.nmb << "\t" << port.type << std::endl;
 	}
-	out << "name\t" << src.getName() << "\n";
-	out << "root\t" << src.getRoot() << "\n";
+	out << "name\t" << src.getName() << std::endl;
+	out << "root\t" << src.getRoot() << std::endl;
 	out << "methods\t";
-	if (src.getMethods().GET)
-		out << "GET\t";
-	if (src.getMethods().POST)
-		out << "POST\t";
-	if (src.getMethods().DELETE)
-		out << "DELETE\t";
-	out << "\n";
-	out << "cgi\t" << boolstring(src.getCGI()) << "\n";
-	out << "max_body\t" << src.getMaxBody() << "bytes" << "\n";
+	for (int i = GET; i <= TRACE; i++){
+		out << boolstring(src.getMethod(i)) << "\t";
+	}
+	out << std::endl;
+	out << "cgi\t" << boolstring(src.getCGI()) << std::endl;
+	out << "max_body\t" << src.getMaxBody() << "bytes" << std::endl;
 	for (s_ePage ePage : src.getErrorPages()){
-		out << "Error\t" << ePage.err << "\t" << ePage.url << "\n";
+		out << "Error\t" << ePage.err << "\t" << ePage.url << std::endl;
 	}
 	for (std::string index : src.getIndex()){
-		out << "Index\t" << index << "\n";
+		out << "Index\t" << index << std::endl;
 	}
 	out << "auto Index\t" << boolstring(src.getAutoIndex());
 	
