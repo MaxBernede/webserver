@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef Template_HPP
 #define Template_HPP
 
@@ -5,6 +7,8 @@
 #include <string>
 #include<list>
 #include<vector>
+
+#define BODY_MAX 16711568
 
 enum methods{
 	GET,
