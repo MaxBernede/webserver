@@ -1,5 +1,5 @@
-#ifndef Template_HPP
-#define Template_HPP
+#ifndef SERVER_HPP
+#define SERVER_HPP
 
 #include <iostream>
 #include <string>
