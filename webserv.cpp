@@ -6,7 +6,7 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/03/21 15:45:36 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/03/27 13:44:52 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/03/27 15:26:23 by kposthum      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ bool servBlockStart(std::string buf){
 }
 
 //TODO error handling
-s_port confPort(std::string value){
+void confPort(std::string value, Server serv){
 	s_port port;
 
 	std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r "));
@@ -54,43 +54,55 @@ s_port confPort(std::string value){
 	port.type = value.substr(pos, value.length());
 	port.type.pop_back();
 	port.nmb = std::stol(num);
-	return port;
+	serv.setPort(port);
 }
 
-std::string confName(std::string value){
+void confName(std::string value, Server serv){
 	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		throw syntaxError();
 	value.pop_back();
 	//TODO check extention? //other error handling?
-	return value;
+	serv.setName(value);
 }
 
-std::string confRoot(std::string value){
+void confRoot(std::string value, Server serv){
 	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		throw syntaxError();
 	value.pop_back();
 	//TODO-ish:check valid pathing? idk
-	return value;
+	serv.setRoot(value);
 }
 
-void confMethods(std::string value){
-	//go over words one by one and check if they are valid methods
-	//all given are set to true
-	//if none are given, set all to false
-	//if one inalid is found, throw exception
+void confMethods(std::string value, Server serv){
+	std::string meth[TRACE + 1] = {"GET", "POST", "DELETE", "PUT", "PATCH", "CONNECT", "OPTIONS", "TRACE"};
+	while (value != ";"){
+		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r "));
+		for (int i = 0; i <= TRACE; i++)
+		{
+			if (tmp == meth[i]){
+				serv.setMethod(i, true);
+				break;
+			}
+			if (i == TRACE)
+				throw syntaxError();
+		}
+		value.erase(0, tmp.length());
+		while (value.find_first_of("\t\n\v\f\r ") == 0)
+			value.erase(0, 1);
+	}
 }
 
-bool confCGI(std::string value){
+void confCGI(std::string value, Server serv){
 	if (value == "yes;" || value == "y;")
-		return true;
+		serv.setCGI(true);
 	else if (value == "no;" || value == "n;")
-		return false;
+		serv.setCGI(false);
 	else
 		throw syntaxError();
 }
 
 // TODO check for overflow?
-uint32_t confMaxBody(std::string value){
+void confMaxBody(std::string value, Server serv){
 	if (value.length() > 10)
 		throw syntaxError();
 	value.pop_back();
@@ -107,22 +119,22 @@ uint32_t confMaxBody(std::string value){
 		val = val * (((1 < 10) < 10) < 10);
 	if (val > BODY_MAX)
 		throw syntaxError();
-	return val;
+	serv.setMaxBody(val);
 }
 
-std::list<s_ePage> confErrorPage(std::string value){
-
-}
-
-std::list<std::string> confIndex(std::string value){
+void confErrorPage(std::string value, Server serv){
 
 }
 
-bool confAutoIndex(std::string value){
+void confIndex(std::string value, Server serv){
+
+}
+
+void confAutoIndex(std::string value, Server serv){
 	if (value == "yes;" || value == "y;")
-		return true;
+		serv.setAutoIndex(true);
 	else if (value == "no;" || value == "n;")
-		return false;
+		serv.setAutoIndex(false);
 	else
 		throw syntaxError();
 }
@@ -135,6 +147,8 @@ std::string findKey(std::string str){
 }
 
 Server	pushBlock(std::list<std::string> block, char **env){
+	void (*ptr[10])(std::string, Server) = {&confPort, &confName, &confRoot, &confMethods, &confCGI, &confMaxBody, &confMaxBody, &confErrorPage, &confIndex, &confAutoIndex};
+	std::string keys[10] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed", "clientMaxBodySize", "errorPage", "index", "autoIndex"};
 	Server serv(env);
 	for (std::string str : block){
 		while (str.find_first_of("\t\n\v\f\r ") == 0)
