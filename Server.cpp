@@ -142,6 +142,27 @@ void Server::clearPort(){
 	_ports.clear();
 }
 
+void Server::clearName(){
+	_name = "";
+}
+
+void Server::clearRoot(){
+	_root = "";
+}
+
+void Server::clearMethods(){
+	for (int i = GET; i <= TRACE; i++)
+		_methods[i] = false;
+}
+
+void Server::clearCGI(){
+	_cgi = false;
+}
+
+void Server::clearMaxBody(){
+	_maxBody = 200;
+}
+
 void Server::clearEPage(){
 	_errorPages.clear();
 }
@@ -150,9 +171,15 @@ void Server::clearIndex(){
 	_index.clear();
 }
 
-void Server::clearMethods(){
-	for (int i = GET; i <= TRACE; i++)
-		_methods[i] = false;
+void Server::clearAutoIndex(){
+	_autoIndex = false;
+}
+
+void Server::clearData(int index){
+	void (Server::*ptr[9])(void) = 
+		{&Server::clearPort, &Server::clearName, &Server::clearRoot, &Server::clearMethods, &Server::clearCGI,
+		&Server::clearMaxBody, &Server::clearEPage, &Server::clearIndex, &Server::clearAutoIndex};
+	(this->*ptr[index])();
 }
 
 void Server::setPort(s_port port){
@@ -164,7 +191,7 @@ void Server::setName(std::string name){
 }
 
 void Server::setRoot(std::string root){
-
+	_root = root;
 }
 
 void Server::setMethod(int method, bool value){
@@ -211,7 +238,7 @@ std::ostream & operator<< (std::ostream &out, const Server& src){
 	}
 	out << std::endl;
 	out << "cgi\t" << boolstring(src.getCGI()) << std::endl;
-	out << "max_body\t" << src.getMaxBody() << "bytes" << std::endl;
+	out << "max_body\t" << src.getMaxBody() << " bytes" << std::endl;
 	for (s_ePage ePage : src.getErrorPages()){
 		out << "Error\t" << ePage.err << "\t" << ePage.url << std::endl;
 	}

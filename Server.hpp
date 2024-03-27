@@ -61,19 +61,27 @@ class Server {
 		std::list <std::string>	getIndex()	const;
 		bool					getAutoIndex()	const;
 
-		void clearPort();
-		void clearEPage();
-		void clearIndex();
-		void clearMethods();
-		void setPort(s_port port);
-		void setName(std::string name);
-		void setRoot(std::string root);
-		void setMethod(int method, bool value);
-		void setCGI(bool CGI);
-		void setMaxBody(uint32_t body);
-		void setErrorPages(s_ePage ePage);
-		void setIndex(std::string index);
-		void setAutoIndex(bool autoIndex);
+		void	setPort(s_port port);
+		void	setName(std::string name);
+		void	setRoot(std::string root);
+		void	setMethod(int method, bool value);
+		void	setCGI(bool CGI);
+		void	setMaxBody(uint32_t body);
+		void	setErrorPages(s_ePage ePage);
+		void	setIndex(std::string index);
+		void	setAutoIndex(bool autoIndex);
+
+		void	clearPort();
+		void	clearName();
+		void	clearRoot();
+		void	clearMethods();
+		void	clearCGI();
+		void	clearMaxBody();
+		void	clearEPage();
+		void	clearIndex();
+		void	clearAutoIndex();
+
+		void	clearData(int index);
 };
 
 std::ostream & operator<< (std::ostream &out, const Server& src);

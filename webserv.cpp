@@ -6,7 +6,7 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/03/21 15:45:36 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/03/27 17:08:36 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/03/27 18:39:23 by kposthum      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,19 +112,21 @@ void confMaxBody(std::string value, Server &serv){
 	if (value.length() > 10)
 		throw syntaxError();
 	value.pop_back();
-	if (value.find_first_of("KkMmGgBb") != value.length() - 1)
+	if (value.find_first_of("BKMG") != value.length() - 1)
 		throw syntaxError();
-	if (value.find_first_not_of("1234567890KkMmGgBb") != std::string::npos)
+	if (value.find_first_not_of("1234567890BKMG") != std::string::npos)
 		throw syntaxError();
 	uint32_t val = (uint32_t)std::stol(value);
-	if (value.back() == 'K' || value.back() == 'k')
-		val = val * (1 < 10);
-	else if (value.back() == 'M' || value.back() == 'm')
-		val = val * ((1 < 10) < 10);
-	else if (value.back() == 'G' || value.back() == 'g')
-		val = val * (((1 < 10) < 10) < 10);
-	if (val > BODY_MAX)
-		throw syntaxError();
+	switch (value.back()){
+		case 'G':
+			val *= (1 << 10);
+		case 'M':
+			val *= (1 << 10);
+		case 'K':
+			val *= (1 << 10);
+	}
+	if (val > BODY_MAX){
+		throw syntaxError();}
 	serv.setMaxBody(val);
 }
 
@@ -181,11 +183,13 @@ std::string findKey(std::string str){
 }
 
 Server	pushBlock(std::list<std::string> block, char **env){
-	void (*ptr[10])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
-		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex};
-	std::string const keys[10] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed",
-		"clientMaxBodySize", "errorPage", "index", "autoIndex"};
 	Server serv(env);
+	void (*ptr[9])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
+		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex};
+	std::string const keys[9] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed",
+		"clientMaxBodySize", "errorPage", "index", "autoIndex"};
+	bool clear[10] = {false, false, false, false, false,
+		false, false, false, false, false};
 	for (std::string str : block){
 		while (str.find_first_of("\t\n\v\f\r ") == 0)
 			str.erase(0, 1);
@@ -202,6 +206,10 @@ Server	pushBlock(std::list<std::string> block, char **env){
 			// std::cout << "VALUE <" << str << ">" << std::endl;
 			for (int i = 0; i < 10; i++){
 				if (key == keys[i]){
+					if (clear[i] == false){
+						serv.clearData(i);
+						clear[i] = true;
+					}
 					(*ptr[i])(str, serv);
 					break;
 				}
