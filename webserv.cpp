@@ -6,7 +6,7 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/03/21 15:45:36 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/03/21 19:11:10 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/03/27 13:44:52 by kposthum      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ bool servBlockStart(std::string buf){
 }
 
 //TODO error handling
-s_port addPort(std::string value){
+s_port confPort(std::string value){
 	s_port port;
 
 	std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r "));
@@ -57,7 +57,7 @@ s_port addPort(std::string value){
 	return port;
 }
 
-std::string addName(std::string value){
+std::string confName(std::string value){
 	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		throw syntaxError();
 	value.pop_back();
@@ -65,7 +65,7 @@ std::string addName(std::string value){
 	return value;
 }
 
-std::string addRoot(std::string value){
+std::string confRoot(std::string value){
 	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		throw syntaxError();
 	value.pop_back();
@@ -73,7 +73,7 @@ std::string addRoot(std::string value){
 	return value;
 }
 
-void addMethods(std::string value){
+void confMethods(std::string value){
 	//go over words one by one and check if they are valid methods
 	//all given are set to true
 	//if none are given, set all to false
@@ -88,6 +88,7 @@ bool confCGI(std::string value){
 	else
 		throw syntaxError();
 }
+
 // TODO check for overflow?
 uint32_t confMaxBody(std::string value){
 	if (value.length() > 10)
@@ -107,6 +108,23 @@ uint32_t confMaxBody(std::string value){
 	if (val > BODY_MAX)
 		throw syntaxError();
 	return val;
+}
+
+std::list<s_ePage> confErrorPage(std::string value){
+
+}
+
+std::list<std::string> confIndex(std::string value){
+
+}
+
+bool confAutoIndex(std::string value){
+	if (value == "yes;" || value == "y;")
+		return true;
+	else if (value == "no;" || value == "n;")
+		return false;
+	else
+		throw syntaxError();
 }
 
 std::string findKey(std::string str){
@@ -186,8 +204,8 @@ int main(int argc, char** argv, char** env){
 		Server def(env);
 		server.push_front(def);
 	}
-	// for (Server i : server){
-	// 	std::cout << i << std::endl;
-	// }
+	for (Server i : server){
+		std::cout << i << std::endl;
+	}
 	return 0;
 }

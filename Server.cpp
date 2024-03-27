@@ -30,7 +30,9 @@ static std::string defaultRoot(char **env){
 	while (env[i] && !compare(env[i], "PWD=")){
 		i++;
 	}
-	return env[i] + 4;
+	if (!env[i])
+		return ("/var/www/");
+	return env[i] + 4 + '/';
 }
 
 static std::vector<bool> defaultMethods(){
