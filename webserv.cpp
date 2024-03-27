@@ -6,7 +6,7 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/03/21 15:45:36 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/03/27 15:26:23 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/03/27 17:08:36 by kposthum      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,8 @@ bool servBlockStart(std::string buf){
 }
 
 //TODO error handling
-void confPort(std::string value, Server serv){
+void confPort(std::string value, Server &serv){
+	// std::cout << "conf port called\n";
 	s_port port;
 
 	std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r "));
@@ -57,33 +58,36 @@ void confPort(std::string value, Server serv){
 	serv.setPort(port);
 }
 
-void confName(std::string value, Server serv){
+	//TODO check extention? //other error handling?
+void confName(std::string value, Server &serv){
+	// std::cout << "conf name called\n";
 	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		throw syntaxError();
 	value.pop_back();
-	//TODO check extention? //other error handling?
 	serv.setName(value);
 }
 
-void confRoot(std::string value, Server serv){
+	//TODO-ish:check valid pathing? idk
+void confRoot(std::string value, Server &serv){
+	// std::cout << "conf root called\n";
 	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		throw syntaxError();
 	value.pop_back();
-	//TODO-ish:check valid pathing? idk
 	serv.setRoot(value);
 }
 
-void confMethods(std::string value, Server serv){
-	std::string meth[TRACE + 1] = {"GET", "POST", "DELETE", "PUT", "PATCH", "CONNECT", "OPTIONS", "TRACE"};
+void confMethods(std::string value, Server &serv){
+	// std::cout << "conf methods called\n";
+	std::string const meth[8] = {"GET", "POST", "DELETE", "PUT", "PATCH", "CONNECT", "OPTIONS", "TRACE"};
 	while (value != ";"){
-		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r "));
-		for (int i = 0; i <= TRACE; i++)
+		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
+		for (int i = 0; i < 8; i++)
 		{
 			if (tmp == meth[i]){
 				serv.setMethod(i, true);
 				break;
 			}
-			if (i == TRACE)
+			if (i == 7)
 				throw syntaxError();
 		}
 		value.erase(0, tmp.length());
@@ -92,7 +96,8 @@ void confMethods(std::string value, Server serv){
 	}
 }
 
-void confCGI(std::string value, Server serv){
+void confCGI(std::string value, Server &serv){
+	// std::cout << "conf cgi called\n";
 	if (value == "yes;" || value == "y;")
 		serv.setCGI(true);
 	else if (value == "no;" || value == "n;")
@@ -102,7 +107,8 @@ void confCGI(std::string value, Server serv){
 }
 
 // TODO check for overflow?
-void confMaxBody(std::string value, Server serv){
+void confMaxBody(std::string value, Server &serv){
+	// std::cout << "conf max body called\n";
 	if (value.length() > 10)
 		throw syntaxError();
 	value.pop_back();
@@ -122,18 +128,46 @@ void confMaxBody(std::string value, Server serv){
 	serv.setMaxBody(val);
 }
 
-void confErrorPage(std::string value, Server serv){
+void confErrorPage(std::string value, Server &serv){
+	// std::cout << "conf errorpage called\n";
+	while (value != ";"){
+		std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
+			// std::cout << "num <" << num << ">\n";
+		if (num.length() != 3 || num.find_first_not_of("1234567890") != std::string::npos)
+			throw syntaxError();
+		value.erase(0, num.length());
+		while (value.find_first_of("\t\n\v\f\r ") == 0)
+			value.erase(0, 1);
+		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
+		if (tmp.length() == 0)
+			throw syntaxError();
+		value.erase(0, tmp.length());
+		while (value.find_first_of("\t\n\v\f\r ") == 0)
+			value.erase(0, 1);
+		s_ePage ePage;
+		ePage.err = std::stoi(num);
+		ePage.url = tmp;
+		serv.setErrorPages(ePage);
+	}
 
 }
 
-void confIndex(std::string value, Server serv){
-
+void confIndex(std::string value, Server &serv){
+	// std::cout << "conf index called\n";
+	while (value != ";"){
+		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
+		value.erase(0, tmp.length());
+		while (value.find_first_of("\t\n\v\f\r ") == 0)
+			value.erase(0, 1);
+		serv.setIndex(tmp);
+	}
 }
 
-void confAutoIndex(std::string value, Server serv){
-	if (value == "yes;" || value == "y;")
+void confAutoIndex(std::string value, Server &serv){
+	// std::cout << "conf auto index called\n";
+	if (value == "on;")
 		serv.setAutoIndex(true);
-	else if (value == "no;" || value == "n;")
+	else if (value == "off;")
 		serv.setAutoIndex(false);
 	else
 		throw syntaxError();
@@ -147,8 +181,10 @@ std::string findKey(std::string str){
 }
 
 Server	pushBlock(std::list<std::string> block, char **env){
-	void (*ptr[10])(std::string, Server) = {&confPort, &confName, &confRoot, &confMethods, &confCGI, &confMaxBody, &confMaxBody, &confErrorPage, &confIndex, &confAutoIndex};
-	std::string keys[10] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed", "clientMaxBodySize", "errorPage", "index", "autoIndex"};
+	void (*ptr[10])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
+		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex};
+	std::string const keys[10] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed",
+		"clientMaxBodySize", "errorPage", "index", "autoIndex"};
 	Server serv(env);
 	for (std::string str : block){
 		while (str.find_first_of("\t\n\v\f\r ") == 0)
@@ -159,11 +195,19 @@ Server	pushBlock(std::list<std::string> block, char **env){
 			throw syntaxError();
 		try{
 			std::string key = findKey(str);
-			std::cout << "KEY <" << key << ">" << std::endl;
+			// std::cout << "KEY <" << key << ">" << std::endl;
 			str.erase(0, key.length());
 			while (str.find_first_of("\t\n\v\f\r ") == 0)
 				str.erase(0, 1);
-			std::cout << "VALUE <" << str << ">" << std::endl;
+			// std::cout << "VALUE <" << str << ">" << std::endl;
+			for (int i = 0; i < 10; i++){
+				if (key == keys[i]){
+					(*ptr[i])(str, serv);
+					break;
+				}
+				if (i == 9)
+					throw syntaxError();
+			}
 		}
 		catch(std::exception const &e){
 			std::cout << e.what() << std::endl;
@@ -200,8 +244,6 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 			}
 		}
 	}
-
-	// std::cout << file;
 	return server;
 }
 
