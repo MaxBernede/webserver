@@ -6,7 +6,7 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/03/21 15:45:36 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/03/27 13:44:52 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/03/27 13:58:25 by mbernede      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,13 +110,13 @@ uint32_t confMaxBody(std::string value){
 	return val;
 }
 
-std::list<s_ePage> confErrorPage(std::string value){
+// std::list<s_ePage> confErrorPage(std::string value){
+	
+// }
 
-}
+// std::list<std::string> confIndex(std::string value){
 
-std::list<std::string> confIndex(std::string value){
-
-}
+// }
 
 bool confAutoIndex(std::string value){
 	if (value == "yes;" || value == "y;")

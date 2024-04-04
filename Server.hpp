@@ -1,12 +1,11 @@
 #pragma once
 
-#ifndef Template_HPP
-#define Template_HPP
-
 #include <iostream>
 #include <string>
-#include<list>
-#include<vector>
+#include <list>
+#include <vector>
+#include <stdint.h>
+
 
 #define BODY_MAX 16711568
 
@@ -77,5 +76,3 @@ class Server {
 };
 
 std::ostream & operator<< (std::ostream &out, const Server& src);
-
-#endif
