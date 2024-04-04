@@ -32,7 +32,8 @@ static std::string defaultRoot(char **env){
 	}
 	if (!env[i])
 		return ("/var/www/");
-	return env[i] + 4 + '/';
+	std::string test = (env[i] + 4);
+	return test + '/';
 }
 
 static std::vector<bool> defaultMethods(){
