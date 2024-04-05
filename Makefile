@@ -6,7 +6,7 @@ RM := rm -rf
 
 SRC := $(wildcard src/*.cpp)
 
-INC:=	$(wildcard *.hpp)
+INC:=	$(wildcard inc/*.hpp)
 
 OBJ_DIR :=	./obj
 OBJ		:= $(addprefix $(OBJ_DIR)/,$(notdir $(SRC:.cpp=.o)))
