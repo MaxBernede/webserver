@@ -1,6 +1,9 @@
 #include "../inc/webserver.hpp"
 #include "../inc/response.hpp"
 
+//if get found, skip it and search the next word. 
+//if word is '/' change it for index.html
+//if problem with words, return error.html
 std::string parse_buffer(std::string buffer){
 	std::string keyword = "GET";
 
