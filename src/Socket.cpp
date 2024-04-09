@@ -1,5 +1,6 @@
 #include "Socket.hpp"
 #include <netdb.h>
+#include <netinet/in.h>
 #include <string>
 #include <sys/socket.h>
 
@@ -79,12 +80,19 @@ void Socket::bind(uint16_t port) const
 }
 
 
-// accept(int sockfd, struct sockaddr *cli_addr, int addr_len)
+// int accept(int sockfd, struct sockaddr *cli_addr, int addr_len)
 // accept new connections from new clients
+// upon success, the accept() function returns a fd for the accepted socket (a non-negative integer)
+// upon error, returns -1 and sets errno to indicate the error
 Socket Socket::accept() const
 {
-	
+	struct sockaddr_in cli_addr = {};
+	int len = sizeof(sockaddr_in);
+	int acc_fd = accept(_fd, &cli_addr, len);
+	if (acc_fd == -1)
+		throw(Exception("accept() error and returned -1", errno));
 }
+
 
 // Getters
 
