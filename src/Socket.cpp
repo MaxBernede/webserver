@@ -4,7 +4,7 @@
 #include <string>
 #include <sys/socket.h>
 
-// AF_INET: specifies address family as IPv4
+// AF_INET/AF_INET: specifies address family IPv4/IPv6
 // SOCK_STREAM: indicates a TCP socket type
 // O_NONBLOCK: makes the socket non-blocking, meaning that socket operations (e.g., read(), write()) won't block the program's execution.
 // O_CLOEXEC: makes the file descriptor close-on-exec, meaning that the socket will be closed automatically when a new executable is loaded using exec() system call.
@@ -12,7 +12,7 @@
 Socket::Socket()
 {
 	// 3rd parameter, type can also be 0 since this refers to default, and the default for SOCK_STREAM is TCP
-	_fd = socket(AF_INET, SOCK_STREAM | O_NONBLOCK | O_CLOEXEC, IPPROTO_TCP);
+	_fd = socket(AF_INET | AF_INET6, SOCK_STREAM | O_NONBLOCK | O_CLOEXEC, IPPROTO_TCP);
 	if (_fd == -1)
 		throw(Exception("failed to open socket", errno));
 }
@@ -70,7 +70,7 @@ void Socket::bind(uint16_t port) const
 	bool bind = false;
 	while (i != NULL)
 	{
-		if (::bind(_fd, serv_addr, serv_addr->ai_addrlen) == 0)
+		if (::bind(_fd, serv_addr->ai_addr, serv_addr->ai_addrlen) == 0)
 			bind = true;
 		i = i->ai_next;
 	}

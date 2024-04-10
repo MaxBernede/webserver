@@ -4,8 +4,8 @@
 
 # include <sys/socket.h>
 # include <fcntl.h>
-#include <unistd.h>
-#include <netdb.h>
+# include <unistd.h>
+# include <netdb.h>
 
 # include <netinet/in.h>
 # include <cstdint>
@@ -30,3 +30,4 @@ class Socket
 		int	getFd( void );
 		std::string &getAddr( void );
 };
+
