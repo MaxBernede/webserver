@@ -1,0 +1,7 @@
+handle telnet
+check RFC
+check CGI
+
+
+check how to close the port in case already open or overwrite the ctrl c
+

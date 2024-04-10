@@ -21,7 +21,7 @@ std::string read_html_file(const std::string &filename) {
     }
 
     std::ostringstream oss;
-    oss << "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+    oss << "HTTP/1.1 404 OK\r\nContent-Type: text/html\r\n\r\n";
     oss << file.rdbuf();
     file.close();
 

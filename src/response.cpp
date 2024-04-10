@@ -4,7 +4,7 @@
 //if get found, skip it and search the next word. 
 //if word is '/' change it for index.html
 //if problem with words, return error.html
-std::string parse_buffer(std::string buffer){
+std::string Response::parse_buffer(std::string buffer){
 	std::string keyword = "GET";
 
 	size_t pos = buffer.find(keyword);
@@ -33,26 +33,38 @@ std::string parse_buffer(std::string buffer){
 	return "error.html";
 }
 
-void handle_request(int client_fd) {
-    // Read the request from the client
+//Read from the FD and fill the buffer with a max of 1024, then get the html out of it
+//read the HTML and return it as a string
+void Response::handle_request() {
     char buffer[1024];
-    std::string response;
-
-    int valread = read(client_fd, buffer, sizeof(buffer));
-    if (valread < 0) {
+    std::cout << client_fd;
+    if (read(client_fd, buffer, sizeof(buffer)) < 0){
         std::cerr << "Error reading request" << std::endl;
         return;
     }
 
-    std::cout << "Received request:\n" << buffer << std::endl;
-
-    // Check if the request contains the button click message
-	std::string html_file;
-
 	html_file = parse_buffer(buffer);
-    response = read_html_file(html_file);
-    // Send the HTTP response back to the client
-    if (send(client_fd, response.c_str(), response.length(), 0) == -1) {
+    response_text = read_html_file(html_file);
+
+    r_send();
+}
+
+void Response::r_send(){
+    std::cout << "Message to send : " << response_text << std::endl;
+    if (send(client_fd, response_text.c_str(), response_text.length(), 0) == -1) {
         std::cerr << "Error sending response" << std::endl;
     }
+}
+
+//!Constructors
+Response::Response(){
+    std::cout << "Default constructor Response" << std::endl;
+}
+Response::Response(int fd){
+    std::cout << "Constructor Response" << std::endl;
+    client_fd = fd;
+}
+//!Getters
+int Response::get_client_fd(){
+    return client_fd;
 }

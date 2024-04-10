@@ -1,0 +1,56 @@
+await fetch("https://cdn.intra.42.fr/users/a36f361af8cf1e698cc99cbc3d2db280/yzaim.jpg", {
+    "credentials": "omit",
+    "headers": {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
+        "Accept": "image/avif,image/webp,*/*",
+        "Accept-Language": "en-US,en;q=0.5"
+    },
+    "referrer": "https://projects.intra.42.fr/",
+    "method": "GET",
+    "mode": "cors"
+});
+
+await fetch("https://cdn.intra.42.fr/users/5bd4c7bb5ddaf0ecbb8d4188fba4c7ca/kposthum.jpg", {
+    "credentials": "omit",
+    "headers": {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
+        "Accept": "image/avif,image/webp,*/*",
+        "Accept-Language": "en-US,en;q=0.5"
+    },
+    "referrer": "https://projects.intra.42.fr/",
+    "method": "GET",
+    "mode": "cors"
+});
+
+
+await fetch("http://localhost:8066/", {
+    "credentials": "omit",
+    "headers": {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "cross-site"
+    },
+    "method": "GET",
+    "mode": "cors"
+});
+
+await fetch("http://localhost:8066/page1.html", {
+    "credentials": "omit",
+    "headers": {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "same-origin",
+        "Sec-Fetch-User": "?1"
+    },
+    "referrer": "http://localhost:8066/",
+    "method": "GET",
+    "mode": "cors"
+});
