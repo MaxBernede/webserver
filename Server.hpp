@@ -5,10 +5,8 @@
 
 #include <iostream>
 #include <string>
-#include<list>
-#include<vector>
-
-#define BODY_MAX 16711568
+#include <list>
+#include <vector>
 
 enum methods{
 	GET,
@@ -39,7 +37,7 @@ class Server {
 		std::string 			_root;
 		std::vector<bool>		_methods;
 		bool					_cgi;
-		uint32_t				_maxBody;
+		uint64_t				_maxBody;
 		std::list<s_ePage>		_errorPages;
 		std::list<std::string>	_index;
 		bool					_autoIndex;
@@ -56,7 +54,7 @@ class Server {
 		bool					getMethod(int i)	const;
 		std::vector<bool>		getMethods()	const;
 		bool					getCGI()	const;
-		uint32_t				getMaxBody()	const;
+		uint64_t				getMaxBody()	const;
 		std::list<s_ePage>		getErrorPages()	const;
 		std::list <std::string>	getIndex()	const;
 		bool					getAutoIndex()	const;
@@ -66,7 +64,7 @@ class Server {
 		void	setRoot(std::string root);
 		void	setMethod(int method, bool value);
 		void	setCGI(bool CGI);
-		void	setMaxBody(uint32_t body);
+		void	setMaxBody(uint64_t body);
 		void	setErrorPages(s_ePage ePage);
 		void	setIndex(std::string index);
 		void	setAutoIndex(bool autoIndex);

@@ -123,7 +123,7 @@ bool Server::getCGI()	const{
 	return _cgi;
 }
 
-uint32_t Server::getMaxBody()	const{
+uint64_t Server::getMaxBody()	const{
 	return _maxBody;
 }
 
@@ -144,11 +144,11 @@ void Server::clearPort(){
 }
 
 void Server::clearName(){
-	_name = "";
+	// _name = "";
 }
 
 void Server::clearRoot(){
-	_root = "";
+	// _root = "";
 }
 
 void Server::clearMethods(){
@@ -157,11 +157,11 @@ void Server::clearMethods(){
 }
 
 void Server::clearCGI(){
-	_cgi = false;
+	// _cgi = false;
 }
 
 void Server::clearMaxBody(){
-	_maxBody = 200;
+	// _maxBody = 200;
 }
 
 void Server::clearEPage(){
@@ -173,7 +173,7 @@ void Server::clearIndex(){
 }
 
 void Server::clearAutoIndex(){
-	_autoIndex = false;
+	// _autoIndex = false;
 }
 
 void Server::clearData(int index){
@@ -203,7 +203,7 @@ void Server::setCGI(bool CGI){
 	_cgi = CGI;
 }
 
-void Server::setMaxBody(uint32_t body){
+void Server::setMaxBody(uint64_t body){
 	_maxBody = body;
 }
 
@@ -246,7 +246,7 @@ std::ostream & operator<< (std::ostream &out, const Server& src){
 	for (std::string index : src.getIndex()){
 		out << "Index\t" << index << std::endl;
 	}
-	out << "auto Index\t" << boolstring(src.getAutoIndex());
+	out << "auto Index\t" << boolstring(src.getAutoIndex()) << std::endl;
 	
 	return out;
 }

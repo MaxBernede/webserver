@@ -6,7 +6,7 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/03/21 15:45:36 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/03/27 18:39:23 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/04/10 15:10:48 by kposthum      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,7 @@ bool servBlockStart(std::string buf){
 	return true;
 }
 
-//TODO error handling
 void confPort(std::string value, Server &serv){
-	// std::cout << "conf port called\n";
 	s_port port;
 
 	std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r "));
@@ -58,18 +56,14 @@ void confPort(std::string value, Server &serv){
 	serv.setPort(port);
 }
 
-	//TODO check extention? //other error handling?
 void confName(std::string value, Server &serv){
-	// std::cout << "conf name called\n";
 	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		throw syntaxError();
 	value.pop_back();
 	serv.setName(value);
 }
 
-	//TODO-ish:check valid pathing? idk
 void confRoot(std::string value, Server &serv){
-	// std::cout << "conf root called\n";
 	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		throw syntaxError();
 	value.pop_back();
@@ -77,7 +71,6 @@ void confRoot(std::string value, Server &serv){
 }
 
 void confMethods(std::string value, Server &serv){
-	// std::cout << "conf methods called\n";
 	std::string const meth[8] = {"GET", "POST", "DELETE", "PUT", "PATCH", "CONNECT", "OPTIONS", "TRACE"};
 	while (value != ";"){
 		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
@@ -97,7 +90,6 @@ void confMethods(std::string value, Server &serv){
 }
 
 void confCGI(std::string value, Server &serv){
-	// std::cout << "conf cgi called\n";
 	if (value == "yes;" || value == "y;")
 		serv.setCGI(true);
 	else if (value == "no;" || value == "n;")
@@ -106,35 +98,27 @@ void confCGI(std::string value, Server &serv){
 		throw syntaxError();
 }
 
-// TODO check for overflow?
 void confMaxBody(std::string value, Server &serv){
-	// std::cout << "conf max body called\n";
 	if (value.length() > 10)
 		throw syntaxError();
 	value.pop_back();
-	if (value.find_first_of("BKMG") != value.length() - 1)
+	if (value.find_first_of("BKM") != value.length() - 1 && value.find_first_of("BKM") != std::string::npos)
 		throw syntaxError();
-	if (value.find_first_not_of("1234567890BKMG") != std::string::npos)
+	if (value.find_first_not_of("1234567890BKM") != std::string::npos)
 		throw syntaxError();
-	uint32_t val = (uint32_t)std::stol(value);
+	uint64_t val = (uint64_t)std::stol(value);
 	switch (value.back()){
-		case 'G':
-			val *= (1 << 10);
 		case 'M':
 			val *= (1 << 10);
 		case 'K':
 			val *= (1 << 10);
 	}
-	if (val > BODY_MAX){
-		throw syntaxError();}
 	serv.setMaxBody(val);
 }
 
 void confErrorPage(std::string value, Server &serv){
-	// std::cout << "conf errorpage called\n";
 	while (value != ";"){
 		std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-			// std::cout << "num <" << num << ">\n";
 		if (num.length() != 3 || num.find_first_not_of("1234567890") != std::string::npos)
 			throw syntaxError();
 		value.erase(0, num.length());
@@ -155,7 +139,6 @@ void confErrorPage(std::string value, Server &serv){
 }
 
 void confIndex(std::string value, Server &serv){
-	// std::cout << "conf index called\n";
 	while (value != ";"){
 		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
 		value.erase(0, tmp.length());
@@ -166,7 +149,6 @@ void confIndex(std::string value, Server &serv){
 }
 
 void confAutoIndex(std::string value, Server &serv){
-	// std::cout << "conf auto index called\n";
 	if (value == "on;")
 		serv.setAutoIndex(true);
 	else if (value == "off;")
@@ -199,11 +181,9 @@ Server	pushBlock(std::list<std::string> block, char **env){
 			throw syntaxError();
 		try{
 			std::string key = findKey(str);
-			// std::cout << "KEY <" << key << ">" << std::endl;
 			str.erase(0, key.length());
 			while (str.find_first_of("\t\n\v\f\r ") == 0)
 				str.erase(0, 1);
-			// std::cout << "VALUE <" << str << ">" << std::endl;
 			for (int i = 0; i < 10; i++){
 				if (key == keys[i]){
 					if (clear[i] == false){
@@ -257,7 +237,7 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 
 int main(int argc, char** argv, char** env){
 	std::list<Server> server;
-
+	(void)argc;
 	try{
 		std::ifstream conf(argv[1], std::ios::in);
 		if (!conf.is_open())
