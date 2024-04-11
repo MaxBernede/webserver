@@ -30,13 +30,27 @@ sa6.sin6_addr = in6addr_any; // use my IPv6 address
 
 Also, the value IN6ADDR_ANY_INIT can be used as an initializer when the struct in6_addr is declared, like so:
 
-struct in6_addr ia6 = IN6ADDR_ANY_INIT;
+
+int bind(int sockfd, struct sockaddr *my_addr, int addrlen)
+- sockfd: socket file descriptor returned by socket()
+- struct sockaddr: contains information about your address
+- addrelen: is the length in butes of that address
+
+int listen(int sockfd, int backlog);
+sockfd: socket file descriptor 
+backlog: the number of connections allowed on the incoming queue
+
+int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+sockfd: socket fd
+addr: pointer to the local struct sockaddr_storage where the information about the incoming connection will go
 
 getaddrinfo(const char *restrict node, const char *restrict service. constr struct addrinfo *restrict hints, struct addrinfo **restrict res)
 - node - Internet host // e.g. www.example.com or IP
 - service - Internet service // e.g. "http" or port number
 - hints - points to a struct addrinfo that youve already filled out with relevant information
-- return: returns a pointer to linked list res of results
+- return
+	- upon success: returns zero and a pointer to linked list of struct addrinfo, each containing a struct sockaddr of some kind
+	- upon fail: returns a non zero value
 - it takes care of DNS service name lookups and fills out the struct you need
 
 
