@@ -17,7 +17,21 @@ Send() and recv() are like the write() and read() equivalent for sockets... you 
 There are different types of sockets, two of which are stream sockets (SOCK_STREAM) and datagram sockets (SOCK_DGRAM). Datagram sockets are sometimes called connectionless sockets.
 Stream sockets are reliable two way connected communication streams (HTTP uses this). Stream sockets use TCP - which ensures your data arrives sequentially and error-free)
 
+IPv4 to IPv6 --> how to easily get it working for the latter
+1. getaddrinfo() to get the struct aockaddr info instead of filling it in by hand keeps the IP version agnostic and will eliminate many of the subsequet steps
+2. any place where you are hard coding anything related tot he IP version, try to wrap it in a helper function
+3. Change AF_INET to AF_INET6 / PF_INET to PF_INET6
+4. Change INADDR_ANY assignments to in6addr_any assignments, which are slightly different:
 
+struct sockaddr_in sa;
+struct sockaddr_in6 sa6;
+
+sa.sin_addr.s_addr = INADDR_ANY;  // use my IPv4 address
+sa6.sin6_addr = in6addr_any; // use my IPv6 address
+
+Also, the value IN6ADDR_ANY_INIT can be used as an initializer when the struct in6_addr is declared, like so:
+
+struct in6_addr ia6 = IN6ADDR_ANY_INIT;
 
 getaddrinfo(const char *restrict node, const char *restrict service. constr struct addrinfo *restrict hints, struct addrinfo **restrict res)
 - node - Internet host
