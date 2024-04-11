@@ -24,7 +24,6 @@ static bool compare(std::string s1, std::string s2){
 	return false;
 }
 
-// TODO check if pwd even exist/find alternative?
 static std::string defaultRoot(char **env){
 	int i = 0;
 	while (env[i] && !compare(env[i], "PWD=")){

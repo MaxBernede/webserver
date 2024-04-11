@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef Template_HPP
-#define Template_HPP
-
 #include <iostream>
 #include <string>
 #include <list>
@@ -83,5 +80,3 @@ class Server {
 };
 
 std::ostream & operator<< (std::ostream &out, const Server& src);
-
-#endif
