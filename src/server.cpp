@@ -1,5 +1,48 @@
-#include "Server.hpp"
-#include <fstream>
+#include "../inc/webserver.hpp"
+
+
+
+bool servBlockStart(std::string buf){
+	if (buf.back() != '{')
+		return false;
+	if (buf.find("server") != 0)
+		return false;
+	for (size_t i = 6; i < (buf.size() - 1); i++){
+		if (buf[i] != 32 || (buf[i] < 9 && buf[i] > 13))
+			return false;
+	}
+	return true;
+}
+
+std::list<Server>	init_serv(std::ifstream &conf, char **env){
+	std::list<Server> server;
+	std::string buf;
+	std::list<std::string> block;
+
+	while (!conf.eof()){
+		std::getline(conf, buf);
+		if (servBlockStart(buf)){
+			try{
+				while (true){
+					std::getline(conf, buf);
+					if (buf.front() == '}')
+						break;
+					if (conf.eof())
+						throw syntaxError();
+					block.push_back(buf);
+				}
+				server.push_back(pushBlock(block, env));
+				block.clear();
+			}
+			catch(std::exception &e){
+				std::cout << e.what() << std::endl;
+				Server def(env);
+				server.push_front(def);
+			}
+		}
+	}
+	return server;
+}
 
 static std::list<s_port> defaultPorts(){
 	std::list<s_port> ports;
@@ -30,7 +73,10 @@ static std::string defaultRoot(char **env){
 	while (env[i] && !compare(env[i], "PWD=")){
 		i++;
 	}
-	return env[i] + 4;
+	if (!env[i])
+		return ("/var/www/");
+	std::string test = (env[i] + 4);
+	return test + '/';
 }
 
 static std::vector<bool> defaultMethods(){
@@ -120,7 +166,7 @@ bool Server::getCGI()	const{
 	return _cgi;
 }
 
-uint32_t Server::getMaxBody()	const{
+uint64_t Server::getMaxBody()	const{
 	return _maxBody;
 }
 
@@ -140,6 +186,27 @@ void Server::clearPort(){
 	_ports.clear();
 }
 
+void Server::clearName(){
+	// _name = "";
+}
+
+void Server::clearRoot(){
+	// _root = "";
+}
+
+void Server::clearMethods(){
+	for (int i = GET; i <= TRACE; i++)
+		_methods[i] = false;
+}
+
+void Server::clearCGI(){
+	// _cgi = false;
+}
+
+void Server::clearMaxBody(){
+	// _maxBody = 200;
+}
+
 void Server::clearEPage(){
 	_errorPages.clear();
 }
@@ -148,9 +215,15 @@ void Server::clearIndex(){
 	_index.clear();
 }
 
-void Server::clearMethods(){
-	for (int i = GET; i <= TRACE; i++)
-		_methods[i] = false;
+void Server::clearAutoIndex(){
+	// _autoIndex = false;
+}
+
+void Server::clearData(int index){
+	void (Server::*ptr[9])(void) = 
+		{&Server::clearPort, &Server::clearName, &Server::clearRoot, &Server::clearMethods, &Server::clearCGI,
+		&Server::clearMaxBody, &Server::clearEPage, &Server::clearIndex, &Server::clearAutoIndex};
+	(this->*ptr[index])();
 }
 
 void Server::setPort(s_port port){
@@ -162,7 +235,7 @@ void Server::setName(std::string name){
 }
 
 void Server::setRoot(std::string root){
-
+	_root = root;
 }
 
 void Server::setMethod(int method, bool value){
@@ -173,7 +246,7 @@ void Server::setCGI(bool CGI){
 	_cgi = CGI;
 }
 
-void Server::setMaxBody(uint32_t body){
+void Server::setMaxBody(uint64_t body){
 	_maxBody = body;
 }
 
@@ -209,14 +282,14 @@ std::ostream & operator<< (std::ostream &out, const Server& src){
 	}
 	out << std::endl;
 	out << "cgi\t" << boolstring(src.getCGI()) << std::endl;
-	out << "max_body\t" << src.getMaxBody() << "bytes" << std::endl;
+	out << "max_body\t" << src.getMaxBody() << " bytes" << std::endl;
 	for (s_ePage ePage : src.getErrorPages()){
 		out << "Error\t" << ePage.err << "\t" << ePage.url << std::endl;
 	}
 	for (std::string index : src.getIndex()){
 		out << "Index\t" << index << std::endl;
 	}
-	out << "auto Index\t" << boolstring(src.getAutoIndex());
+	out << "auto Index\t" << boolstring(src.getAutoIndex()) << std::endl;
 	
 	return out;
 }
