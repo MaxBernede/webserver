@@ -17,7 +17,7 @@ std::string read_html_file(const std::string &filename) {
 
     if (!file.is_open()){
         std::cout << "Error: Impossible to open the file " << file_path << std::endl;
-        return "HTTP/1.1 404 Not Found";
+        // return "HTTP/1.1 404 Not Found";
         return read_html_file("error.html");
     }
 
