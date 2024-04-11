@@ -7,6 +7,9 @@
 #include<fstream>
 #include<exception>
 
+//test sleep
+#include <thread>
+#include <chrono>
 
 
 std::string findKey(std::string str){
@@ -73,9 +76,9 @@ int main(int argc, char** argv, char** env) {
 		Server def(env);
 		server.push_front(def);
 	}
-	for (Server i : server){
-		std::cout << i << std::endl;
-	}
+	// for (Server i : server){
+	// 	std::cout << i << std::endl;
+	// }
 
 
     //!START OF MY BASE WORK
@@ -115,7 +118,10 @@ int main(int argc, char** argv, char** env) {
         }
 
         Response response(client_fd);
-        std::cout << "Client connected" << std::endl;
+        std::cout << "Client connected: " << client_fd << std::endl;
+		std::cout << "Sleeping for 10 seconds..." << std::endl;
+		std::this_thread::sleep_for(std::chrono::seconds(10));
+		std::cout << "Awake after 10 seconds!" << std::endl;
         // Handle the request from the client
         response.handle_request();
 
