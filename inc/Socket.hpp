@@ -14,18 +14,18 @@
 class Socket
 {
 	private:
-		int	_fd;
-		std::string _addr;
+		int fd;
+		struct addrinfo *serv_addr;
 
 	public:
-		Socket();
-		~Socket();
+		Socket(uint16_t port);
+		~Socket(void);
 
 		Socket &operator=(Socket &other) noexcept;
 
-		void bind(uint16_t port) const;
+		void bind( void ) const;
 		void listen(int backlog) const;
-		Socket accept() const;
+		int accept() const;
 
 		int	getFd( void );
 		std::string &getAddr( void );
