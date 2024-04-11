@@ -25,6 +25,7 @@ class Request {
 		std::string _request;
 		int			_type;
 		std::string	_host;
+		uint32_t	_size;
 };
 
 std::ostream & operator<< (std::ostream &out, const Request& src);

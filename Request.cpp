@@ -20,8 +20,12 @@ Request::Request(int fd){
 			_type = k;
 	}
 	size_t l = request.find("Host: ") + 6;
-	size_t m = request.find("\n", l);
-	_host = request.substr(l, m - l);
+	_host = request.substr(l, request.find("\n", l) - l);
+	size_t n = request.find("Content-Length: ");
+	if (n != std::string::npos){
+		temp = request.substr((n + 16), request.find("\n", n) - n);
+		_size = std::stol(temp);
+	}
 }
 
 Request::Request(std::string request){
