@@ -62,8 +62,9 @@ Server	pushBlock(std::list<std::string> block, char **env){
 
 int main(int argc, char** argv, char** env) {
 
-    //!KOEN WORK 
+	//!KOEN WORK 
 	std::list<Server> server;
+
 	try{
 		if (argc != 2)
 			throw invalidFile();

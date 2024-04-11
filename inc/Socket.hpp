@@ -28,6 +28,4 @@ class Socket
 		int accept() const;
 
 		int	getFd( void );
-		std::string &getAddr( void );
 };
-

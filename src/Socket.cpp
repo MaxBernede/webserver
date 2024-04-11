@@ -105,7 +105,6 @@ int Socket::accept() const
 	return (acc_fd);
 }
 
-
 // Getters
 
 int	Socket::getFd( void )
