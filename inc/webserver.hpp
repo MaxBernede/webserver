@@ -19,3 +19,5 @@
 #include "utils.hpp"
 #include "response.hpp"
 #include "signal.hpp"
+#include "server.hpp"
+#include "config.hpp"

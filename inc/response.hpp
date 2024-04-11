@@ -1,5 +1,6 @@
 #pragma once
 
+#include "webserver.hpp"
 
 class Response {
 	public:
