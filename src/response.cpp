@@ -44,7 +44,10 @@ void Response::handle_request() {
     }
 
 	html_file = parse_buffer(buffer);
-    response_text = read_html_file(html_file);
+    if (html_file == "error.html")
+        response_text = "HTTP/1.1 404 Not Found";
+    else
+        response_text = read_html_file(html_file);
 
     r_send();
 }

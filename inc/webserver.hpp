@@ -9,8 +9,13 @@
 #include <sstream>
 #include <fstream>
 
+//for the signal
+#include <iostream>
+#include <csignal>
+
 #define MIN_PORT 8000
 #define MAX_PORT 8100
 
 #include "utils.hpp"
 #include "response.hpp"
+#include "signal.hpp"

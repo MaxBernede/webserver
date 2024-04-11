@@ -1,7 +1,6 @@
 #include "../inc/webserver.hpp"
 
 int main() {
-
     // Create a socket
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == -1) {
@@ -14,7 +13,7 @@ int main() {
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
 	int p = genererPort();
-	std::cout << "Random port generated : " << p << std::endl;
+    std::cout << "http://localhost:" << p << std::endl;
     server_addr.sin_port = htons(p);
 
     // Bind the socket to the specified IP and port
