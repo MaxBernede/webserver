@@ -10,7 +10,6 @@ Transmission Control Protocol (TCP) vs User Datagram Protocal (UDP)
 - UDP is much simpler - it is used in situation where data loss is acceptable like video/audio or where speed is a critical factor like gaming
 - UDP is a connectionless protocol, it does not establish a connection beforehand
 
-
 Sockets
 A way to speak to other programs using standard Unix file descriptors (an int associated with an open file).
 Send() and recv() are like the write() and read() equivalent for sockets... you can also use read() and write(), but the former two offer much greater control over data transmission.
@@ -34,6 +33,12 @@ Also, the value IN6ADDR_ANY_INIT can be used as an initializer when the struct i
 struct in6_addr ia6 = IN6ADDR_ANY_INIT;
 
 getaddrinfo(const char *restrict node, const char *restrict service. constr struct addrinfo *restrict hints, struct addrinfo **restrict res)
-- node - Internet host
-- service - Internet service
-- return: returns one or more addrinfo structures
+- node - Internet host // e.g. www.example.com or IP
+- service - Internet service // e.g. "http" or port number
+- hints - points to a struct addrinfo that youve already filled out with relevant information
+- return: returns a pointer to linked list res of results
+- it takes care of DNS service name lookups and fills out the struct you need
+
+
+
+
