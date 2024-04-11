@@ -6,7 +6,7 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/03/21 15:45:36 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/04/10 15:10:48 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/04/11 14:14:50 by kposthum      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,8 +237,9 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 
 int main(int argc, char** argv, char** env){
 	std::list<Server> server;
-	(void)argc;
 	try{
+		if (argc != 2)
+			throw invalidFile();
 		std::ifstream conf(argv[1], std::ios::in);
 		if (!conf.is_open())
 			throw invalidFile();
