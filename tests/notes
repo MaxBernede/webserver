@@ -1,0 +1,39 @@
+Socket(), Bind(), Listen(), Accept()
+
+- In a server socket, you need to bind your coekts to a port. You need to bind to a port so that clients know where to communicate with you.
+- In a client socket, the local address and port is normally not of important, so no need to expicility call bind(). This is already done under the hood (i.e. connect() does an implicit bind("0,0,0,0", 0)).
+
+Transmission Control Protocol (TCP) vs User Datagram Protocal (UDP)
+- TCP is reliable and is used for everything from surfing the web (HTTP), sending emails (SMTP), transferring files (FTP)
+- TCP is a connection oriented protocol, i.e. it establishes a connection between two devices before transferrig data and maintains conection throughout the transfer process.
+- TCP establishes connection using a three-way handshake, then the server can send the data the client is asking for by breaking it down into small packets before sending them over the internet. The packets are then reassembed on the other end.
+- UDP is much simpler - it is used in situation where data loss is acceptable like video/audio or where speed is a critical factor like gaming
+- UDP is a connectionless protocol, it does not establish a connection beforehand
+
+
+Sockets
+A way to speak to other programs using standard Unix file descriptors (an int associated with an open file).
+Send() and recv() are like the write() and read() equivalent for sockets... you can also use read() and write(), but the former two offer much greater control over data transmission.
+There are different types of sockets, two of which are stream sockets (SOCK_STREAM) and datagram sockets (SOCK_DGRAM). Datagram sockets are sometimes called connectionless sockets.
+Stream sockets are reliable two way connected communication streams (HTTP uses this). Stream sockets use TCP - which ensures your data arrives sequentially and error-free)
+
+IPv4 to IPv6 --> how to easily get it working for the latter
+1. getaddrinfo() to get the struct aockaddr info instead of filling it in by hand keeps the IP version agnostic and will eliminate many of the subsequet steps
+2. any place where you are hard coding anything related tot he IP version, try to wrap it in a helper function
+3. Change AF_INET to AF_INET6 / PF_INET to PF_INET6
+4. Change INADDR_ANY assignments to in6addr_any assignments, which are slightly different:
+
+struct sockaddr_in sa;
+struct sockaddr_in6 sa6;
+
+sa.sin_addr.s_addr = INADDR_ANY;  // use my IPv4 address
+sa6.sin6_addr = in6addr_any; // use my IPv6 address
+
+Also, the value IN6ADDR_ANY_INIT can be used as an initializer when the struct in6_addr is declared, like so:
+
+struct in6_addr ia6 = IN6ADDR_ANY_INIT;
+
+getaddrinfo(const char *restrict node, const char *restrict service. constr struct addrinfo *restrict hints, struct addrinfo **restrict res)
+- node - Internet host
+- service - Internet service
+- return: returns one or more addrinfo structures
