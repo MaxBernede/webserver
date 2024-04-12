@@ -60,9 +60,10 @@ Server	pushBlock(std::list<std::string> block, char **env){
 	return serv;
 }
 
-void serverLoop()
+// Loop to create sockets(), bind() and listen() for a server
+void serverStartLoop(Server *server)
 {
-
+	
 }
 
 // TODO add signal handler to close all fd's when someone presses CTRL C
@@ -90,7 +91,6 @@ int main(int argc, char** argv, char** env) {
 
 	//!START OF MY BASE WORK
 	// Create a socket
-	Socket s(server.port);
 
 	int server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_fd == -1) {

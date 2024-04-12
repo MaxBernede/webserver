@@ -14,7 +14,7 @@
 class Socket
 {
 	private:
-		int fd;
+		int _fd;
 		struct addrinfo *serv_addr;
 
 	public:

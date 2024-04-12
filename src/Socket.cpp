@@ -13,11 +13,11 @@ O_NONBLOCK: makes the socket non-blocking, meaning that socket operations (e.g.,
 O_CLOEXEC: makes the file descriptor close-on-exec, meaning that the socket will be closed automatically when a new executable is loaded using exec() system call.
 IPPROTO_TCP :specifies the protocol to be used, in this case, TCP.
 */
-Socket::Socket(uint16_t port)
+Socket::Socket( void )
 {
 	struct addrinfo *hints;
 	std::string port_str = std::to_string(port);
-	
+
 	memset(&hints, 0, sizeof(hints));
 	hints->ai_family = AF_INET | AF_INET6;
 	hints->ai_socktype = SOCK_STREAM;
@@ -29,11 +29,9 @@ Socket::Socket(uint16_t port)
 	int status = getaddrinfo(NULL, port_str.c_str(), hints, &serv_addr);
 	if(status != 0)
 	{
-		throw(Exception("Error with getaddrinfo() in bind() function", errno));
+		throw(Exception("Error with getaddrinfo()", errno));
 	}
-	// getaddrinfo() returns a list of addrinfo() structs - you need to loop through the linked list	
-	// 3rd parameter, type can also be 0 since this refers to default, and the default for SOCK_STREAM is TCP
-	_fd = socket(serv_addr->ai_family, serv_addr->ai_socktype, serv_addr->ai_protocol);
+	_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (_fd == -1)
 		throw(Exception("failed to open socket", errno));
 }
@@ -72,21 +70,21 @@ send() and close() is used by both the client and server sides
 bind(int sockfd, struct sockaddr *serv_addr, int addrlen)
 sockfd = fd returned by socket() | serv_addr = contains server IP address and port | addrlen = length of the address in bytes
 */
-void Socket::bind( void ) const
+void Socket::bind(void) const
 {
 	addrinfo *i = serv_addr;
-	bool bind = false;
-	
+	bool bind = false;	
 	while (i != NULL)
 	{
 		if (::bind(_fd, serv_addr->ai_addr, serv_addr->ai_addrlen) == 0)
 			bind = true;
 		i = i->ai_next;
 	}
+	
 	if (!bind)
 		throw(Exception("Socket failed to bind", errno));
-}
 
+}
 
 /*
 int accept(int sockfd, struct sockaddr *cli_addr, int addr_len)
@@ -97,9 +95,9 @@ upon error, returns -1 and sets errno to indicate the error
 int Socket::accept() const
 {
 	// save the information about the incoming client connect in the struct below
-	struct sockaddr_in cli_addr = {};
+	struct sockaddr_in *cli_addr = {};
 	socklen_t len = sizeof(sockaddr_in);
-	int acc_fd = accept(_fd, &cli_addr, &len);
+	int acc_fd = ::accept(_fd, (struct sockaddr *)cli_addr, &len);
 	if (acc_fd == -1)
 		throw(Exception("accept() error and returned -1", errno));
 	return (acc_fd);

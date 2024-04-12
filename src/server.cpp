@@ -1,7 +1,5 @@
 #include "../inc/webserver.hpp"
 
-
-
 bool servBlockStart(std::string buf){
 	if (buf.back() != '{')
 		return false;
