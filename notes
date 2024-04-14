@@ -25,7 +25,7 @@ IPv4 to IPv6 --> how to easily get it working for the latter
 struct sockaddr_in sa;
 struct sockaddr_in6 sa6;
 
-sa.sin_addr.s_addr = INADDR_ANY;  // use my IPv4 address
+sa.sin_addr.s_addr = INADDR_ANY;  // use my IPv4 address<F35>
 sa6.sin6_addr = in6addr_any; // use my IPv6 address
 
 Also, the value IN6ADDR_ANY_INIT can be used as an initializer when the struct in6_addr is declared, like so:
@@ -54,5 +54,47 @@ getaddrinfo(const char *restrict node, const char *restrict service. constr stru
 - it takes care of DNS service name lookups and fills out the struct you need
 
 
+Blocking
+block is a techie jargon for sleep...
+so, sleep until some data arrives
 
+function "block" until some data arries, they block as long as data has not yet arrived. One example of a function which 'blocks' is accept().
+When you first create the socket descriptor with socket(), the kernel sets it to blocking, if you dont want a socket to be blocking you have to make a call to fcntl().
 
+By setting a socket to non-blocking, you can effectively “poll” the socket for information. If you try to read from a non-blocking socket and there’s no data there, it’s not allowed to block—it will return -1 and errno will be set to EAGAIN or EWOULDBLOCK
+
+poll() - Synchronous I/O Multiplexing
+- useful for monitoring a bunch of sockets at once, then handle the ones that have data ready
+- poll() asks the OS to do the dirty work and let us know when data is ready to read on which socket
+- we need to have an array of struct pollfds with information about which socekt descriptors we want to monitoring
+
+#include <poll.h>
+int poll(struct pollfd fds[], nfds_t nfds, int timeout);
+
+fds = the array of information (which sockets to monitor for what)
+nfds = is the number of elements in the fds array
+timeout = a timeout in milliseconds
+RETURN VAL = returns the number of elements in the array that have had an event occur
+
+struct pollfd {
+	int fd; // socket description
+	short events; // bitmap of events were interested in
+	short revents; // when poll() returns bitmap of events that occured
+}
+
+epoll API
+- specific to linux
+#include <sys/epoll.h>
+
+int epoll_create(int size);
+int epoll_create1(int flags); -> newer call
+
+-> create an epoll instance
+- both return the file descriptor for the newly created instance of epoll, the parameter can be 0 or epoll_clo_exec (close on exec flag)
+- once you create the epoll instance you can add or from fds from it
+using the following function:
+
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *epoll);
+
+non-blocking io allows a thread to switch between tasks as it is waiting for a process to finish (it doesnt stay and wait and waste time).
+While a request is doing io, the thread is not stuck waiting for the request to finish
