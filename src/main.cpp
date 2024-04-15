@@ -64,8 +64,8 @@ Server	pushBlock(std::list<std::string> block, char **env){
 void serverStartLoop(Server *server)
 {
 	
-}
-
+} 
+ 
 // TODO add signal handler to close all fd's when someone presses CTRL C
 int main(int argc, char** argv, char** env) {
 

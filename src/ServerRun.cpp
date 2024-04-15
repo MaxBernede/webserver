@@ -1,43 +1,53 @@
 #include "ServerRun.hpp"
 #include <sys/socket.h>
 
-ServerRun::ServerRun(const Server &conf) : config(conf)
+ServerRun::ServerRun(std::list<Server> config)
 {
+	std::vector<s_port> listens;
+
+
+	if (config.empty())
+		throw(Exception("No servers defined in the config file", 1));
+	servers = config;
+	// looping over the sever bloacks
+	for (auto server : _servers)
+	{
+		for (auto port : server.ports)
+		{
+			auto portExists = std::find(listens.begin(), listens.end(), port.nmb);
+			if (!portExists == listens.end()) // if the port is not already in the vector
+				listens.push_back(port);
+			// TODO might be nice to add te name of the IP attached to the port as well
+		}
+	}
+	createSockets(listens);
 }
 
 ServerRun::~ServerRun( void ) {}
 
 
-Socket pushSocketListen(uint16_t port_n)
+ServerRun::createSockets(std::vector<s_port> listens)
 {
-	Socket socket_listen (port_n);
-	return (socket_listen);
+	Socket new_socket;
+	for (auto listen : listens)
+	{
+		try
+		{
+			new_socket = new Socket(listen);
+			sockets.push_back(new_socket);
+		}
+		catch (const Exception &e)
+		{
+			std::cout << e.what() << std::endl;
+		}
+	}
+	if (sockets.empty())
+		throw(Exception("no available port on the defined host", 1));
+
 }
 
 // Loop to create sockets(), bind() and listen() for each server
 void ServerRun::serverRunLoop(Server *server)
 {
-	std::list<Socket> sockets;
-	std::list<s_port> ports = config.getPorts();
-
-	// creating Socket objects
-	for (s_port port: ports)
-	{
-		uint16_t port_no = port.nmb;
-		sockets.push_back(pushSockets(port_no));
-	}
-
-	for (Socket s: sockets)
-	{
-		s.bind();
-		s.listen();
-	}
-
-	// next up, needs to accept connections
-	while (true)
-	{
-	}
-
-	// once accept_fd is ready, we need to prepare the response
-
+	// create epoll queue...
 }

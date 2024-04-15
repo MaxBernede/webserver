@@ -13,27 +13,45 @@ O_NONBLOCK: makes the socket non-blocking, meaning that socket operations (e.g.,
 O_CLOEXEC: makes the file descriptor close-on-exec, meaning that the socket will be closed automatically when a new executable is loaded using exec() system call.
 IPPROTO_TCP :specifies the protocol to be used, in this case, TCP.
 */
-Socket::Socket( void )
+Socket::Socket(s_port port)
 {
-	struct addrinfo *hints;
-	std::string port_str = std::to_string(port);
+	struct addrinfo *hint, *res, *tmp;
+	std::string port_str = std::to_string(port.nmb);
 
 	memset(&hints, 0, sizeof(hints));
-	hints->ai_family = AF_INET | AF_INET6;
-	hints->ai_socktype = SOCK_STREAM;
+	hints->ai_family = AF_UNSPEC;
+	hints->ai_socktype = 0;
 	hints->ai_protocol = IPPROTO_TCP;
-	// setting ai_flags to AI_PASSIVE (together with node = NULL) as this returns a socket address suitable for bind() that will accept connections
-	// the returned socket address will contain the wildcard address which is used by applications that intend to accept connections. If node (when calling getaddrinfo()) is not NULL, then AI_PASSIVE is ignored
 	hints->ai_flags = AI_PASSIVE; // fills in your local host ip for you, saves you from having to hard code it
-	// instead of NULL as the first parameter, you can hard code an ip value
-	int status = getaddrinfo(NULL, port_str.c_str(), hints, &serv_addr);
+	
+	int status = getaddrinfo(NULL, port_str.c_str(), hints, &res);
+	bool bound = false;
 	if(status != 0)
 	{
 		throw(Exception("Error with getaddrinfo()", errno));
 	}
-	_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (_fd == -1)
-		throw(Exception("failed to open socket", errno));
+	for (tmp = hints; tmp != nullptr; tmp = tmp->ai_next)
+	{
+		_fd = socket(tmp->ai_family, tmp->ai_socktype, tmp->ai_protocol);
+		if (_fd == -1)
+			continue ; //move to the next iteration of the loop
+		//throw(Exception("failed to open socket", errno));
+		fcntl(_fd, F_SETFL, O_NONBLOCK);
+		if (bind(_fd, res->ai_addr, res->ai_addrlen) == 0)
+		{
+			bound = true;
+			break ;
+		}
+		close(_fd);
+	}
+	freeaddrinfo(res);
+	if (!bound)
+		throw(Exception("Socket failed to bind", errno));
+	if (listen(_fd, SOMAXCONN))
+	{
+		close(_fd);
+		std::cout << "listening failed on socketfd " << _fd << " on port " << port.nmb << ", type " << port.type << std::endl; 
+	}
 }
 	
 Socket::~Socket()
@@ -50,41 +68,9 @@ Socket &Socket::operator=(Socket &other) noexcept
 	return (*this);
 }
 
-/*
-:: tells the compiler to look for the instance of listen in the global namespace rather than in the current namespace/class/scope
-backlog is passed from when RunServer object creates an instance of a Socket (value is SOMAXCONN = largest value possible = 128, if a larger value is used, it is truncated to this value)
-listen(int fd, int backlog) marks the socket referred to by sopckfd, as a socket that will be used to accept incoming connetion requests using accept
-the parameter fd refers to the fd returned by by socket() of type SOCK_STREAM or SOCK_SEQPACKET
-on success, listen returns 0, else it returns -1 and sets errno
-*/
-void Socket::listen(int backlog) const 
-{
-	if (::listen(_fd, backlog) == -1)
-		throw(Exception("failed to listen", errno));
-}
 
-/*
-bind the socket to an IP and port (i think the port number comes from the config file)
-client calls connect() while server calls bind(), listen(), accept()
-send() and close() is used by both the client and server sides
-bind(int sockfd, struct sockaddr *serv_addr, int addrlen)
-sockfd = fd returned by socket() | serv_addr = contains server IP address and port | addrlen = length of the address in bytes
-*/
-void Socket::bind(void) const
-{
-	addrinfo *i = serv_addr;
-	bool bind = false;	
-	while (i != NULL)
-	{
-		if (::bind(_fd, serv_addr->ai_addr, serv_addr->ai_addrlen) == 0)
-			bind = true;
-		i = i->ai_next;
-	}
-	
-	if (!bind)
-		throw(Exception("Socket failed to bind", errno));
+ServerBlock-> distinctports -> create SocketforEach
 
-}
 
 /*
 int accept(int sockfd, struct sockaddr *cli_addr, int addr_len)

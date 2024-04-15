@@ -7,7 +7,9 @@
 class ServerRun {
 
 	private:
-		const Server config;
+		std::list<Server> _servers;
+		std::list<Socket> sockets;
+		struct epoll events;
 
 	public:
 		ServerRun(const Server &config);
@@ -15,4 +17,5 @@ class ServerRun {
 
 
 	void serverRunLoop(Server *server);
+	void createSockets(std::vector <s_port> listens);
 }

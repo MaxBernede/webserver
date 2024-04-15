@@ -15,16 +15,14 @@ class Socket
 {
 	private:
 		int _fd;
-		struct addrinfo *serv_addr;
+		std::string hostName
 
 	public:
-		Socket(uint16_t port);
+		Socket(s_port port);
 		~Socket(void);
 
 		Socket &operator=(Socket &other) noexcept;
 
-		void bind( void ) const;
-		void listen(int backlog) const;
 		int accept() const;
 
 		int	getFd( void );
