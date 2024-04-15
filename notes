@@ -41,8 +41,6 @@ sockfd: socket file descriptor
 backlog: the number of connections allowed on the incoming queue
 
 int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
-sockfd: socket fd
-addr: pointer to the local struct sockaddr_storage where the information about the incoming connection will go
 
 getaddrinfo(const char *restrict node, const char *restrict service. constr struct addrinfo *restrict hints, struct addrinfo **restrict res)
 - node - Internet host // e.g. www.example.com or IP
@@ -54,5 +52,27 @@ getaddrinfo(const char *restrict node, const char *restrict service. constr stru
 - it takes care of DNS service name lookups and fills out the struct you need
 
 
+  for (i=0;i<5;i++) 
+  {
+    static struct epoll_event ev;
+    memset(&client, 0, sizeof (client));
+    addrlen = sizeof(client);
+    ev.data.fd = accept(sockfd,(struct sockaddr*)&client, &addrlen);
+    ev.events = EPOLLIN;
+    epoll_ctl(epfd, EPOLL_CTL_ADD, ev.data.fd, &ev); 
+  }
+  
+  while(1){
+  	puts("round again");
+  	nfds = epoll_wait(epfd, events, 5, 10000);
+	
+	for(i=0;i<nfds;i++) {
+			memset(buffer,0,MAXBUF);
+			read(events[i].data.fd, buffer, MAXBUF);
+			puts(buffer);
+	}
+  }
+
+  --> accepting connection to epoll...
 
 
