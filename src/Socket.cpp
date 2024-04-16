@@ -69,25 +69,12 @@ Socket &Socket::operator=(Socket &other) noexcept
 }
 
 
-ServerBlock-> distinctports -> create SocketforEach
-
-
 /*
 int accept(int sockfd, struct sockaddr *cli_addr, int addr_len)
 accept new connections from new clients
 upon success, the accept() function returns a fd for the accepted socket (a non-negative integer)
 upon error, returns -1 and sets errno to indicate the error 
 */
-int Socket::accept() const
-{
-	// save the information about the incoming client connect in the struct below
-	struct sockaddr_in *cli_addr = {};
-	socklen_t len = sizeof(sockaddr_in);
-	int acc_fd = ::accept(_fd, (struct sockaddr *)cli_addr, &len);
-	if (acc_fd == -1)
-		throw(Exception("accept() error and returned -1", errno));
-	return (acc_fd);
-}
 
 // Getters
 

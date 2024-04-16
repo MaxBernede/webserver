@@ -3,7 +3,6 @@
 EpollQueue::EpollQueue( void )
 {
 	// create an epoll instance with epoll_create1();
-	_epoll_fd = epoll_create1()
 }
 
 EpollQueue::~EpollQueue( void )

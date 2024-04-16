@@ -1,8 +1,5 @@
 #pragma once
 
-#include "server.hpp"
-#include "webserver.hpp"
-
 class EpollQueue {
 	private:
 		int _epoll_fd;
@@ -12,6 +9,6 @@ class EpollQueue {
 		~EpollQueue( void );
 
 		void add(int fd);
-		void remove(int) fd;
+		void remove(int);
 		void wait();
 };

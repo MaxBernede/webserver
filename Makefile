@@ -14,10 +14,10 @@ OBJ		:= $(addprefix $(OBJ_DIR)/,$(notdir $(SRC:.cpp=.o)))
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CXX) $(CXXFLAGS) $^ -o $(NAME)
+	$(CXX) $(CXXFLAGS) -Iinc $^ -o $(NAME)
 
 $(OBJ_DIR)/%.o: src/%.cpp $(INC) | $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -Iinc -c $< -o $@
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)

@@ -15,15 +15,13 @@ class Socket
 {
 	private:
 		int _fd;
-		std::string hostName
+		std::string hostName;
 
 	public:
 		Socket(s_port port);
 		~Socket(void);
 
 		Socket &operator=(Socket &other) noexcept;
-
-		int accept() const;
 
 		int	getFd( void );
 };
