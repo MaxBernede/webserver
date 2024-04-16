@@ -91,10 +91,33 @@ int epoll_create1(int flags); -> newer call
 
 -> create an epoll instance
 - both return the file descriptor for the newly created instance of epoll, the parameter can be 0 or epoll_clo_exec (close on exec flag)
+- generates an epoll instance data structure and returns a file descriptor. the particular descriptor is the handle to the epoll instance, and the two interfaces that follow center on it (the epfd)
 - once you create the epoll instance you can add or from fds from it
 using the following function:
 
 int epoll_ctl(int epfd, int op, int fd, struct epoll_event *epoll);
+- manages the structure
+- op = describes the type of the operation
+	EPOLL_CTL_ADD (adds a descriptor to the interest list that needs to be monitored)
+	EPOLL_CTL_DEL (removes a descriptor from the interest list)
+	EPOLL_CTL_MOD (modify a descriptor in the interest list)
+	
+- struct epoll_event describes the epoll behaviour of a file descriptor when using the epoll_wait function to return a list of descriptors in the ready state
+
+
+typedef union epoll_data {
+    void *ptr;
+	int fd;
+	uint32_t u32; /* 32-bit integer */
+    uint64_t u64; /* 64-bit integer */
+} epoll_data_t;
+
+struct epoll_event {
+    uint32_t events;
+    epoll_data_t data;
+};
 
 non-blocking io allows a thread to switch between tasks as it is waiting for a process to finish (it doesnt stay and wait and waste time).
 While a request is doing io, the thread is not stuck waiting for the request to finish
+
+
