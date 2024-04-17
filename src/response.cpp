@@ -20,7 +20,7 @@ std::string Response::parse_buffer(std::string buffer){
         else
             next_word = buffer.substr(next_pos);
 
-        std::cout << "Next word after 'GET': " << next_word << std::endl;
+        // std::cout << "Next word after 'GET': " << next_word << std::endl;
 		if (next_word == "/" || endsWith(buffer, ".html"))
 		{
 			//std::cout << "return index.html" << std::endl;
@@ -28,8 +28,8 @@ std::string Response::parse_buffer(std::string buffer){
 		}
 		return next_word;
     } 
-	else
-        std::cout << "Keyword 'GET' not found" << std::endl;
+	// else
+    //     std::cout << "Keyword 'GET' not found" << std::endl;
 	return "error.html";
 }
 
@@ -37,12 +37,12 @@ std::string Response::parse_buffer(std::string buffer){
 //read the HTML and return it as a string
 void Response::handle_request() {
     char buffer[1024];
-    std::cout << client_fd;
+    // std::cout << client_fd;
     if (read(client_fd, buffer, sizeof(buffer)) < 0){
         std::cerr << "Error reading request" << std::endl;
         return;
     }
-
+    std::cout << buffer << std::endl;
 	html_file = parse_buffer(buffer);
     response_text = read_html_file(html_file);
 
@@ -50,7 +50,7 @@ void Response::handle_request() {
 }
 
 void Response::r_send(){
-    std::cout << "Message to send : " << response_text << std::endl;
+    // std::cout << "Message to send : " << response_text << std::endl;
     if (send(client_fd, response_text.c_str(), response_text.length(), 0) == -1) {
         std::cerr << "Error sending response" << std::endl;
     }
@@ -58,10 +58,10 @@ void Response::r_send(){
 
 //!Constructors
 Response::Response(){
-    std::cout << "Default constructor Response" << std::endl;
+    // std::cout << "Default constructor Response" << std::endl;
 }
 Response::Response(int fd){
-    std::cout << "Constructor Response" << std::endl;
+    // std::cout << "Constructor Response" << std::endl;
     client_fd = fd;
 }
 //!Getters

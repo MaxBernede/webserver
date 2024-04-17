@@ -38,7 +38,7 @@ int main() {
         }
 
         Response response(client_fd);
-        std::cout << "Client connected" << std::endl;
+        // std::cout << "Client connected" << std::endl;
         // Handle the request from the client
         response.handle_request();
 
