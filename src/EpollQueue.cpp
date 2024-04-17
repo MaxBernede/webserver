@@ -19,11 +19,6 @@ void EpollQueue::remove(int fd)
 	// epol_ctl(DEL)
 }
 
-void EpollQueue::modify(int fd)
-{
-	//epoll_ctl(MOD)
-}
-
 void EpollQueue::wait()
 {
 }

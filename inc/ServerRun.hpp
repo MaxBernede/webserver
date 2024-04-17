@@ -3,14 +3,7 @@
 #include <iostream>
 #include "webserver.hpp"
 
-enum
-{
-	LISTENER,
-	CLIENT_CONNECTION,
-}
-
 // For each server, you need a different listening socket for each port....
-
 enum pollType
 {
 	LISTENER,
@@ -36,7 +29,7 @@ class ServerRun
 		~ServerRun( void );
 
 	void serverRunLoop( void );
-	void createListenerSockets(std::vector <s_port> listens);
+	void createListenerSockets(std::vector <int> listens);
 	void addQueue(pollType type, int fd);
 	void dataIn(s_poll_data pollData, struct pollfd pollFd, int idx); // read from client
 	

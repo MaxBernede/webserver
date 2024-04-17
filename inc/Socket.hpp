@@ -14,10 +14,10 @@ class Socket
 {
 	private:
 		int _fd;
-		enum _type;
+		int _type;
 
 	public:
-		Socket(s_port port);
+		Socket(int port);
 		~Socket(void);
 
 		Socket &operator=(Socket &other) noexcept;

@@ -3,7 +3,7 @@
 
 ServerRun::ServerRun(const std::list<Server> config)
 {
-	std::vector<s_port> listens;
+	std::vector<int> listens;
 
 
 	if (config.empty())
@@ -16,7 +16,7 @@ ServerRun::ServerRun(const std::list<Server> config)
 		{
 			auto portExists = std::find(listens.begin(), listens.end(), port.nmb);
 			if (portExists == listens.end()) // if the port is not already in the vector
-				listens.push_back(port);
+				listens.push_back(port.nmb);
 			// TODO might be nice to add te name of the IP attached to the port as well
 		}
 	}
@@ -34,7 +34,7 @@ ServerRun::~ServerRun( void )
 	}
 }
 
-void ServerRun::createListenerSockets(std::vector<s_port> listens)
+void ServerRun::createListenerSockets(std::vector<int> listens)
 {
 	Socket *new_socket;
 	for (auto listen : listens)
@@ -115,7 +115,7 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	struct sockaddr_in *cli_addr = {};
 	socklen_t len = sizeof(sockaddr_in);
 
-	int connFd = accept(listenerFd, (struct sockaddr *)cli_addr, &len);
+	connFd = accept(listenerFd, (struct sockaddr *)cli_addr, &len);
 	if (connFd == -1)
 		throw(Exception("accept() errored and returned -1", errno));
 	addQueue(CLIENT_CONNECTION, connFd);
@@ -142,7 +142,7 @@ void ServerRun::removeConnection(int idx)
 		i++;
 	}
 
-	int i = 0;
+	i = 0;
 	for (auto itFd = _pollFds.begin(); itFd != _pollFds.end(); itFd++)
 	{
 		if (i == idx)

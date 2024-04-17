@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <string>
 #include <sys/socket.h>
 #include <sys/poll.h>
@@ -9,6 +8,15 @@
 #include <cstring>
 #include <sstream>
 #include <fstream>
+
+#include <cstdint>
+#include <netdb.h>
+#include <netinet/in.h>
+
+// for containers
+#include <vector>
+#include <list>
+#include <algorithm>
 
 //for the signal
 #include <iostream>
