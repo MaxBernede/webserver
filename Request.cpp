@@ -19,6 +19,7 @@ static std::list<std::string> makeRequest(std::string str){
 	return request;
 }
 
+// dont use this one, since read always has to go through poll() first
 Request::Request(int fd){
 
 	char buffer[1024];
@@ -106,7 +107,7 @@ std::ostream & operator<< (std::ostream &out, const Request& src){
 }
 
 int main(){
-	int fd = open("test", O_RDONLY);
+	int fd = open("request", O_RDONLY);
 	Request test(fd);
 
 	std::cout << test << std::endl;

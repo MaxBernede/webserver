@@ -36,6 +36,8 @@ std::string Response::parse_buffer(std::string buffer){
 //Read from the FD and fill the buffer with a max of 1024, then get the html out of it
 //read the HTML and return it as a string
 void Response::handle_request() {
+	// size of buffer should be around max body size (as defined in template) + around 500
+	// more is not necessary, since requests exceeding this amount (see Conent-Length in the browser request) should be denied
     char buffer[200000];
     // std::cout << client_fd;
 	int i = read(client_fd, buffer, (sizeof(buffer) - 1));
