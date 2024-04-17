@@ -1,0 +1,367 @@
+Random port generated : 8052
+464
+GET / HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+DNT: 1
+Sec-GPC: 1
+
+
+401
+GET /favicon.ico HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: image/avif,image/webp,*/*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Referer: http://localhost:8052/
+Sec-Fetch-Dest: image
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Site: same-origin
+DNT: 1
+Sec-GPC: 1
+
+
+Error: Impossible to open the file html//favicon.ico
+514
+GET /page3.html HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Referer: http://localhost:8052/
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+DNT: 1
+Sec-GPC: 1
+
+
+1886
+POST /page1.html HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: multipart/form-data; boundary=---------------------------2632385478426587653598649191
+Content-Length: 1207
+Origin: http://localhost:8052
+Connection: keep-alive
+Referer: http://localhost:8052/page3.html
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+DNT: 1
+Sec-GPC: 1
+
+-----------------------------2632385478426587653598649191
+Content-Disposition: form-data; name="i"; filename="main.cpp"
+Content-Type: text/x-c++src
+
+#include <iostream>
+#include <Array.hpp>
+
+#define MAX_VAL 750
+int main(int, char**)
+{
+    Array<int> numbers(MAX_VAL);
+    int* mirror = new int[MAX_VAL];
+    srand(time(NULL));
+    for (int i = 0; i < MAX_VAL; i++)
+    {
+        const int value = rand();
+        numbers[i] = value;
+        mirror[i] = value;
+    }
+    //SCOPE
+    {
+        Array<int> tmp = numbers;
+        Array<int> test(tmp);
+    }
+
+    for (int i = 0; i < MAX_VAL; i++)
+    {
+        if (mirror[i] != numbers[i])
+        {
+            std::cerr << "didn't save the same value!!" << std::endl;
+            return 1;
+        }
+    }
+    try
+    {
+        numbers[-2] = 0;
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    try
+    {
+        numbers[MAX_VAL] = 0;
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+
+    for (int i = 0; i < MAX_VAL; i++)
+    {
+        numbers[i] = rand();
+    }
+    delete [] mirror;//
+    return 0;
+}
+-----------------------------2632385478426587653598649191--
+
+524
+GET /index.html HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Referer: http://localhost:8052/page1.html
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+DNT: 1
+Sec-GPC: 1
+
+
+524
+GET /page3.html HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Referer: http://localhost:8052/index.html
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+DNT: 1
+Sec-GPC: 1
+
+
+32768
+POST /page1.html HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: multipart/form-data; boundary=---------------------------4073368263751624946428030215
+Content-Length: 76586
+Origin: http://localhost:8052
+Connection: keep-alive
+Referer: http://localhost:8052/page3.html
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+DNT: 1
+Sec-GPC: 1
+
+-----------------------------4073368263751624946428030215
+Content-Disposition: form-data; name="i"; filename="1193041_Uitnodiging_groepsbezichtiging_20240404125850_10_.pdf"
+Content-Type: application/pdf
+
+%PDF-1.5
+4 0 obj
+<</Type /Page/Parent 3 0 R/Contents 5 0 R/MediaBox [0 0 595.34997559 842]/Resources<</Font<</FAAAAI 8 0 R/FAAABB 11 0 R/FAAABE 14 0 R>>/XObject<</X1 6 0 R>>>>/Group <</Type/Group/S/Transparency/CS/DeviceRGB>>>>
+endobj
+5 0 obj
+<</Length 18 0 R/Filter /FlateDecode>>stream
+xúµXmo€6˛+˜1U‘ªäaE≥f]◊¢oK◊°Ì>–6#3ñHWím ?cøxwGIñci§E7Iî»Áéœ=œ—|¸{.?Y¿¥ÇÔ ¯ôÄ4Ä0ˆ¢ÿ«?iBcÁ¯»á
+‚ Ù¬(œ”8ŒÒAπ˚@/ ≥<œ°OvÃ·3¯0Z'ˆΩƒn˘4ˆ“ÿ¡Í/›ˇqÙ…?^X¸˙√.ŒÙt¸ózAî‚ö"ß°ã+xÚ˚s¸Û
+ÑW◊›õxÓÖ≈(\Ux_¿◊ì’¥
+*eî:='ı©8Å˜∂iÁ+∫≠‰ú˛W¬Â’¬cçÛ<3Zww0^Ö* j&≠øh	œ⁄⁄€jCóÄó5ñ”V+∞Kò)ÿX£Èô)@záµE≈Ø©ÇL‰gê$~øΩ˙≥æôŒØ„—‘/k)ã~v√KŒ4NµÄUóÑÏ Òí •c¬˝ıd•[ZÉrS“$^˙VOÁ≠.¥·…=xEnUˇ_úWRó–¥R∂0∑
+Ê™Öç™≠oîj(mÆm]Izõ√¡*(¨ö¡óˆélUñxmFö%˚[%¸–ã2ä$O∆{uqÒc{ınçπu…'H‰a"Ω4LËÛ‰!úx·ñ8Á5`#emó}˛V˝≈ú3¢Æ[∫)£ï,î™g˝+∫≤Œ„&H˛ôª&ôÅLf÷D“€U‘<bfX7-‚nJ)óY©⁄;V-"J=‰Jûáq¯êËüó%m?-{›#C&0˜∑–≥±2-í÷»ÖæY(€L]ö∂vqüÂ'¸≈Ãu”⁄Z7XÄ	£ö¢ÅÊ£
+U
+¨Ô$|i>m@^7K,∏EèlMñb´]∆ª≤ìÍh ˆ™ÒìÀ¡nZ& Â„Œ˛éÊEÌcyëf&z9Îø‚Ú[í
+32768
+POST /page1.html HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: http://localhost:8052/page3.html
+Content-Type: multipart/form-data; boundary=---------------------------4073368263751624946428030215
+Content-Length: 76586
+Origin: http://localhost:8052
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+DNT: 1
+Sec-GPC: 1
+
+-----------------------------4073368263751624946428030215
+Content-Disposition: form-data; name="i"; filename="1193041_Uitnodiging_groepsbezichtiging_20240404125850_10_.pdf"
+Content-Type: application/pdf
+
+%PDF-1.5
+4 0 obj
+<</Type /Page/Parent 3 0 R/Contents 5 0 R/MediaBox [0 0 595.34997559 842]/Resources<</Font<</FAAAAI 8 0 R/FAAABB 11 0 R/FAAABE 14 0 R>>/XObject<</X1 6 0 R>>>>/Group <</Type/Group/S/Transparency/CS/DeviceRGB>>>>
+endobj
+5 0 obj
+<</Length 18 0 R/Filter /FlateDecode>>stream
+xúµXmo€6˛+˜1U‘ªäaE≥f]◊¢oK◊°Ì>–6#3ñHWím ?cøxwGIñci§E7Iî»Áéœ=œ—|¸{.?Y¿¥ÇÔ ¯ôÄ4Ä0ˆ¢ÿ«?iBcÁ¯»á
+‚ Ù¬(œ”8ŒÒAπ˚@/ ≥<œ°OvÃ·3¯0Z'ˆΩƒn˘4ˆ“ÿ¡Í/›ˇqÙ…?^X¸˙√.ŒÙt¸ózAî‚ö"ß°ã+xÚ˚s¸Û
+ÑW◊›õxÓÖ≈(\Ux_¿◊ì’¥
+*eî:='ı©8Å˜∂iÁ+∫≠‰ú˛W¬Â’¬cçÛ<3Zww0^Ö* j&≠øh	œ⁄⁄€jCóÄó5ñ”V+∞Kò)ÿX£Èô)@záµE≈Ø©ÇL‰gê$~øΩ˙≥æôŒØ„—‘/k)ã~v√KŒ4NµÄUóÑÏ Òí •c¬˝ıd•[ZÉrS“$^˙VOÁ≠.¥·…=xEnUˇ_úWRó–¥R∂0∑
+Ê™Öç™≠oîj(mÆm]Izõ√¡*(¨ö¡óˆélUñxmFö%˚[%¸–ã2ä$O∆{uqÒc{ınçπu…'H‰a"Ω4LËÛ‰!úx·ñ8Á5`#emó}˛V˝≈ú3¢Æ[∫)£ï,î™g˝+∫≤Œ„&H˛ôª&ôÅLf÷D“€U‘<bfX7-‚nJ)óY©⁄;V-"J=‰Jûáq¯êËüó%m?-{›#C&0˜∑–≥±2-í÷»ÖæY(€L]ö∂vqüÂ'¸≈Ãu”⁄Z7XÄ	£ö¢ÅÊ£
+U
+¨Ô$|i>m@^7K,∏EèlMñb´]∆ª≤ìÍh ˆ™ÒìÀ¡nZ& Â„Œ˛éÊEÌcyëf&z9Îø‚Ú[í
+474
+GET /page1.html HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+DNT: 1
+Sec-GPC: 1
+
+
+524
+GET /index.html HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Referer: http://localhost:8052/page1.html
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+DNT: 1
+Sec-GPC: 1
+
+
+524
+GET /page3.html HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Referer: http://localhost:8052/index.html
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+DNT: 1
+Sec-GPC: 1
+
+
+32741
+POST /page1.html HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: multipart/form-data; boundary=---------------------------295919115431945454383663474126
+Content-Length: 76590
+Origin: http://localhost:8052
+Connection: keep-alive
+Referer: http://localhost:8052/page3.html
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+DNT: 1
+Sec-GPC: 1
+
+-----------------------------295919115431945454383663474126
+Content-Disposition: form-data; name="i"; filename="1193041_Uitnodiging_groepsbezichtiging_20240404125850_10_.pdf"
+Content-Type: application/pdf
+
+%PDF-1.5
+4 0 obj
+<</Type /Page/Parent 3 0 R/Contents 5 0 R/MediaBox [0 0 595.34997559 842]/Resources<</Font<</FAAAAI 8 0 R/FAAABB 11 0 R/FAAABE 14 0 R>>/XObject<</X1 6 0 R>>>>/Group <</Type/Group/S/Transparency/CS/DeviceRGB>>>>
+endobj
+5 0 obj
+<</Length 18 0 R/Filter /FlateDecode>>stream
+xúµXmo€6˛+˜1U‘ªäaE≥f]◊¢oK◊°Ì>–6#3ñHWím ?cøxwGIñci§E7Iî»Áéœ=œ—|¸{.?Y¿¥ÇÔ ¯ôÄ4Ä0ˆ¢ÿ«?iBcÁ¯»á
+‚ Ù¬(œ”8ŒÒAπ˚@/ ≥<œ°OvÃ·3¯0Z'ˆΩƒn˘4ˆ“ÿ¡Í/›ˇqÙ…?^X¸˙√.ŒÙt¸ózAî‚ö"ß°ã+xÚ˚s¸Û
+ÑW◊›õxÓÖ≈(\Ux_¿◊ì’¥
+*eî:='ı©8Å˜∂iÁ+∫≠‰ú˛W¬Â’¬cçÛ<3Zww0^Ö* j&≠øh	œ⁄⁄€jCóÄó5ñ”V+∞Kò)ÿX£Èô)@záµE≈Ø©ÇL‰gê$~øΩ˙≥æôŒØ„—‘/k)ã~v√KŒ4NµÄUóÑÏ Òí •c¬˝ıd•[ZÉrS“$^˙VOÁ≠.¥·…=xEnUˇ_úWRó–¥R∂0∑
+Ê™Öç™≠oîj(mÆm]Izõ√¡*(¨ö¡óˆélUñxmFö%˚[%¸–ã2ä$O∆{uqÒc{ınçπu…'H‰a"Ω4LËÛ‰!úx·ñ8Á5`#emó}˛V˝≈ú3¢Æ[∫)£ï,î™g˝+∫≤Œ„&H˛ôª&ôÅLf÷D“€U‘<bfX7-‚nJ)óY©⁄;V-"J=‰Jûáq¯êËüó%m?-{›#C&0˜∑–≥±2-í÷»ÖæY(€L]ö∂vqüÂ'¸≈Ãu”⁄Z7XÄ	£ö¢ÅÊ£
+U
+¨Ô$|i>m@^7K,∏EèlMñb´]∆ª≤ìÍh ˆ™ÒìÀ¡nZ& Â„Œ˛éÊEÌcyëf&z9Îø‚Ú[í
+474
+GET /page1.html HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+DNT: 1
+Sec-GPC: 1
+
+
+524
+GET /index.html HTTP/1.1
+Host: localhost:8052
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Referer: http://localhost:8052/page1.html
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+DNT: 1
+Sec-GPC: 1
+
+

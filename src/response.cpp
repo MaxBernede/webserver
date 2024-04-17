@@ -36,12 +36,15 @@ std::string Response::parse_buffer(std::string buffer){
 //Read from the FD and fill the buffer with a max of 1024, then get the html out of it
 //read the HTML and return it as a string
 void Response::handle_request() {
-    char buffer[1024];
+    char buffer[200000];
     // std::cout << client_fd;
-    if (read(client_fd, buffer, sizeof(buffer)) < 0){
+	int i = read(client_fd, buffer, (sizeof(buffer) - 1));
+    if (i < 0){
         std::cerr << "Error reading request" << std::endl;
         return;
     }
+	std::cout << i << std::endl;
+	buffer[i] = '\0';
     std::cout << buffer << std::endl;
 	html_file = parse_buffer(buffer);
     response_text = read_html_file(html_file);

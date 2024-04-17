@@ -59,6 +59,18 @@ Request::Request(std::string request){
 	size_t l = request.find("Host: ") + 6;
 	size_t m = request.find("\n", l);
 	_host = request.substr(l, m - l);
+	if (_method == POST){
+		l = request.find("Content-Type: ");
+		_contentType = request.substr((l + 14), request.find("\n", l) - (l + 14));
+		l = request.find("Content-Length: ");
+		temp = request.substr((l + 16), request.find("\n", l) - (l + 16));
+		_size = std::stol(temp);
+		temp = _request.back();
+		_content = temp.substr(temp.find('=') + 1, temp.length());
+	}
+	if (_method == DELETE){
+		// do things
+	}
 }
 
 int	Request::getType() const{
