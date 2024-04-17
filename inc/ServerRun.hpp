@@ -3,6 +3,12 @@
 #include <iostream>
 #include "webserver.hpp"
 
+enum
+{
+	LISTENER,
+	CLIENT_CONNECTION,
+}
+
 // For each server, you need a different listening socket for each port....
 
 enum pollType

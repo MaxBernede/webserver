@@ -56,7 +56,6 @@ Socket::Socket(s_port port)
 	
 Socket::~Socket()
 {
-	freeaddrinfo(serv_addr);
 	if (_fd != -1)
 		close(_fd);
 }

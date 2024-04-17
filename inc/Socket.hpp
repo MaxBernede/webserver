@@ -10,12 +10,11 @@
 # include <netinet/in.h>
 # include <cstdint>
 
-// move semantics for allocating values from another class?
 class Socket
 {
 	private:
 		int _fd;
-		std::string hostName;
+		enum _type;
 
 	public:
 		Socket(s_port port);

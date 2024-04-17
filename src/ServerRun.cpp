@@ -34,7 +34,6 @@ ServerRun::~ServerRun( void )
 	}
 }
 
-
 void ServerRun::createListenerSockets(std::vector<s_port> listens)
 {
 	Socket *new_socket;
@@ -68,6 +67,7 @@ void ServerRun::addQueue(pollType type, int fd)
 	newPollItem.pollType = type;
 	_pollFds.push_back(newPollFd);
 	_pollData.push_back(newPollItem);
+		
 }
 
 // Loop to create sockets(), bind() and listen() for each server
@@ -119,6 +119,7 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	if (connFd == -1)
 		throw(Exception("accept() errored and returned -1", errno));
 	addQueue(CLIENT_CONNECTION, connFd);
+
 }
 
 void ServerRun::readRequest(int clientFd)
