@@ -23,7 +23,7 @@ const static std::string methodType[8] = {
 	"CONNECT",
 	"OPTIONS",
 	"TRACE"};
-
+// ENTIRE request size cannot exceed max body size, not just the content-size part.
 class Request {
 	public:
 		Request();
@@ -40,7 +40,7 @@ class Request {
 		int						_method;
 		std::string				_host;
 		std::string				_contentType; // what content are we trying to POST?
-		uint32_t				_size;	//for POST requests, cannot be higher then max body
+		uint32_t				_size;
 		std::string				_content; // the content of the POST request string? maybe something else?
 };
 
