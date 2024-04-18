@@ -13,7 +13,8 @@ enum pollType
 
 typedef struct t_poll_data
 {
-	pollType pollType;	
+	pollType pollType;
+	int serverNum;
 } s_poll_data;
 
 class ServerRun
@@ -30,14 +31,12 @@ class ServerRun
 
 	void serverRunLoop( void );
 	void createListenerSockets(std::vector <int> listens);
-	void addQueue(pollType type, int fd);
-	void dataIn(s_poll_data pollData, struct pollfd pollFd, int idx); // read from client
+	void addQueue(pollType type, int fd, int serverNum);
 	
-	void acceptNewConnection(int listenerFd);
+	void acceptNewConnection(int listenerFd, int serverNum);
 	void readRequest(int clientFd);
 	void removeConnection(int idx);
 
+	void dataIn(s_poll_data pollData, struct pollfd pollFd, int idx); // read from client
 	void dataOut(s_poll_data pollData, struct pollfd pollFd); // write to client
-
-
 };

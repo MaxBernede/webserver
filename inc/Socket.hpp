@@ -15,12 +15,14 @@ class Socket
 	private:
 		int _fd;
 		int _type;
+		int _serverNum
 
 	public:
-		Socket(int port);
+		Socket(int port, int serverNum);
 		~Socket(void);
 
 		Socket &operator=(Socket &other) noexcept;
 
-		int	getFd( void );
+		int	getFd( void ) noexcept;
+		int	getServerNum( void ) noexcept;
 };

@@ -1,7 +1,7 @@
 #include "Socket.hpp"
 #include "webserver.hpp"
 
-Socket::Socket(int port)
+Socket::Socket(int port, int serverNum) : _serverNum(serverNum)
 {
 	struct addrinfo hints, *res, *tmp;
 	std::string port_str = std::to_string(port);
@@ -58,17 +58,14 @@ Socket &Socket::operator=(Socket &other) noexcept
 	return (*this);
 }
 
-
-/*
-int accept(int sockfd, struct sockaddr *cli_addr, int addr_len)
-accept new connections from new clients
-upon success, the accept() function returns a fd for the accepted socket (a non-negative integer)
-upon error, returns -1 and sets errno to indicate the error 
-*/
-
 // Getters
 
 int	Socket::getFd( void )
 {
 	return (_fd);
+}
+
+int	getServerNum( void )
+{
+	return (_serverNum);
 }
