@@ -286,10 +286,10 @@ std::string boolstring(const bool& src){
 
 std::ostream & operator<< (std::ostream &out, const Server& src){
 
-	out << "host\t" << ((getHost() >> 24) & 0xFF) << "."
-	<< ((getHost() >> 16) & 0xFF) << "."
-	<< ((getHost() >> 8) & 0xFF) << "."
-	<< ((getHost()) & 0xFF) << std::endl;
+	out << "host\t" << ((src.getHost() >> 24) & 0xFF) << "."
+	<< ((src.getHost() >> 16) & 0xFF) << "."
+	<< ((src.getHost() >> 8) & 0xFF) << "."
+	<< ((src.getHost()) & 0xFF) << std::endl;
 	for (s_port port : src.getPorts()){
 		out << "port\t" << port.nmb << "\t" << port.type << std::endl;
 	}
