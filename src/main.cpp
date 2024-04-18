@@ -1,13 +1,10 @@
 #include "../inc/webserver.hpp"
 
-
 #include<string>
 #include<iostream>
 #include<iomanip>
 #include<fstream>
 #include<exception>
-
-
 
 std::string findKey(std::string str){
 	if (str.find_first_of("\t\n\v\f\r ") != std::string::npos)
@@ -18,10 +15,10 @@ std::string findKey(std::string str){
 
 Server	pushBlock(std::list<std::string> block, char **env){
 	Server serv(env);
-	void (*ptr[9])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
-		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex};
-	std::string const keys[9] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed",
-		"clientMaxBodySize", "errorPage", "index", "autoIndex"};
+	void (*ptr[10])(std::string, Server&) = {&confHost, &confPort, &confName, &confRoot, &confMethods,
+		&confCGI, &confMaxBody, &confErrorPage, &confIndex, &confAutoIndex};
+	std::string const keys[10] = {"host", "listen", "serverName", "root", "allowedMethods",
+		"cgiAllowed", "clientMaxBodySize", "errorPage", "index", "autoIndex"};
 	bool clear[10] = {false, false, false, false, false,
 		false, false, false, false, false};
 	for (std::string str : block){
@@ -73,10 +70,9 @@ int main(int argc, char** argv, char** env) {
 		Server def(env);
 		server.push_front(def);
 	}
-	for (Server i : server){
-		std::cout << i << std::endl;
-	}
-
+	// for (Server i : server){
+	// 	std::cout << i << std::endl;
+	// }
 
     //!START OF MY BASE WORK
     // Create a socket

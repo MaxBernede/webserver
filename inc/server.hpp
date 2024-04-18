@@ -44,6 +44,7 @@ class Server {
 
 	private:
 		uint32_t				_host;
+		// std::string				_hoststring;
 		std::list<s_port>		_ports;
 		std::string 			_name;
 		std::string 			_root;
@@ -61,6 +62,7 @@ class Server {
 		Server &operator=(const Server &obj);
 
 		uint32_t				getHost()	const;
+		// std::string				getHoststring()	const;
 		std::list<s_port>		getPorts()	const;
 		std::string				getName()	const;
 		std::string				getRoot()	const;
@@ -73,6 +75,7 @@ class Server {
 		bool					getAutoIndex()	const;
 
 		void	setHost(uint32_t host);
+		// void	setHostString(std::string host);
 		void	setPort(s_port port);
 		void	setName(std::string name);
 		void	setRoot(std::string root);
