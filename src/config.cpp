@@ -1,5 +1,45 @@
 #include "../inc/webserver.hpp"
 
+void confHost(std::string value, Server &serv){
+	uint32_t host;
+	size_t temp;
+
+	value.pop_back();
+	if (value == "localhost"){
+		host = (127 << 24 + 0 << 16 + 0 << 8 + 1);
+		serv.setHost(host);
+		return ;
+	}
+	if (value.find_first_not_of("1234567890.") != std::string::npos)
+		throw syntaxError();
+	if ((temp = value.find_first_of(".")) == 0)
+		throw syntaxError();
+	if (stol(value) > 255)
+		throw syntaxError();
+	host = stol(value) << 24;
+	value.erase(0, temp);
+	if ((temp = value.find_first_of(".")) == 0)
+		throw syntaxError();
+	if (stol(value) > 255)
+		throw syntaxError();
+	host += stol(value) << 16;
+	value.erase(0, temp);
+	if ((temp = value.find_first_of(".")) == 0)
+		throw syntaxError();
+	if (stol(value) > 255)
+		throw syntaxError();
+	host += stol(value) << 8;
+	value.erase(0, temp);
+	if ((temp = value.find_first_of(".")) == 0)
+		throw syntaxError();
+	if (stol(value) > 255)
+		throw syntaxError();
+	host += stol(value);
+	serv.setHost(host);
+}
+
+
+// parse num value in case it's wrong?
 void confPort(std::string value, Server &serv){
 	s_port port;
 

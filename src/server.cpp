@@ -44,6 +44,10 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 	return server;
 }
 
+static uint32_t defaultHost(){
+	return (127 << 24 | 0 << 16 | 0 << 8 | 1);
+}
+
 static std::list<s_port> defaultPorts(){
 	std::list<s_port> ports;
 	s_port def;
@@ -67,7 +71,6 @@ static bool compare(std::string s1, std::string s2){
 	return false;
 }
 
-// TODO check if pwd even exist/find alternative?
 static std::string defaultRoot(char **env){
 	int i = 0;
 	while (env[i] && !compare(env[i], "PWD=")){
@@ -111,6 +114,7 @@ static std::list<std::string> defaultIndex(){
 
 //default consructor
 Server::Server(char **env):
+	_host(defaultHost()),
 	_ports(defaultPorts()),
 	_name(defaultName()),
 	_root(defaultRoot(env)),
@@ -140,6 +144,10 @@ Server &Server::operator=(const Server &obj) {
 
 Server::Server(const Server &obj) {
 	*this = obj;
+}
+
+uint32_t Server::getHost()	const{
+	return _host;
 }
 
 std::list<s_port> Server::getPorts()	const{
@@ -180,6 +188,9 @@ std::list<std::string> Server::getIndex()	const{
 
 bool Server::getAutoIndex()	const{
 	return _autoIndex;
+}
+
+void Server::clearHost(){
 }
 
 void Server::clearPort(){
@@ -224,6 +235,10 @@ void Server::clearData(int index){
 		{&Server::clearPort, &Server::clearName, &Server::clearRoot, &Server::clearMethods, &Server::clearCGI,
 		&Server::clearMaxBody, &Server::clearEPage, &Server::clearIndex, &Server::clearAutoIndex};
 	(this->*ptr[index])();
+}
+
+void Server::setHost(uint32_t host){
+	_host = host;
 }
 
 void Server::setPort(s_port port){
@@ -271,6 +286,10 @@ std::string boolstring(const bool& src){
 
 std::ostream & operator<< (std::ostream &out, const Server& src){
 
+	out << "host\t" << ((getHost() >> 24) & 0xFF) << "."
+	<< ((getHost() >> 16) & 0xFF) << "."
+	<< ((getHost() >> 8) & 0xFF) << "."
+	<< ((getHost()) & 0xFF) << std::endl;
 	for (s_port port : src.getPorts()){
 		out << "port\t" << port.nmb << "\t" << port.type << std::endl;
 	}
