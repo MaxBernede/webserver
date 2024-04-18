@@ -20,7 +20,7 @@ public:
 		// Format the error message to include both the original message and the error number
 		static std::string error_message;
 		error_message = _msg;
-		error_message += " - error " + std::to_string(_error_number) + ": " + std::strerror(_error_number) + ")";
+		error_message += " - error " + std::to_string(_error_number) + ": " + std::strerror(_error_number);
 		return error_message.c_str();
 	}
 

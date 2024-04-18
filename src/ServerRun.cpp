@@ -76,6 +76,7 @@ void ServerRun::serverRunLoop( void )
 	// create epoll queue...
 	int nCliCon = -1;
 
+	std::cout << "Entered run loop function" << std::endl;
 	while (true)
 	{
 		
