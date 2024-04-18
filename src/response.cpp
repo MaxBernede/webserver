@@ -24,7 +24,7 @@ std::string Response::parse_buffer(std::string buffer){
 		if (next_word == "/" || endsWith(buffer, ".html"))
 		{
 			//std::cout << "return index.html" << std::endl;
-			return "index.html";
+			return "index1.html";
 		}
 		return next_word;
     } 
