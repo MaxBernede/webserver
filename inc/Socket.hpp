@@ -15,7 +15,7 @@ class Socket
 	private:
 		int _fd;
 		int _type;
-		int _serverNum
+		int _serverNum;
 
 	public:
 		Socket(int port, int serverNum);

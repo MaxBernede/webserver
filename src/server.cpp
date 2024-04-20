@@ -6,9 +6,11 @@ bool servBlockStart(std::string buf){
 	if (buf.find("server") != 0)
 		return false;
 	for (size_t i = 6; i < (buf.size() - 1); i++){
-		if (buf[i] != 32 || (buf[i] < 9 && buf[i] > 13))
+		if (buf[i] != 32 && !(buf[i] >= 9 && buf[i] <= 13))
 			return false;
+		std::cout << "buf size: " << buf.size() << " " << i << std::endl;
 	}
+	std::cout << buf << std::endl;
 	return true;
 }
 
@@ -20,6 +22,7 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 	while (!conf.eof()){
 		std::getline(conf, buf);
 		if (servBlockStart(buf)){
+		std::cout << buf << std::endl;
 			try{
 				while (true){
 					std::getline(conf, buf);

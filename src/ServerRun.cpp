@@ -1,12 +1,13 @@
 #include "ServerRun.hpp"
 #include <utility>
+#include <algorithm>
 #include <sys/socket.h>
 
 ServerRun::ServerRun(const std::list<Server> config)
 {
 	// std::vector<int> listens;
 	// pairing fd and server number
-	std::pair<int, int> listens;
+	std::vector<std::pair<int, int>> listens;
 	int serverNum = 0;
 
 
@@ -18,12 +19,10 @@ ServerRun::ServerRun(const std::list<Server> config)
 	{
 		for (auto port : server.getPorts())
 		{
-			auto portExists = std::find(listens.begin(), listens.end(), port.nmb);
-			if (portExists == listens.end()) // if the port is not already in the vector
-			{
-				listens.first.push_back(port.nmb);
-				listens.second.pushback(serverNum);
-			}
+			std::pair<int, int> new_pair;
+			new_pair.first = port.nmb;
+			new_pair.second = serverNum;
+			listens.push_back(new_pair);
 			// TODO might be nice to add te name of the IP attached to the port as well
 		}
 		serverNum++;
@@ -42,7 +41,7 @@ ServerRun::~ServerRun( void )
 	}
 }
 
-void ServerRun::createListenerSockets(std::pair<int, int> listens)
+void ServerRun::createListenerSockets(std::vector<std::pair<int, int>> listens)
 {
 	Socket *new_socket;
 	for (auto listen : listens)

@@ -30,7 +30,7 @@ class ServerRun
 		~ServerRun( void );
 
 	void serverRunLoop( void );
-	void createListenerSockets(std::vector <int> listens);
+	void createListenerSockets(std::vector<std::pair<int, int>> listens);
 	void addQueue(pollType type, int fd, int serverNum);
 	
 	void acceptNewConnection(int listenerFd, int serverNum);

@@ -4,17 +4,18 @@
 #include <string>
 #include <list>
 #include <vector>
+#include <exception>
 
 class	invalidFile : public std::exception{
 	public:
-		const char	*what() const _GLIBCXX_TXN_SAFE_DYN _GLIBCXX_NOTHROW{
+		const char	*what() const noexcept override {
 			return "Could not open file, resort to default config";
 		}
 };
 
 class	syntaxError : public std::exception{
 	public:
-		const char	*what() const _GLIBCXX_TXN_SAFE_DYN _GLIBCXX_NOTHROW{
+		const char	*what() const noexcept override {
 			return "Syntax error, resort to default config";
 		}
 };

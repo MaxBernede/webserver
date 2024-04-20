@@ -60,12 +60,12 @@ Socket &Socket::operator=(Socket &other) noexcept
 
 // Getters
 
-int	Socket::getFd( void )
+int	Socket::getFd( void ) noexcept
 {
 	return (_fd);
 }
 
-int	getServerNum( void )
+int	Socket::getServerNum( void ) noexcept
 {
 	return (_serverNum);
 }
