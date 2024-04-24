@@ -32,9 +32,5 @@
 #include "config.hpp"
 #include "Socket.hpp"
 #include "ServerRun.hpp"
-#include "EpollQueue.hpp"
-<<<<<<< HEAD
 #include "request.hpp"
 #include "print_colors.hpp"
-=======
->>>>>>> sock_class
