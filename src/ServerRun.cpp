@@ -5,35 +5,24 @@
 
 ServerRun::ServerRun(const std::list<Server> config)
 {
-<<<<<<< Updated upstream
 	// std::vector<int> listens;
 	// pairing fd and server number
 	std::vector<std::pair<int, int>> listens;
 	int serverNum = 0;
-=======
-	std::vector<int> listens;
->>>>>>> Stashed changes
 
 
 	if (config.empty())
 		throw(Exception("No servers defined in the config file", 1));
 	_servers = config;
 	// looping over the sever bloacks
-	std::vector<int>::iterator portExists;
 	for (auto server : _servers)
 	{
 		for (auto port : server.getPorts())
 		{
-<<<<<<< Updated upstream
 			std::pair<int, int> new_pair;
 			new_pair.first = port.nmb;
 			new_pair.second = serverNum;
 			listens.push_back(new_pair);
-=======
-			portExists = std::find(listens.begin(), listens.end(), port.nmb);
-			if (portExists == listens.end()) // if the port is not already in the vector
-				listens.push_back(port);
->>>>>>> Stashed changes
 			// TODO might be nice to add te name of the IP attached to the port as well
 		}
 		serverNum++;
@@ -52,11 +41,7 @@ ServerRun::~ServerRun( void )
 	}
 }
 
-<<<<<<< Updated upstream
 void ServerRun::createListenerSockets(std::vector<std::pair<int, int>> listens)
-=======
-void ServerRun::createListenerSockets(std::vector<int> listens)
->>>>>>> Stashed changes
 {
 	Socket *new_socket;
 	for (auto listen : listens)
@@ -74,7 +59,7 @@ void ServerRun::createListenerSockets(std::vector<int> listens)
 	if (_listenSockets.empty())
 		throw(Exception("No available port on the defined host", 1));
 	// add listener sockets to queue
-	for (int i = 0; i < _listenSockets.size(); i++)
+	for (int i = 0; i < (int)_listenSockets.size(); i++)
 	{
 		addQueue(LISTENER, _listenSockets[i]->getFd(), _listenSockets[i]->getServerNum());
 	}
@@ -109,7 +94,7 @@ void ServerRun::serverRunLoop( void )
 				throw(Exception("Poll failed", errno));
 			continue ;
 		}
-		for (int i = 0; i < _pollFds.size(); i++)
+		for (int i = 0; i < (int)_pollFds.size(); i++)
 		{
 			try
 			{

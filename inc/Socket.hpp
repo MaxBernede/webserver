@@ -14,17 +14,10 @@ class Socket
 {
 	private:
 		int _fd;
-		int _type;
-<<<<<<< Updated upstream
 		int _serverNum;
 
 	public:
 		Socket(int port, int serverNum);
-=======
-
-	public:
-		Socket(int port);
->>>>>>> Stashed changes
 		~Socket(void);
 
 		Socket &operator=(Socket &other) noexcept;

@@ -9,22 +9,15 @@
 #include <sstream>
 #include <fstream>
 
-<<<<<<< Updated upstream
 #include <cstdint>
 #include <netdb.h>
 #include <netinet/in.h>
 
-=======
->>>>>>> Stashed changes
 // for containers
 #include <vector>
 #include <list>
 #include <algorithm>
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 //for the signal
 #include <iostream>
 #include <csignal>
@@ -39,4 +32,3 @@
 #include "config.hpp"
 #include "Socket.hpp"
 #include "ServerRun.hpp"
-#include "EpollQueue.hpp"

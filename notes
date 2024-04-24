@@ -52,7 +52,6 @@ getaddrinfo(const char *restrict node, const char *restrict service. constr stru
 - it takes care of DNS service name lookups and fills out the struct you need
 
 
-<<<<<<< HEAD
   for (i=0;i<5;i++) 
   {
     static struct epoll_event ev;
@@ -75,7 +74,7 @@ getaddrinfo(const char *restrict node, const char *restrict service. constr stru
   }
 
   --> accepting connection to epoll...
-=======
+
 Blocking
 block is a techie jargon for sleep...
 so, sleep until some data arrives
@@ -141,6 +140,9 @@ struct epoll_event {
 
 non-blocking io allows a thread to switch between tasks as it is waiting for a process to finish (it doesnt stay and wait and waste time).
 While a request is doing io, the thread is not stuck waiting for the request to finish
->>>>>>> 9cbb375aebc788911658668fcf7ef44b66351dd8
 
+CGI
+- When a file in a directory is requested, sometimes that file is not sent back. Instead it is executed as a program and the produced output from the program is sent back to your browser to display it;
+- All the CGI Programs to be executed by the HTTP server are kept in a pre-configured directory. This directory is called CGI directory and by convention it is named as /var/www/cgi-bin. By convention CGI files will have extension as .cgi, though they are C++ executable.
+- allows for web pages to not merely be static pages, but inclued dynamic content
 

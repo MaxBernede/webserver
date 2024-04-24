@@ -7,8 +7,8 @@
 class Exception : public std::exception
 {
 private:
-	int _error_number; // Store the error number
 	std::string _msg;
+	int _error_number; // Store the error number
 
 public:
 	// Constructor accepting message and error number

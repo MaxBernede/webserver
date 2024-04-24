@@ -20,8 +20,6 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 	std::string buf;
 	std::list<std::string> block;
 
-	int i = 1;
-
 	while (!conf.eof()){
 		std::getline(conf, buf);
 		if (servBlockStart(buf)){

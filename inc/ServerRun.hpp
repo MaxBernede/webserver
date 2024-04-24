@@ -3,10 +3,6 @@
 #include <iostream>
 #include "webserver.hpp"
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 // For each server, you need a different listening socket for each port....
 enum pollType
 {
@@ -34,14 +30,8 @@ class ServerRun
 		~ServerRun( void );
 
 	void serverRunLoop( void );
-<<<<<<< Updated upstream
 	void createListenerSockets(std::vector<std::pair<int, int>> listens);
 	void addQueue(pollType type, int fd, int serverNum);
-=======
-	void createListenerSockets(std::vector<int> listens);
-	void addQueue(pollType type, int fd);
-	void dataIn(s_poll_data pollData, struct pollfd pollFd, int idx); // read from client
->>>>>>> Stashed changes
 	
 	void acceptNewConnection(int listenerFd, int serverNum);
 	void readRequest(int clientFd);

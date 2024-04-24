@@ -1,22 +1,9 @@
 #include "Socket.hpp"
 #include "webserver.hpp"
 
-<<<<<<< Updated upstream
 Socket::Socket(int port, int serverNum) : _serverNum(serverNum)
 {
 	struct addrinfo hints, *res, *tmp;
-=======
-/*
-AF_INET/AF_INET: specifies address family IPv4/IPv6
-SOCK_STREAM: indicates a TCP socket type
-O_NONBLOCK: makes the socket non-blocking, meaning that socket operations (e.g., read(), write()) won't block the program's execution.
-O_CLOEXEC: makes the file descriptor close-on-exec, meaning that the socket will be closed automatically when a new executable is loaded using exec() system call.
-IPPROTO_TCP :specifies the protocol to be used, in this case, TCP.
-*/
-Socket::Socket(int port)
-{
-	struct addrinfo *hint, *res, *tmp;
->>>>>>> Stashed changes
 	std::string port_str = std::to_string(port);
 
 	memset(&hints, 0, sizeof(hints));
