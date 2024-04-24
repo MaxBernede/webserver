@@ -1,14 +1,36 @@
 #include "../inc/webserver.hpp"
 #include "../inc/response.hpp"
 
+#define BUFFER_SIZE 1024
+
+
 //Read from the FD and fill the buffer with a max of 1024, then get the html out of it
 //read the HTML and return it as a string
 void Response::handle_request() {
-	char buffer[1024];
-	if (read(client_fd, buffer, sizeof(buffer)) < 0){
+	std::string request_data;
+	char buffer[BUFFER_SIZE];
+
+	if (read(client_fd, buffer, BUFFER_SIZE) < 0){
 		std::cerr << "Error reading request" << std::endl;
 		return;
 	}
+
+    // while (true) {
+    //     int bytes_read = read(client_fd, buffer, BUFFER_SIZE - 1);
+    //     if (bytes_read < 0) {
+    //         std::cerr << "Error reading request" << std::endl;
+    //         return;
+    //     }
+	// 	else if (bytes_read == 0)
+    //         break;
+    //     buffer[bytes_read] = '\0'; 
+    //     request_data += buffer;
+    // }
+
+
+
+
+
 	request request(buffer);
 	html_file = request.get_html();
 	response_text = read_html_file(html_file);
