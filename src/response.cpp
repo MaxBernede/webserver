@@ -9,11 +9,21 @@
 void Response::handle_request() {
 	std::string request_data;
 	char buffer[BUFFER_SIZE];
+	int bytes_read;
 
-	if (read(client_fd, buffer, BUFFER_SIZE) < 0){
-		std::cerr << "Error reading request" << std::endl;
-		return;
+	while (true){
+		if ((bytes_read = read(client_fd, buffer, BUFFER_SIZE - 1)) < 0){
+			std::cerr << "Error reading request" << std::endl;
+			return;
+		}
+		buffer[bytes_read] = '\0'; 
+		if (bytes_read < BUFFER_SIZE || bytes_read == 0){
+			request_data += buffer;
+			break;
+		}
+		request_data += buffer;
 	}
+	
 
     // while (true) {
     //     int bytes_read = read(client_fd, buffer, BUFFER_SIZE - 1);
@@ -31,7 +41,7 @@ void Response::handle_request() {
 
 
 
-	request request(buffer);
+	request request(request_data);
 	html_file = request.get_html();
 	response_text = read_html_file(html_file);
 
