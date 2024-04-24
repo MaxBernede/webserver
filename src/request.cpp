@@ -1,3 +1,4 @@
+#include "../inc/webserver.hpp"
 #include "../inc/request.hpp"
 
 //Create a pair out of the line and the int pos of the delimiter (: for every lines or space for the first line)
@@ -8,6 +9,8 @@ std::pair<std::string, std::string> create_pair(const std::string &line, size_t 
 		value = value.substr(1); // Remove leading space if present
 	return std::make_pair(key, value);
 }
+
+
 
 //fill the _request
 std::vector<std::pair<std::string, std::string>> parse_response(const std::string& headers) {
@@ -29,9 +32,26 @@ std::vector<std::pair<std::string, std::string>> parse_response(const std::strin
 	return request;
 }
 
+void request::fill_boundary(std::string text){
+	std::string search = "boundary=";
+	size_t pos = text.find(search);
+	if (pos == std::string::npos){
+		_boundary = "";
+		return;
+	}
+	pos += search.size();
+	size_t endPos = text.find('\n', pos);
+	if (endPos == std::string::npos){
+		_boundary = "";
+		return;
+	}
+    _boundary = text.substr(pos, endPos - pos);
+}
+
 //Constructor that parse everything
 request::request(std::string text){
 	printColor(RED, "Request constructor called ");
+	fill_boundary(text);
 	_request = parse_response(text);
 	for (const auto& pair : _request) {
 		std::cout << pair.first << ": " << pair.second << std::endl;
@@ -44,7 +64,7 @@ std::string request::get_values(std::string key){
 		if (pair.first == key)
 			return pair.second;
 	}
-	printColor(RED, "KEY is not found in request");
+	printColor(RED, key, " is not found in request");
 	return "";
 }
 
@@ -62,8 +82,9 @@ std::string firstWord(const std::string& str) {
 std::string request::get_html(){
 	std::string val = get_values("GET");
 	if (val.empty()){
-		printColor(RED, "GET is not found in request");
-		return "";
+		val = get_values("POST");
+		if (val.empty())
+			return "";
 	}
 	std::string html_file = firstWord(val);
 	if (html_file == "/")
