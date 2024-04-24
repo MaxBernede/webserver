@@ -1,0 +1,50 @@
+#pragma once
+
+#include <string>
+#include<list>
+// #include "Server.hpp"
+enum methods{
+	GET,
+	POST,
+	DELETE,
+	PUT,
+	PATCH,
+	CONNECT,
+	OPTIONS,
+	TRACE
+};
+
+const static std::string methodType[8] = {
+	"GET",
+	"POST",
+	"DELETE",
+	"PUT",
+	"PATCH",
+	"CONNECT",
+	"OPTIONS",
+	"TRACE"
+};
+// ENTIRE request size cannot exceed max body size, not just the content-size part.
+class Request {
+	public:
+		Request();
+		Request(int fd);
+		Request(std::string request);
+
+		int			getType() const;
+		std::string	getHost() const;
+		std::string	getContType() const;
+		uint32_t	getSize() const;
+		std::string	getContent() const;
+	private:
+		std::list<std::string>	_request; //the entirety of the request, as a list of strings
+		int						_method;
+		std::string				_host;
+// for POST requests
+		std::string				_contentType; // what content are we trying to POST?
+		std::string				_boundary; // the content should in between this and (_boundary + "--")?
+		uint32_t				_size;
+		std::string				_content; // the content of the POST request string? maybe something else?
+};
+
+std::ostream & operator<< (std::ostream &out, const Request& src);
