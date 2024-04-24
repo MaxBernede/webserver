@@ -16,7 +16,11 @@ public:
 	~Exception( void ) {};
 
 	// Override what() function to include error number
+<<<<<<< HEAD
 	const char* what() const noexcept override {
+=======
+	const char *what() const noexcept override {
+>>>>>>> sock_class
 		// Format the error message to include both the original message and the error number
 		static std::string error_message;
 		error_message = _msg;
