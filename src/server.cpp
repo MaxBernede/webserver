@@ -3,7 +3,7 @@
 bool servBlockStart(std::string buf){
 	if (buf.back() != '{')
 		return false;
-	if (buf.find("server") != 0)
+	if (buf.find("server") < 0)
 		return false;
 	for (size_t i = 6; i < (buf.size() - 1); i++){
 		if (buf[i] != 32 || (buf[i] < 9 && buf[i] > 13))
@@ -42,10 +42,6 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 	return server;
 }
 
-static uint32_t defaultHost(){
-	return ((127 << 24) | (0 << 16) | (0 << 8) | (1));
-}
-
 static std::list<s_port> defaultPorts(){
 	std::list<s_port> ports;
 	s_port def;
@@ -69,6 +65,7 @@ static bool compare(std::string s1, std::string s2){
 	return false;
 }
 
+// TODO check if pwd even exist/find alternative?
 static std::string defaultRoot(char **env){
 	int i = 0;
 	while (env[i] && !compare(env[i], "PWD=")){
@@ -112,7 +109,6 @@ static std::list<std::string> defaultIndex(){
 
 //default consructor
 Server::Server(char **env):
-	_host(defaultHost()),
 	_ports(defaultPorts()),
 	_name(defaultName()),
 	_root(defaultRoot(env)),
@@ -128,7 +124,6 @@ Server::~Server() {
 }
 
 Server &Server::operator=(const Server &obj) {
-	this->_host = obj.getHost();
 	this->_ports = obj.getPorts();
 	this->_name = obj.getName();
 	this->_root = obj.getRoot();
@@ -145,11 +140,7 @@ Server::Server(const Server &obj) {
 	*this = obj;
 }
 
-uint32_t	Server::getHost()	const{
-	return _host;
-}
-
-std::list<s_port>	Server::getPorts()	const{
+std::list<s_port> Server::getPorts()	const{
 	return _ports;
 }
 
@@ -160,6 +151,7 @@ std::string Server::getName()	const{
 std::string Server::getRoot()	const{
 	return _root;
 }
+
 bool Server::getMethod(int i)	const{
 	return _methods[i];
 }
@@ -188,17 +180,16 @@ bool Server::getAutoIndex()	const{
 	return _autoIndex;
 }
 
-void Server::clearHost(){
-}
-
 void Server::clearPort(){
 	_ports.clear();
 }
 
 void Server::clearName(){
+	// _name = "";
 }
 
 void Server::clearRoot(){
+	// _root = "";
 }
 
 void Server::clearMethods(){
@@ -207,9 +198,11 @@ void Server::clearMethods(){
 }
 
 void Server::clearCGI(){
+	// _cgi = false;
 }
 
 void Server::clearMaxBody(){
+	// _maxBody = 200;
 }
 
 void Server::clearEPage(){
@@ -221,17 +214,14 @@ void Server::clearIndex(){
 }
 
 void Server::clearAutoIndex(){
+	// _autoIndex = false;
 }
 
 void Server::clearData(int index){
-	void (Server::*ptr[10])(void) = 
-		{&Server::clearHost, &Server::clearPort, &Server::clearName, &Server::clearRoot, &Server::clearMethods,
-		&Server::clearCGI, &Server::clearMaxBody, &Server::clearEPage, &Server::clearIndex, &Server::clearAutoIndex};
+	void (Server::*ptr[9])(void) = 
+		{&Server::clearPort, &Server::clearName, &Server::clearRoot, &Server::clearMethods, &Server::clearCGI,
+		&Server::clearMaxBody, &Server::clearEPage, &Server::clearIndex, &Server::clearAutoIndex};
 	(this->*ptr[index])();
-}
-
-void Server::setHost(uint32_t host){
-	_host = host;
 }
 
 void Server::setPort(s_port port){
@@ -279,10 +269,6 @@ std::string boolstring(const bool& src){
 
 std::ostream & operator<< (std::ostream &out, const Server& src){
 
-	out << "host\t" << ((src.getHost() >> 24) & 0xFF) << "."
-	<< ((src.getHost() >> 16) & 0xFF) << "."
-	<< ((src.getHost() >> 8) & 0xFF) << "."
-	<< ((src.getHost()) & 0xFF) << std::endl;
 	for (s_port port : src.getPorts()){
 		out << "port\t" << port.nmb << "\t" << port.type << std::endl;
 	}
@@ -301,6 +287,7 @@ std::ostream & operator<< (std::ostream &out, const Server& src){
 	for (std::string index : src.getIndex()){
 		out << "Index\t" << index << std::endl;
 	}
-	out << "auto Index\t" << boolstring(src.getAutoIndex()) << std::endl;	
+	out << "auto Index\t" << boolstring(src.getAutoIndex()) << std::endl;
+	
 	return out;
 }

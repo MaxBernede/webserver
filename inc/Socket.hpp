@@ -10,24 +10,17 @@
 # include <netinet/in.h>
 # include <cstdint>
 
-// move semantics for allocating values from another class?
 class Socket
 {
 	private:
-		int	_fd;
-		std::string _addr;
+		int _fd;
+		int _type;
 
 	public:
-		Socket();
-		~Socket();
+		Socket(int port);
+		~Socket(void);
 
 		Socket &operator=(Socket &other) noexcept;
 
-		void bind(uint16_t port) const;
-		void listen(int backlog) const;
-		Socket accept() const;
-
 		int	getFd( void );
-		std::string &getAddr( void );
 };
-

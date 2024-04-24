@@ -1,13 +1,22 @@
 #pragma once
 
-#include <iostream>
 #include <string>
 #include <sys/socket.h>
+#include <sys/poll.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <cstring>
 #include <sstream>
 #include <fstream>
+
+#include <cstdint>
+#include <netdb.h>
+#include <netinet/in.h>
+
+// for containers
+#include <vector>
+#include <list>
+#include <algorithm>
 
 //for the signal
 #include <iostream>
@@ -22,3 +31,7 @@
 #include "server.hpp"
 #include "config.hpp"
 #include "Socket.hpp"
+#include "ServerRun.hpp"
+#include "EpollQueue.hpp"
+#include "request.hpp"
+#include "print_colors.hpp"

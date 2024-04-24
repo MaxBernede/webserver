@@ -43,8 +43,6 @@ typedef struct t_ePage{
 class Server {
 
 	private:
-		uint32_t				_host;
-		// std::string				_hoststring;
 		std::list<s_port>		_ports;
 		std::string 			_name;
 		std::string 			_root;
@@ -61,8 +59,6 @@ class Server {
 		Server(const Server &obj);
 		Server &operator=(const Server &obj);
 
-		uint32_t				getHost()	const;
-		// std::string				getHoststring()	const;
 		std::list<s_port>		getPorts()	const;
 		std::string				getName()	const;
 		std::string				getRoot()	const;
@@ -74,8 +70,6 @@ class Server {
 		std::list <std::string>	getIndex()	const;
 		bool					getAutoIndex()	const;
 
-		void	setHost(uint32_t host);
-		// void	setHostString(std::string host);
 		void	setPort(s_port port);
 		void	setName(std::string name);
 		void	setRoot(std::string root);
@@ -86,7 +80,6 @@ class Server {
 		void	setIndex(std::string index);
 		void	setAutoIndex(bool autoIndex);
 
-		void	clearHost();
 		void	clearPort();
 		void	clearName();
 		void	clearRoot();
