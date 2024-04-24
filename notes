@@ -1,0 +1,146 @@
+Socket(), Bind(), Listen(), Accept()
+
+- In a server socket, you need to bind your coekts to a port. You need to bind to a port so that clients know where to communicate with you.
+- In a client socket, the local address and port is normally not of important, so no need to expicility call bind(). This is already done under the hood (i.e. connect() does an implicit bind("0,0,0,0", 0)).
+
+Transmission Control Protocol (TCP) vs User Datagram Protocal (UDP)
+- TCP is reliable and is used for everything from surfing the web (HTTP), sending emails (SMTP), transferring files (FTP)
+- TCP is a connection oriented protocol, i.e. it establishes a connection between two devices before transferrig data and maintains conection throughout the transfer process.
+- TCP establishes connection using a three-way handshake, then the server can send the data the client is asking for by breaking it down into small packets before sending them over the internet. The packets are then reassembed on the other end.
+- UDP is much simpler - it is used in situation where data loss is acceptable like video/audio or where speed is a critical factor like gaming
+- UDP is a connectionless protocol, it does not establish a connection beforehand
+
+Sockets
+A way to speak to other programs using standard Unix file descriptors (an int associated with an open file).
+Send() and recv() are like the write() and read() equivalent for sockets... you can also use read() and write(), but the former two offer much greater control over data transmission.
+There are different types of sockets, two of which are stream sockets (SOCK_STREAM) and datagram sockets (SOCK_DGRAM). Datagram sockets are sometimes called connectionless sockets.
+Stream sockets are reliable two way connected communication streams (HTTP uses this). Stream sockets use TCP - which ensures your data arrives sequentially and error-free)
+
+IPv4 to IPv6 --> how to easily get it working for the latter
+1. getaddrinfo() to get the struct aockaddr info instead of filling it in by hand keeps the IP version agnostic and will eliminate many of the subsequet steps
+2. any place where you are hard coding anything related tot he IP version, try to wrap it in a helper function
+3. Change AF_INET to AF_INET6 / PF_INET to PF_INET6
+4. Change INADDR_ANY assignments to in6addr_any assignments, which are slightly different:
+
+struct sockaddr_in sa;
+struct sockaddr_in6 sa6;
+
+sa.sin_addr.s_addr = INADDR_ANY;  // use my IPv4 address<F35>
+sa6.sin6_addr = in6addr_any; // use my IPv6 address
+
+Also, the value IN6ADDR_ANY_INIT can be used as an initializer when the struct in6_addr is declared, like so:
+
+
+int bind(int sockfd, struct sockaddr *my_addr, int addrlen)
+- sockfd: socket file descriptor returned by socket()
+- struct sockaddr: contains information about your address
+- addrelen: is the length in butes of that address
+
+int listen(int sockfd, int backlog);
+sockfd: socket file descriptor 
+backlog: the number of connections allowed on the incoming queue
+
+int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+
+getaddrinfo(const char *restrict node, const char *restrict service. constr struct addrinfo *restrict hints, struct addrinfo **restrict res)
+- node - Internet host // e.g. www.example.com or IP
+- service - Internet service // e.g. "http" or port number
+- hints - points to a struct addrinfo that youve already filled out with relevant information
+- return
+	- upon success: returns zero and a pointer to linked list of struct addrinfo, each containing a struct sockaddr of some kind
+	- upon fail: returns a non zero value
+- it takes care of DNS service name lookups and fills out the struct you need
+
+
+<<<<<<< HEAD
+  for (i=0;i<5;i++) 
+  {
+    static struct epoll_event ev;
+    memset(&client, 0, sizeof (client));
+    addrlen = sizeof(client);
+    ev.data.fd = accept(sockfd,(struct sockaddr*)&client, &addrlen);
+    ev.events = EPOLLIN;
+    epoll_ctl(epfd, EPOLL_CTL_ADD, ev.data.fd, &ev); 
+  }
+  
+  while(1){
+  	puts("round again");
+  	nfds = epoll_wait(epfd, events, 5, 10000);
+	
+	for(i=0;i<nfds;i++) {
+			memset(buffer,0,MAXBUF);
+			read(events[i].data.fd, buffer, MAXBUF);
+			puts(buffer);
+	}
+  }
+
+  --> accepting connection to epoll...
+=======
+Blocking
+block is a techie jargon for sleep...
+so, sleep until some data arrives
+
+function "block" until some data arries, they block as long as data has not yet arrived. One example of a function which 'blocks' is accept().
+When you first create the socket descriptor with socket(), the kernel sets it to blocking, if you dont want a socket to be blocking you have to make a call to fcntl().
+
+By setting a socket to non-blocking, you can effectively “poll” the socket for information. If you try to read from a non-blocking socket and there’s no data there, it’s not allowed to block—it will return -1 and errno will be set to EAGAIN or EWOULDBLOCK
+
+poll() - Synchronous I/O Multiplexing
+- useful for monitoring a bunch of sockets at once, then handle the ones that have data ready
+- poll() asks the OS to do the dirty work and let us know when data is ready to read on which socket
+- we need to have an array of struct pollfds with information about which socekt descriptors we want to monitoring
+
+#include <poll.h>
+int poll(struct pollfd fds[], nfds_t nfds, int timeout);
+
+fds = the array of information (which sockets to monitor for what)
+nfds = is the number of elements in the fds array
+timeout = a timeout in milliseconds
+RETURN VAL = returns the number of elements in the array that have had an event occur
+
+struct pollfd {
+	int fd; // socket description
+	short events; // bitmap of events were interested in
+	short revents; // when poll() returns bitmap of events that occured
+}
+
+epoll API
+- specific to linux
+#include <sys/epoll.h>
+
+int epoll_create(int size);
+int epoll_create1(int flags); -> newer call
+
+-> create an epoll instance
+- both return the file descriptor for the newly created instance of epoll, the parameter can be 0 or epoll_clo_exec (close on exec flag)
+- generates an epoll instance data structure and returns a file descriptor. the particular descriptor is the handle to the epoll instance, and the two interfaces that follow center on it (the epfd)
+- once you create the epoll instance you can add or from fds from it
+using the following function:
+
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *epoll);
+- manages the structure
+- op = describes the type of the operation
+	EPOLL_CTL_ADD (adds a descriptor to the interest list that needs to be monitored)
+	EPOLL_CTL_DEL (removes a descriptor from the interest list)
+	EPOLL_CTL_MOD (modify a descriptor in the interest list)
+	
+- struct epoll_event describes the epoll behaviour of a file descriptor when using the epoll_wait function to return a list of descriptors in the ready state
+
+
+typedef union epoll_data {
+    void *ptr;
+	int fd;
+	uint32_t u32; /* 32-bit integer */
+    uint64_t u64; /* 64-bit integer */
+} epoll_data_t;
+
+struct epoll_event {
+    uint32_t events;
+    epoll_data_t data;
+};
+
+non-blocking io allows a thread to switch between tasks as it is waiting for a process to finish (it doesnt stay and wait and waste time).
+While a request is doing io, the thread is not stuck waiting for the request to finish
+>>>>>>> 9cbb375aebc788911658668fcf7ef44b66351dd8
+
+
