@@ -14,7 +14,6 @@ class Socket
 {
 	private:
 		int _fd;
-		int _type;
 		int _serverNum;
 
 	public:
