@@ -40,11 +40,19 @@ void request::parse_first_line(std::istringstream &iss){
 void request::parse_response(const std::string& headers) {
 	std::istringstream iss(headers);
 	std::string line;
-	std::string body;
 
-	body = "Body:";
 	parse_first_line(iss);
 	while (std::getline(iss, line)) {
+		if (line == "\r")
+			break;
+		size_t pos = line.find(':');
+		if (pos != std::string::npos)
+			_request.emplace_back(create_pair(line, pos));
+	}
+
+	//to be put in a different function
+	std::string body;
+	if (std::getline(iss, line)){
 		if (_boundary != "" && is_boundary(line)){
 			while (std::getline(iss, line)){
 				if (_boundary != "" && is_boundary(line)){
@@ -55,9 +63,6 @@ void request::parse_response(const std::string& headers) {
 				body += "\n";
 			}
 		}
-		size_t pos = line.find(':');
-		if (pos != std::string::npos)
-			_request.emplace_back(create_pair(line, pos));
 	}
 }
 //return an empty string if no boundaries found
@@ -94,6 +99,7 @@ void request::show_datas(){
 //Constructor that parse everything
 request::request(std::string text){
 	printColor(RED, "Request constructor called");
+	printColor(BLUE, text);
 	fill_boundary(text);
 	parse_response(text);
 	show_datas();

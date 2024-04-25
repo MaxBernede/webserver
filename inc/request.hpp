@@ -12,6 +12,7 @@ class request
 		void fill_boundary(std::string text);
 		bool is_boundary(const std::string &line);
 		void parse_response(const std::string& headers);
+		void fill_body(std::istringstream &iss);
 
 		//Methods
 		void show_datas();
