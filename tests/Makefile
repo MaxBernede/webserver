@@ -1,8 +1,7 @@
 NAME := exe
 CXX := c++
 
-CXXFLAGS := -std=c++11 -Wall -Wextra -g -fsanitize=address
-CXXFLAGS := -Werror
+CXXFLAGS := -std=c++11 -g -fsanitize=address #-Wall -Wextra -Werror
 RM := rm -rf
 
 SRC := $(wildcard src/*.cpp)

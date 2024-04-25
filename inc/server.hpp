@@ -4,7 +4,6 @@
 #include <string>
 #include <list>
 #include <vector>
-#include <exception>
 
 class	invalidFile : public std::exception{
 	public:

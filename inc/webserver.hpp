@@ -32,3 +32,5 @@
 #include "config.hpp"
 #include "Socket.hpp"
 #include "ServerRun.hpp"
+#include "request.hpp"
+#include "print_colors.hpp"
