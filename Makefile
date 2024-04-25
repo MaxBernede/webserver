@@ -23,9 +23,11 @@ $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 clean:
+	$(RM) saved_files/*
 	$(RM) $(OBJ)
 
 fclean: clean
+	$(RM) saved_files/*
 	$(RM) $(OBJ_DIR)
 	$(RM) $(NAME)
 

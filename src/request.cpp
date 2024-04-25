@@ -1,6 +1,8 @@
 #include "../inc/webserver.hpp"
 #include "../inc/request.hpp"
 
+//#define found std::string::npos
+
 //Create a pair out of the line and the int pos of the delimiter (: for every lines or space for the first line)
 std::pair<std::string, std::string> create_pair(const std::string &line, size_t pos){
 	std::string key = line.substr(0, pos);
@@ -10,28 +12,45 @@ std::pair<std::string, std::string> create_pair(const std::string &line, size_t 
 	return std::make_pair(key, value);
 }
 
-
+//check that it's not the Content-Type defined line
+//then return false or true if boundary found
+bool request::is_boundary(const std::string &line){
+	if (line.find("Content-Type") != std::string::npos)
+		return false;
+	return line.find(_boundary) != std::string::npos;
+}
 
 //fill the _request
-std::vector<std::pair<std::string, std::string>> parse_response(const std::string& headers) {
-	std::vector<std::pair<std::string, std::string>> request;
-
+// it works as : get the first line based on space
+// then check for the ':' however if there is a boundary and its found, keep everything between as body
+void request::parse_response(const std::string& headers) {
 	std::istringstream iss(headers);
 	std::string line;
+	std::string body;
 
 	std::getline(iss, line);
 	size_t pos = line.find(' ');
+	body = "Body:";
 	if (pos != std::string::npos)
-		request.emplace_back(create_pair(line, pos));
+		_request.emplace_back(create_pair(line, pos));
 	while (std::getline(iss, line)) {
+		if (_boundary != "" && is_boundary(line)){
+			while (std::getline(iss, line)){
+				if (_boundary != "" && is_boundary(line)){
+					_request.emplace_back(create_pair(body, 4));
+					break;
+				}
+				body += line;
+				body += "\n";
+			}
+		}
 		size_t pos = line.find(':');
 		if (pos != std::string::npos)
-			request.emplace_back(create_pair(line, pos));
+			_request.emplace_back(create_pair(line, pos));
 	}
-
-	return request;
 }
-
+//return an empty string if no boundaries found
+//Otherwise, return the boundary WITHOUT \r\n at the end
 void request::fill_boundary(std::string text){
 	std::string search = "boundary=";
 	size_t pos = text.find(search);
@@ -40,11 +59,13 @@ void request::fill_boundary(std::string text){
 		return;
 	}
 	pos += search.size();
-	size_t endPos = text.find('\n', pos);
+	size_t endPos = text.find("\r\n", pos);
 	if (endPos == std::string::npos){
 		_boundary = "";
 		return;
 	}
+	while (text[pos] == '-')
+		++pos;
     _boundary = text.substr(pos, endPos - pos);
 }
 
@@ -52,10 +73,13 @@ void request::fill_boundary(std::string text){
 request::request(std::string text){
 	printColor(RED, "Request constructor called ");
 	fill_boundary(text);
-	_request = parse_response(text);
+	parse_response(text);
 	for (const auto& pair : _request) {
 		std::cout << pair.first << ": " << pair.second << std::endl;
-	}	
+	}
+	std::string body = get_values("Body");
+	if (!body.empty())
+		create_file(body, "saved_files");
 }
 
 //Return the value of the found key, otherwise empty string

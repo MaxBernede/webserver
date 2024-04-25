@@ -41,3 +41,29 @@ bool endsWith(const std::string& str, const std::string& suffix) {
     }
     return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
+
+bool exists (const std::string& name) {
+  struct stat buffer;   
+  return (stat (name.c_str(), &buffer) == 0); 
+}
+
+void create_file(std::string const &content, std::string const &location){
+	size_t i = 0;
+	std::string key = "filename=\"";
+	size_t start = content.find(key) + key.length();
+	std::string fileName = content.substr(start, content.find('\"', start) - start);
+    fileName = location + "/" + fileName;
+	std::string extension = fileName.substr(fileName.rfind('.'));
+	std::string name = fileName.substr(0, fileName.find(extension));
+	while (exists(fileName) == true){
+		fileName = name + std::to_string(i) + extension;
+		i++;
+	}
+	std::string temp = content;
+	while (temp[0] != '\n')
+		temp.erase(0, (temp.find('\n') + 1));
+	temp.erase(0, 1);
+	std::ofstream upload(fileName.c_str(), std::ios::out);
+	upload << temp;
+	upload.close();
+}

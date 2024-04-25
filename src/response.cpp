@@ -1,7 +1,7 @@
 #include "../inc/webserver.hpp"
 #include "../inc/response.hpp"
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 10024
 
 
 //Read from the FD and fill the buffer with a max of 1024, then get the html out of it
@@ -16,6 +16,7 @@ void Response::handle_request() {
 			std::cerr << "Error reading request" << std::endl;
 			return;
 		}
+		printColor(RED, bytes_read);
 		buffer[bytes_read] = '\0'; 
 		if (bytes_read < BUFFER_SIZE || bytes_read == 0){
 			request_data += buffer;

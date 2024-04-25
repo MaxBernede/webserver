@@ -8,6 +8,7 @@
 #include <cstring>
 #include <sstream>
 #include <fstream>
+#include <sys/stat.h>
 
 #include <cstdint>
 #include <netdb.h>
