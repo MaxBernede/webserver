@@ -20,6 +20,20 @@ bool request::is_boundary(const std::string &line){
 	return line.find(_boundary) != std::string::npos;
 }
 
+//save as well the GET request in the all datas AND the _method
+void request::parse_first_line(std::istringstream &iss){
+	std::string line, arg;
+	std::getline(iss, line);
+    std::istringstream line_stream(line);
+
+    while (std::getline(line_stream, arg, ' '))
+        _method.push_back(arg);
+
+	size_t pos = line.find(' ');
+	if (pos != std::string::npos)
+		_request.emplace_back(create_pair(line, pos));
+}
+
 //fill the _request
 // it works as : get the first line based on space
 // then check for the ':' however if there is a boundary and its found, keep everything between as body
@@ -28,11 +42,8 @@ void request::parse_response(const std::string& headers) {
 	std::string line;
 	std::string body;
 
-	std::getline(iss, line);
-	size_t pos = line.find(' ');
 	body = "Body:";
-	if (pos != std::string::npos)
-		_request.emplace_back(create_pair(line, pos));
+	parse_first_line(iss);
 	while (std::getline(iss, line)) {
 		if (_boundary != "" && is_boundary(line)){
 			while (std::getline(iss, line)){
@@ -69,14 +80,23 @@ void request::fill_boundary(std::string text){
     _boundary = text.substr(pos, endPos - pos);
 }
 
+void request::show_datas(){
+	printColor(YELLOW, "All the datas on the Request Class :");
+	printColor(RESET, "Boundary: ", _boundary);
+	std::cout << " Method: ";
+	for (const auto &method : _method)
+		std::cout << method << " ";
+	std::cout << std::endl;
+	for (const auto& pair : _request)
+		printColor(RESET, pair.first, ": ", pair.second);
+}
+
 //Constructor that parse everything
 request::request(std::string text){
-	printColor(RED, "Request constructor called ");
+	printColor(RED, "Request constructor called");
 	fill_boundary(text);
 	parse_response(text);
-	for (const auto& pair : _request) {
-		std::cout << pair.first << ": " << pair.second << std::endl;
-	}
+	show_datas();
 	std::string body = get_values("Body");
 	if (!body.empty())
 		create_file(body, "saved_files");
