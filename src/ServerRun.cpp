@@ -173,7 +173,8 @@ void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd, int idx)
 			readRequest(pollFd.fd); // TODO this READS and WRITES the request and closes connection... we need to separate this 
 			removeConnection(idx);
 			break ;
-		case STATIC_FILE:
+		// Add case to read the request here -> add file to read for request in poll_fd as STATIC_FILE
+		case STATIC_FILE: // Read a static file through here
 			break ;
 		default:
 			break;
