@@ -1,4 +1,4 @@
-#include "ServerRun.hpp"
+#include "webserver.hpp"
 #include <utility>
 #include <algorithm>
 #include <sys/socket.h>
@@ -41,7 +41,7 @@ ServerRun::~ServerRun( void )
 	}
 }
 
-void ServerRun::createListenerSockets(std::vector<std::pair<int, int>> listens)
+void ServerRun::createListenerSockets(std::vector<std::pair<int, int> > listens)
 {
 	Socket *new_socket;
 	for (auto listen : listens)
@@ -107,6 +107,7 @@ void ServerRun::serverRunLoop( void )
 				{
 					// Write to client
 					// currently writing is not going through poll... NEEDS A FIX
+					dataOut(_pollData[i], _pollFds[i]);
 				}
 			}
 			catch(const Exception& e)
@@ -132,9 +133,8 @@ void ServerRun::acceptNewConnection(int listenerFd, int serverNum)
 
 void ServerRun::readRequest(int clientFd)
 {
-	Response response(clientFd);
-	response.handle_request();
-	close(clientFd);
+	request request(clientFd);
+	_requests.push_back(request);
 }
 
 void ServerRun::removeConnection(int idx)
@@ -178,5 +178,32 @@ void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd, int idx)
 			break ;
 		default:
 			break;
+	}
+}
+
+void ServerRun::respond(int clientFd)
+{
+	//find the request based on clientFd
+	int i = 0;
+	while (i < (int)_requests.size())
+	{
+		if (_requests[i].getClientFd() == clientFd)
+			break ;
+		i++;
+	}
+
+	Response response(_requests[i], clientFd);
+	response.handle_request();
+	// remove request?
+	close(clientFd);
+	// _requests.erase(_requests.begin() + i);
+}
+
+void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
+{
+	switch (pollData.pollType)
+	{
+		case CLIENT_CONNECTION:
+			respond(pollFd.fd);
 	}
 }

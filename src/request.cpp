@@ -1,6 +1,8 @@
 #include "../inc/webserver.hpp"
 #include "../inc/request.hpp"
 
+#define BUFFER_SIZE 1024
+
 //Create a pair out of the line and the int pos of the delimiter (: for every lines or space for the first line)
 std::pair<std::string, std::string> create_pair(const std::string &line, size_t pos){
 	std::string key = line.substr(0, pos);
@@ -9,8 +11,6 @@ std::pair<std::string, std::string> create_pair(const std::string &line, size_t 
 		value = value.substr(1); // Remove leading space if present
 	return std::make_pair(key, value);
 }
-
-
 
 //fill the _request
 std::vector<std::pair<std::string, std::string>> parse_response(const std::string& headers) {
@@ -49,10 +49,18 @@ void request::fill_boundary(std::string text){
 }
 
 //Constructor that parse everything
-request::request(std::string text){
+request::request(int clientFd) : _clientFd(clientFd)
+{
+	char buffer[BUFFER_SIZE];
+
+	if (read(clientFd, buffer, BUFFER_SIZE) < 0){
+		std::cerr << "Error reading request" << std::endl;
+		return;
+	}
+
 	printColor(RED, "Request constructor called ");
-	fill_boundary(text);
-	_request = parse_response(text);
+	fill_boundary(buffer);
+	_request = parse_response(buffer);
 	for (const auto& pair : _request) {
 		std::cout << pair.first << ": " << pair.second << std::endl;
 	}	
@@ -90,4 +98,9 @@ std::string request::get_html(){
 	if (html_file == "/")
 		return "index.html";
 	return html_file;
+}
+
+int request::getClientFd()
+{
+	return (_clientFd);
 }

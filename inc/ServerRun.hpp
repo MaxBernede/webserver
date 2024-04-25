@@ -8,7 +8,9 @@ enum pollType
 {
 	LISTENER,
 	CLIENT_CONNECTION,
-	STATIC_FILE
+	STATIC_FILE,
+	CGI_READ,
+	CGI_WRITE
 };
 
 typedef struct t_poll_data
@@ -21,6 +23,7 @@ class ServerRun
 {
 	private:
 		std::list<Server> _servers;
+		std::vector<request> _requests;
 		std::vector<Socket *> _listenSockets;
 		std::vector<s_poll_data> _pollData;
 		std::vector<struct pollfd> _pollFds;
@@ -30,12 +33,14 @@ class ServerRun
 		~ServerRun( void );
 
 	void serverRunLoop( void );
-	void createListenerSockets(std::vector<std::pair<int, int>> listens);
+	void createListenerSockets(std::vector<std::pair<int, int> > listens);
 	void addQueue(pollType type, int fd, int serverNum);
 	
 	void acceptNewConnection(int listenerFd, int serverNum);
 	void readRequest(int clientFd);
 	void removeConnection(int idx);
+
+	void respond(int clientFd);
 
 	void dataIn(s_poll_data pollData, struct pollfd pollFd, int idx); // read from client
 	void dataOut(s_poll_data pollData, struct pollfd pollFd); // write to client

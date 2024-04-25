@@ -13,7 +13,6 @@ private:
 public:
 	// Constructor accepting message and error number
 	Exception(const std::string& message, int error_number) : _msg(message), _error_number(error_number) {}
-	~Exception( void ) {};
 
 	// Override what() function to include error number
 	const char *what() const noexcept override {

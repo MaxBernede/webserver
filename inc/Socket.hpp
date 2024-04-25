@@ -22,6 +22,6 @@ class Socket
 
 		Socket &operator=(Socket &other) noexcept;
 
-		int	getFd( void ) noexcept;
-		int	getServerNum( void ) noexcept;
+		int	getFd( void );
+		int	getServerNum( void );
 };
