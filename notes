@@ -145,4 +145,4 @@ CGI
 - When a file in a directory is requested, sometimes that file is not sent back. Instead it is executed as a program and the produced output from the program is sent back to your browser to display it;
 - All the CGI Programs to be executed by the HTTP server are kept in a pre-configured directory. This directory is called CGI directory and by convention it is named as /var/www/cgi-bin. By convention CGI files will have extension as .cgi, though they are C++ executable.
 - allows for web pages to not merely be static pages, but inclued dynamic content
-
+- 
