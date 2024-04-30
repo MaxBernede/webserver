@@ -51,19 +51,23 @@ void request::fill_boundary(std::string text){
 //Constructor that parse everything
 request::request(int clientFd) : _clientFd(clientFd)
 {
-	char buffer[BUFFER_SIZE];
+	char buffer1[BUFFER_SIZE];
 
-	if (read(clientFd, buffer, BUFFER_SIZE) < 0){
+	if (read(clientFd, buffer1, BUFFER_SIZE) < 0){
 		std::cerr << "Error reading request" << std::endl;
 		return;
 	}
 
+	std::string hard_coded = "GET: /cgi-bin/python.cgi HTTP/1.1\nHost: localhost:8090\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:125.0) Gecko/20100101 Firefox/125.0\nAccept: image/avif,image/webp,\nAccept-Language: en-US,en;q=0.5\nAccept-Encoding: gzip, deflate, br\nConnection: keep-alive\nReferer: http://localhost:8090/test.html\nSec-Fetch-Dest: image\nSec-Fetch-Mode: no-cors\nSec-Fetch-Site: same-origin\nSec-Fetch-Dest: document\nSec-Fetch-Mode: navigate\nSec-Fetch-Site: same-origin";
+	std::string buffer = hard_coded;
 	printColor(RED, "Request constructor called ");
 	fill_boundary(buffer);
 	_request = parse_response(buffer);
 	for (const auto& pair : _request) {
 		std::cout << pair.first << ": " << pair.second << std::endl;
-	}	
+	}
+
+
 }
 
 //Return the value of the found key, otherwise empty string
@@ -103,4 +107,14 @@ std::string request::get_html(){
 int request::getClientFd()
 {
 	return (_clientFd);
+}
+
+std::vector<std::pair<std::string, std::string>> request::getContent()
+{
+	return (_request);
+}
+
+std::string request::getRequestStr()
+{
+	return (request_str);
 }

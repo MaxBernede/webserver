@@ -11,9 +11,12 @@ class request
 		int getClientFd();
 		bool isCgi(); // boolean to tell if request is Cgi
 
+		std::vector<std::pair<std::string, std::string>> getContent();
+		std::string getRequestStr();
 
 	private:
 		std::vector<std::pair<std::string, std::string>> _request;
+		std::string request_str;
 		std::string _boundary;
 		int _clientFd;
 };

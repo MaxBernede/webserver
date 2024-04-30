@@ -7,6 +7,10 @@
 Response::Response(request req, int clientFd) : _request(req), _clientFd(clientFd)
 {
 	std::cout << "Default constructor Response" << std::endl;
+	for (const auto& pair : _request.getContent()) {
+		std::cout << pair.first << ": " << pair.second << std::endl;
+	}
+
 }
 
 

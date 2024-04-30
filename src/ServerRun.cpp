@@ -94,8 +94,11 @@ void ServerRun::serverRunLoop( void )
 				throw(Exception("Poll failed", errno));
 			continue ;
 		}
-		for (int i = 0; i < (int)_pollFds.size(); i++)
+		for (int i = 0; i < _pollFds.size(); i++)
 		{
+			std::cout << "what is i: " << i << std::endl;
+			if (_pollFds.size() != _pollData.size())
+				std::cout << "SIZE DISCREANCY\n";
 			try
 			{
 				if (_pollFds[i].revents & POLLIN)
@@ -108,6 +111,7 @@ void ServerRun::serverRunLoop( void )
 					// Write to client
 					// currently writing is not going through poll... NEEDS A FIX
 					dataOut(_pollData[i], _pollFds[i]);
+					removeConnection(i);
 				}
 			}
 			catch(const Exception& e)
@@ -171,7 +175,6 @@ void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd, int idx)
 			break ;
 		case CLIENT_CONNECTION: 
 			readRequest(pollFd.fd); // TODO this READS and WRITES the request and closes connection... we need to separate this 
-			removeConnection(idx);
 			break ;
 		// Add case to read the request here -> add file to read for request in poll_fd as STATIC_FILE
 		case STATIC_FILE: // Read a static file through here
@@ -191,12 +194,13 @@ void ServerRun::respond(int clientFd)
 			break ;
 		i++;
 	}
-
+	std::cout << "i: " << i << std::endl;
 	Response response(_requests[i], clientFd);
 	response.handle_request();
 	// remove request?
 	close(clientFd);
-	// _requests.erase(_requests.begin() + i);
+	_requests.erase(_requests.begin() + i);
+
 }
 
 void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
