@@ -22,6 +22,7 @@ std::string make_response(std::ifstream &file){
 }
 
 std::string read_html_file(const std::string &filename) {
+	std::cout << "FILENAME: " << filename << std::endl;
     std::string file_path = "html/" + filename;
     std::ifstream file(file_path);
 
