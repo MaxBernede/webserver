@@ -111,14 +111,24 @@ request::request(std::string text){
 		create_file(body, "saved_files");
 }
 
+std::string request::get_method(int index){
+	if (index >= _method.size())
+		return "";
+	return _method[index];
+}
+
 //Return the value of the found key, otherwise empty string
 std::string request::get_values(std::string key){
 	for (const auto& pair : _request) {
 		if (pair.first == key)
 			return pair.second;
 	}
-	printColor(RED, key, " is not found in request");
+	//printColor(RED, key, " is not found in request");
 	return "";
+}
+
+std::string request::get_file(){
+	return _file;
 }
 
 //Return the first word after GET (usually the html)

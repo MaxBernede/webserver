@@ -3,6 +3,34 @@
 
 #define BUFFER_SIZE 10024
 
+void removeTrailingCarriageReturn(std::string& str) {
+    if (!str.empty() && str.back() == '\r')
+        str.pop_back();
+}
+
+std::string substringAfter(const std::string& str, const std::string& delimiter) {
+    size_t pos = str.find(delimiter);
+    if (pos != std::string::npos)
+        return str.substr(pos + delimiter.length());
+    return ""; // Return empty string if delimiter not found
+}
+
+void Response::do_actions(request request){
+	std::string file = request.get_file();
+	if (endsWith(file, ".html")){
+		std::cout << "FILE END WITH HTML" << std::endl;
+	}
+	if (request.get_method(0) == "POST" && request.get_file() == "/delete_post"){
+		std::cout << "RESPONSE IS DELETING THE FILE" << std::endl;
+		std::string tmp = request.get_values("Referer");
+		file = substringAfter(tmp, "http://localhost:8080/");
+		removeTrailingCarriageReturn(file);
+		if (file.empty())
+			file = "index.html";
+	}
+	response_text = read_html_file(file);
+}
+
 
 //Read from the FD and fill the buffer with a max of 1024, then get the html out of it
 //read the HTML and return it as a string
@@ -43,9 +71,9 @@ void Response::handle_request() {
 
 
 	request request(request_data);
-	html_file = request.get_html();
-	response_text = read_html_file(html_file);
 
+	html_file = request.get_html();
+	do_actions(request);
 	r_send();
 }
 

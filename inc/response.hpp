@@ -13,6 +13,7 @@ class Response {
 		//Members functions
 		void handle_request();
 		std::string parse_buffer(std::string buffer);
+		void do_actions(request request);
 		void r_send();
 	private:
 		std::string file;

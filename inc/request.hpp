@@ -20,8 +20,10 @@ class request
 		void show_datas();
 
 		std::string get_values(std::string key);
+		std::string get_method(int index);
 		std::string get_html();
-		
+		std::string get_file();
+
 	private:
 		std::vector<std::pair<std::string, std::string>> _request;
 		std::string _boundary;
