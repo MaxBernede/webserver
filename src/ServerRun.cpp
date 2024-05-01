@@ -243,3 +243,17 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd, int idx)
 			break ;
 	}
 }
+
+/*
+
+vector requests
+vector responses (response string)
+vector cgi
+
+CLIENT_CONNECTION (write here) --> read to see the request / write to response
+CGI_PIPE_READ (read html file) --> to create the response string
+FILE_READ (read html file) --> to create the response string
+FILE_WRITE (needed for post method?)
+LISTENER_SOCKET (read to see new connection requests)
+
+*/
