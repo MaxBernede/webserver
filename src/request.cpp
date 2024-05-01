@@ -51,15 +51,13 @@ void request::fill_boundary(std::string text){
 //Constructor that parse everything
 request::request(int clientFd) : _clientFd(clientFd)
 {
-	char buffer1[BUFFER_SIZE];
+	char buffer[BUFFER_SIZE];
 
-	if (read(clientFd, buffer1, BUFFER_SIZE) < 0){
+	if (read(clientFd, buffer, BUFFER_SIZE) < 0){
 		std::cerr << "Error reading request" << std::endl;
 		return;
 	}
 
-	std::string hard_coded = "GET: /cgi-bin/python.cgi HTTP/1.1\nHost: localhost:8090\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:125.0) Gecko/20100101 Firefox/125.0\nAccept: image/avif,image/webp,\nAccept-Language: en-US,en;q=0.5\nAccept-Encoding: gzip, deflate, br\nConnection: keep-alive\nReferer: http://localhost:8090/test.html\nSec-Fetch-Dest: image\nSec-Fetch-Mode: no-cors\nSec-Fetch-Site: same-origin\nSec-Fetch-Dest: document\nSec-Fetch-Mode: navigate\nSec-Fetch-Site: same-origin";
-	std::string buffer = hard_coded;
 	printColor(RED, "Request constructor called ");
 	fill_boundary(buffer);
 	_request = parse_response(buffer);
@@ -102,6 +100,19 @@ std::string request::get_html(){
 	if (html_file == "/")
 		return "index.html";
 	return html_file;
+}
+
+bool request::isCgi()
+{
+	// check extension x.substr(x.find_last_of("*******") + 2) == "cx")
+	std::string fileName = get_html();
+	size_t dotIndex = fileName.find_last_of(".");
+	if (dotIndex != std::string::npos)
+	{
+		std::string extension = fileName.substr(dotIndex + 1);
+		return (extension == "cgi");
+	}
+	return (false);
 }
 
 int request::getClientFd()

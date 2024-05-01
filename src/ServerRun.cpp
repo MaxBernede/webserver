@@ -94,24 +94,19 @@ void ServerRun::serverRunLoop( void )
 				throw(Exception("Poll failed", errno));
 			continue ;
 		}
-		for (int i = 0; i < _pollFds.size(); i++)
+		for (int i = 0; i < (int)_pollFds.size(); i++)
 		{
-			std::cout << "what is i: " << i << std::endl;
-			if (_pollFds.size() != _pollData.size())
-				std::cout << "SIZE DISCREANCY\n";
 			try
 			{
 				if (_pollFds[i].revents & POLLIN)
 				{
 					//Read from client
-					dataIn(_pollData[i], _pollFds[i], i);
+					dataIn(_pollData[i], _pollFds[i]);
 				}
 				if (_pollFds[i].revents & POLLOUT)
 				{
 					// Write to client
-					// currently writing is not going through poll... NEEDS A FIX
-					dataOut(_pollData[i], _pollFds[i]);
-					removeConnection(i);
+					dataOut(_pollData[i], _pollFds[i], i);
 				}
 			}
 			catch(const Exception& e)
@@ -131,8 +126,8 @@ void ServerRun::acceptNewConnection(int listenerFd, int serverNum)
 	connFd = accept(listenerFd, (struct sockaddr *)cli_addr, &len);
 	if (connFd == -1)
 		throw(Exception("accept() errored and returned -1", errno));
+	
 	addQueue(CLIENT_CONNECTION, connFd, serverNum);
-
 }
 
 void ServerRun::readRequest(int clientFd)
@@ -166,7 +161,21 @@ void ServerRun::removeConnection(int idx)
 	}
 }
 
-void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd, int idx)
+void ServerRun::readFile(int readFd)
+{
+	
+}
+
+// readFd should match one in CGI
+void ServerRun::readPipe(int readFd, s_poll_data pollData)
+{
+	Response newResponse(readFd);
+	newResponse.read_contents();
+	pollData.pollType = CGI_WRITE;
+}
+
+
+void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd)
 {
 	switch (pollData.pollType)
 	{
@@ -177,37 +186,60 @@ void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd, int idx)
 			readRequest(pollFd.fd); // TODO this READS and WRITES the request and closes connection... we need to separate this 
 			break ;
 		// Add case to read the request here -> add file to read for request in poll_fd as STATIC_FILE
-		case STATIC_FILE: // Read a static file through here
+		case CGI_READ:
+			// Read from the CGI pipe
+			readPipe(pollFd.fd, pollData);
+			break ;
+		case FILE_READ: // Read a static html file
 			break ;
 		default:
-			break;
+			break ;
 	}
 }
 
-void ServerRun::respond(int clientFd)
+void ServerRun::prepareResponse(s_poll_data pollData, int clientFd, int idx)
 {
 	//find the request based on clientFd
 	int i = 0;
+	if (!_requests.size())
+		return ;
 	while (i < (int)_requests.size())
 	{
 		if (_requests[i].getClientFd() == clientFd)
 			break ;
 		i++;
 	}
-	std::cout << "i: " << i << std::endl;
-	Response response(_requests[i], clientFd);
-	response.handle_request();
-	// remove request?
-	close(clientFd);
-	_requests.erase(_requests.begin() + i);
-
+	if (_requests[i].isCgi()) // TODO: && CGI is allowed
+	{
+		CGI newCgi(_requests[i]);
+		newCgi.runCgi();
+		addQueue(CGI_READ, newCgi.getReadFd(), pollData.serverNum);
+	}
+	else
+	{
+		Response newResponse(_requests[i], clientFd);
+		newResponse.read_contents();
+		// remove request?
+		
+		
+		close(clientFd);
+		_requests.erase(_requests.begin() + i);
+		removeConnection(idx);
+	}
 }
 
-void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
+void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd, int idx)
 {
 	switch (pollData.pollType)
 	{
 		case CLIENT_CONNECTION:
-			respond(pollFd.fd);
+			prepareResponse(pollData, pollFd.fd, idx); // write to the client
+			break ;
+		case CGI_WRITE:
+			break ;
+		case FILE_WRITE:
+			break ;
+		default:
+			break ;
 	}
 }

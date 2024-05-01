@@ -1,9 +1,8 @@
 #include "CGI.hpp"
 
 
-CGI::CGI(std::string req) : _request(req), _cgiEnv(makeEnv(req))
+CGI::CGI(request req) : _request(req), _cgiEnv(makeEnv())
 {
-	pipe(_receivePipe);
 	pipe(_sendPipe);
 }
 
@@ -19,14 +18,13 @@ void CGI::runCgi()
 	{
 		// redirect I/O
 		close(_sendPipe[0]); // close read-end of response
-		close(_receivePipe[1]); // close write-end of receiving pipe
 		dup2(_sendPipe[1], STDOUT_FILENO); // write to response pipe
-		dup2(_receivePipe[0], STDIN_FILENO); // read from receiving pipe
 
-		std::string cgiFilePath = "var/www";
-		std::string cgiFilename = cgiFilePath + "python.cgi";
-
-		execve(cgiFilename.c_str(), NULL, _cgiEnv);
+		std::string cgiFilePath = "html/cgi-bin/";
+		std::string cgiFilename = _request.get_html();
+		cgiFilePath + "python.cgi";
+		char *argv[2] = {(char *)cgiFilename.c_str(), NULL};
+		execve(cgiFilename.c_str(), argv, _cgiEnv);
 		// if execve fails
 		std::cout << "Running CGI script failed (execve), path: " << cgiFilename << std::endl;
 		exit(1); // exit child process with 1, upon failure
@@ -34,11 +32,10 @@ void CGI::runCgi()
 	else //parent (main) process
 	{
 		close(_sendPipe[1]); // close write-end of the response pipe (send)
-		close(_receivePipe[0]); //_receivePipe[0] -> will be given to pollFd to write to the CGI! FOR NOW CLOSED
 	}
 }
 
-char **CGI::makeEnv(std::string req)
+char **CGI::makeEnv()
 {
 		std::array<std::string, ENV_SIZE> envArr{
 		"CONTENT_LENGTH=",
@@ -52,8 +49,8 @@ char **CGI::makeEnv(std::string req)
 		"REMOTE_IDENT=",
 		"REMOTE_USER=",
 		"REQUEST_METHOD=",
-		"SCRIPT_NAME=",
-		"SCRIPT_FILENAME=",
+		"SCRIPT_NAME=" ,
+		"SCRIPT_FILENAME=" + _request.get_html(),
 		"SERVER_NAME=",
 		"SERVER_PORT=",
 		"SERVER_PROTOCOL=HTTP/1.1", // fixed
@@ -69,4 +66,9 @@ char **CGI::makeEnv(std::string req)
 		}
 		env[ENV_SIZE] = NULL;
 		return (env);
+}
+
+int CGI::getReadFd()
+{
+	return (_sendPipe[0]);
 }

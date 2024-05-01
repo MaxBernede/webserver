@@ -4,8 +4,8 @@
 //generate random port between 8000 and 8100
 // because otherwise need to change manually every run
 int genererPort() {
-    srand(time(0));
-    return rand() % (MAX_PORT - MIN_PORT + 1) + MIN_PORT;
+	srand(time(0));
+	return rand() % (MAX_PORT - MIN_PORT + 1) + MIN_PORT;
 }
 
 //Try to read an html file and return it as a string with a specific text for response
@@ -13,32 +13,33 @@ int genererPort() {
 //itself again with error.html
 
 std::string make_response(std::ifstream &file){
-    std::ostringstream oss;
-    oss << "HTTP/1.1 404 OK\r\nContent-Type: text/html\r\n\r\n";
-    oss << file.rdbuf();
-    file.close();
+	std::ostringstream oss;
+	oss << "HTTP/1.1 404 OK\r\nContent-Type: text/html\r\n\r\n";
+	oss << file.rdbuf();
+	file.close();
 
-    return oss.str();
+	return oss.str();
 }
 
+// TODO: 'html/' should be replaced with the root defined in the config file
 std::string read_html_file(const std::string &filename) {
 	std::cout << "FILENAME: " << filename << std::endl;
-    std::string file_path = "html/" + filename;
-    std::ifstream file(file_path);
+	std::string file_path = "html/" + filename;
+	std::ifstream file(file_path);
 
-    if (!file.is_open()){
-        std::cout << "Error: Impossible to open the file " << file_path << std::endl;
-        return "";
-    }
+	if (!file.is_open()){
+		std::cout << "Error: Impossible to open the file " << file_path << std::endl;
+		return "";
+	}
 
-    return make_response(file);
+	return make_response(file);
 
 }
 
 //Check if the first string end with the second
 bool endsWith(const std::string& str, const std::string& suffix) {
-    if (str.length() < suffix.length()) {
-        return false;
-    }
-    return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
+	if (str.length() < suffix.length()) {
+		return false;
+	}
+	return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
 }

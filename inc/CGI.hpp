@@ -1,5 +1,6 @@
 #pragma once
 #include "webserver.hpp"
+#include <array>
 #include <iostream>
 
 #define ENV_SIZE 18
@@ -21,15 +22,16 @@ class CGI {
 		int _receivePipe[2]; // pipe where CGI receives data
 		int _sendPipe[2]; // pipe where CGI sends data
 		std::string _response;
-		std::string _request;
+		request _request;
 		char *const * _cgiEnv;
 
 	public:
-		CGI(std::string req);
+		CGI(request req);
 		~CGI(void);
 
 		void runCgi();
-		char **makeEnv(std::string req); // should take data from the request header
+		char **makeEnv(); // should take data from the request header
+		int getReadFd();
 
 };
 

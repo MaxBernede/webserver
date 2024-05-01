@@ -3,15 +3,27 @@
 #include <iostream>
 #include "webserver.hpp"
 
+#define BUFFER_SIZE 1000
+
 // For each server, you need a different listening socket for each port....
 enum pollType
 {
 	LISTENER,
 	CLIENT_CONNECTION,
-	STATIC_FILE,
+	STATIC_FILE_READ,
 	CGI_READ,
-	CGI_WRITE
+	CGI_WRITE,
+	FILE_READ,
+	FILE_WRITE
 };
+
+// enum pollStatus
+// {
+// 	CGI_READ,
+// 	CGI_WRITE,
+// 	FILE_READ,
+// 	FILE_WRITE
+// };
 
 typedef struct t_poll_data
 {
@@ -25,6 +37,7 @@ class ServerRun
 		std::list<Server> _servers;
 		std::vector<request> _requests;
 		std::vector<Socket *> _listenSockets;
+		std::vector<Response> _responses;
 		std::vector<s_poll_data> _pollData;
 		std::vector<struct pollfd> _pollFds;
 
@@ -39,9 +52,11 @@ class ServerRun
 	void acceptNewConnection(int listenerFd, int serverNum);
 	void readRequest(int clientFd);
 	void removeConnection(int idx);
+	void prepareResponse(s_poll_data pollData, int clientFd, int idx);
 
-	void respond(int clientFd);
+	void dataIn(s_poll_data pollData, struct pollfd pollFd); // read from client
+	void dataOut(s_poll_data pollData, struct pollfd pollFd, int idx); // write to client
 
-	void dataIn(s_poll_data pollData, struct pollfd pollFd, int idx); // read from client
-	void dataOut(s_poll_data pollData, struct pollfd pollFd); // write to client
+	void readFile(int readFd);
+	void readPipe(int readFd, s_poll_data pollData);
 };

@@ -1,15 +1,16 @@
 #pragma once
 
 #include "webserver.hpp"
-#include "request.hpp"
 
 class Response {
 	public:
 		Response(request req, int clientFd);
+		Response(int cgiFd);
+		~Response();
 
 		//Members functions
 		std::string parse_buffer(std::string buffer);
-		void handle_request();
+		void read_contents();
 		void r_send();
 	
 	private:
@@ -17,5 +18,5 @@ class Response {
 		std::string response_text;
 		std::string html_file;
 		request 	_request;
-		int			_clientFd;
+		int			_fd;
 };
