@@ -34,6 +34,22 @@ void request::parse_first_line(std::istringstream &iss){
 		_request.emplace_back(create_pair(line, pos));
 }
 
+// Parse what is after the \r of the first _request informations
+void request::parse_body(std::istringstream &iss, std::string &line) {
+    std::string body = "Body ";
+
+    if (_boundary != "" && is_boundary(line)) {
+        while (std::getline(iss, line)) {
+            if (_boundary != "" && is_boundary(line)) {
+                _request.emplace_back(create_pair(body, 4));
+                break;
+            }
+            body += line;
+            body += "\n";
+        }
+    }
+}
+
 //fill the _request
 // it works as : get the first line based on space
 // then check for the ':' however if there is a boundary and its found, keep everything between as body
@@ -49,21 +65,8 @@ void request::parse_response(const std::string& headers) {
 		if (pos != std::string::npos)
 			_request.emplace_back(create_pair(line, pos));
 	}
-
-	//to be put in a different function
-	std::string body;
-	if (std::getline(iss, line)){
-		if (_boundary != "" && is_boundary(line)){
-			while (std::getline(iss, line)){
-				if (_boundary != "" && is_boundary(line)){
-					_request.emplace_back(create_pair(body, 4));
-					break;
-				}
-				body += line;
-				body += "\n";
-			}
-		}
-	}
+    if (std::getline(iss, line))
+        parse_body(iss, line);
 }
 //return an empty string if no boundaries found
 //Otherwise, return the boundary WITHOUT \r\n at the end
@@ -88,7 +91,7 @@ void request::fill_boundary(std::string text){
 void request::show_datas(){
 	printColor(YELLOW, "All the datas on the Request Class :");
 	printColor(RESET, "Boundary: ", _boundary);
-	std::cout << " Method: ";
+	std::cout << "Method: ";
 	for (const auto &method : _method)
 		std::cout << method << " ";
 	std::cout << std::endl;
@@ -98,8 +101,7 @@ void request::show_datas(){
 
 //Constructor that parse everything
 request::request(std::string text){
-	printColor(RED, "Request constructor called");
-	printColor(BLUE, text);
+	//printColor(GREEN, "Request constructor called");
 	fill_boundary(text);
 	parse_response(text);
 	show_datas();

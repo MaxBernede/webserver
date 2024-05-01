@@ -1,6 +1,10 @@
 #pragma once
 
+//DATAS TYPES
+#include <unordered_map>
 #include <string>
+
+
 #include <sys/socket.h>
 #include <sys/poll.h>
 #include <netinet/in.h>

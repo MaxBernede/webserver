@@ -13,6 +13,7 @@ class request
 		bool is_boundary(const std::string &line);
 		void parse_response(const std::string& headers);
 		void fill_body(std::istringstream &iss);
+		void parse_body(std::istringstream &iss, std::string &line);
 
 		//Methods
 		void show_datas();
@@ -23,4 +24,5 @@ class request
 		std::vector<std::pair<std::string, std::string>> _request;
 		std::string _boundary;
 		std::vector<std::string> _method;
+		// std::unordered_map<std::string, std::vector<std::string>> _r;
 };
