@@ -34,7 +34,7 @@ void request::parse_first_line(std::istringstream &iss){
 		_request.emplace_back(create_pair(line, pos));
 }
 
-// Parse what is after the \r of the first _request informations
+// Parse what is after the \r of the
 void request::parse_body(std::istringstream &iss, std::string &line) {
     std::string body = "Body ";
 
@@ -104,6 +104,7 @@ request::request(std::string text){
 	//printColor(GREEN, "Request constructor called");
 	fill_boundary(text);
 	parse_response(text);
+	fill_file();
 	show_datas();
 	std::string body = get_values("Body");
 	if (!body.empty())
@@ -128,6 +129,15 @@ std::string firstWord(const std::string& str) {
 	if (pos == std::string::npos)
 		return str;
 	return str.substr(0, pos);
+}
+
+void request::fill_file(){
+	std::string val = get_values("GET");
+	if (val.empty())
+		val = get_values("POST");
+	_file = val.empty() ? "" : firstWord(val);
+	if (_file == "/")
+		_file = "index.html";
 }
 
 //Return the first word after GET (usually the html) otherwise empty
