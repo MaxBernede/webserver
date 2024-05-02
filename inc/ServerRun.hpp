@@ -2,8 +2,11 @@
 
 #include <iostream>
 #include "webserver.hpp"
+#include <unordered_map>
 
 #define BUFFER_SIZE 1000
+
+class CGI;
 
 // For each server, you need a different listening socket for each port....
 enum pollType
@@ -31,11 +34,13 @@ typedef struct t_poll_data
 	int serverNum;
 } s_poll_data;
 
+
 class ServerRun
 {
 	private:
 		std::list<Server> _servers;
 		std::vector<request> _requests;
+		std::unordered_map<int, CGI> _cgi;
 		std::vector<Socket *> _listenSockets;
 		std::vector<Response> _responses;
 		std::vector<s_poll_data> _pollData;

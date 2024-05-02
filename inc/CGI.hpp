@@ -22,16 +22,18 @@ class CGI {
 		int _receivePipe[2]; // pipe where CGI receives data
 		int _sendPipe[2]; // pipe where CGI sends data
 		std::string _response;
-		request _request;
 		char *const * _cgiEnv;
+		request _request;
+		int _clientFd;
 
 	public:
-		CGI(request req);
+		CGI(request req, int clientFd);
 		~CGI(void);
 
 		void runCgi();
 		char **makeEnv(); // should take data from the request header
 		int getReadFd();
+		int getClientFd();
 
 };
 

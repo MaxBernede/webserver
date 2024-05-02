@@ -138,27 +138,8 @@ void ServerRun::readRequest(int clientFd)
 
 void ServerRun::removeConnection(int idx)
 {
-	int i = 0;
-	for (auto itData = _pollData.begin(); itData != _pollData.end(); itData++)
-	{
-		if (i == idx)
-		{
-			_pollData.erase(itData);
-			break ;
-		}
-		i++;
-	}
-
-	i = 0;
-	for (auto itFd = _pollFds.begin(); itFd != _pollFds.end(); itFd++)
-	{
-		if (i == idx)
-		{
-			_pollFds.erase(itFd);
-			break ;
-		}
-		i++;
-	}
+	_pollData.erase(_pollData.begin() + idx);
+	_pollFds.erase(_pollFds.begin() + idx);
 }
 
 void ServerRun::readFile(int readFd)
@@ -169,7 +150,8 @@ void ServerRun::readFile(int readFd)
 // readFd should match one in CGI
 void ServerRun::readPipe(int readFd, s_poll_data pollData)
 {
-	Response newResponse(readFd);
+	Response newResponse(_cgi[readFd].getClientFd());
+	
 	newResponse.read_contents();
 	pollData.pollType = CGI_WRITE;
 }
@@ -200,6 +182,7 @@ void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd)
 void ServerRun::prepareResponse(s_poll_data pollData, int clientFd, int idx)
 {
 	//find the request based on clientFd
+	// using an unordered map is better...
 	int i = 0;
 	if (!_requests.size())
 		return ;
@@ -211,8 +194,9 @@ void ServerRun::prepareResponse(s_poll_data pollData, int clientFd, int idx)
 	}
 	if (_requests[i].isCgi()) // TODO: && CGI is allowed
 	{
-		CGI newCgi(_requests[i]);
+		CGI newCgi(_requests[i], clientFd);
 		newCgi.runCgi();
+		_cgi[newCgi.getReadFd()] = newCgi; // when a new CGI object is created, add it to the map
 		addQueue(CGI_READ, newCgi.getReadFd(), pollData.serverNum);
 	}
 	else

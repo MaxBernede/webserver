@@ -1,7 +1,6 @@
 #include "CGI.hpp"
 
-
-CGI::CGI(request req) : _request(req), _cgiEnv(makeEnv())
+CGI::CGI(request req, int clientFd) : _request(req), _clientFd(clientFd), _cgiEnv(makeEnv())
 {
 	pipe(_sendPipe);
 }
@@ -71,4 +70,9 @@ char **CGI::makeEnv()
 int CGI::getReadFd()
 {
 	return (_sendPipe[0]);
+}
+
+int CGI::getClientFd()
+{
+	return (_clientFd);
 }

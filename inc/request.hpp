@@ -16,7 +16,7 @@ class request
 
 	private:
 		std::vector<std::pair<std::string, std::string>> _request;
-		std::string request_str;
+		std::string request_str; // parsed request string
 		std::string _boundary;
 		int _clientFd;
 };

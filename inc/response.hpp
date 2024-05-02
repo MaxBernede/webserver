@@ -5,7 +5,7 @@
 class Response {
 	public:
 		Response(request req, int clientFd);
-		Response(int cgiFd);
+		Response(int cgiFd, int clientFd);
 		~Response();
 
 		//Members functions
@@ -18,5 +18,6 @@ class Response {
 		std::string response_text;
 		std::string html_file;
 		request 	_request;
-		int			_fd;
+		int			_readFd;
+		int			_writeFd;
 };

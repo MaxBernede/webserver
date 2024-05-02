@@ -4,7 +4,7 @@
 #define BUFFER_SIZE 1024
 
 //!Constructors
-Response::Response(request req, int clientFd) : _request(req), _fd(clientFd)
+Response::Response(request req, int clientFd) : _request(req), _writeFd(clientFd), _readFd(-1)
 {
 	html_file = this->_request.get_html();
 	std::cout << "Default constructor Response" << std::endl;
@@ -13,7 +13,7 @@ Response::Response(request req, int clientFd) : _request(req), _fd(clientFd)
 	}
 }
 
-Response::Response(int cgiFd) : _fd(cgiFd), _request(NULL) {}
+Response::Response(int cgiFd, int clientFd) : _request(NULL), _writeFd(clientFd), _readFd(cgiFd) {}
 
 Response::~Response() {}
 
@@ -21,12 +21,23 @@ Response::~Response() {}
 //read the HTML and return it as a string
 void Response::read_contents()
 {
-	response_text = read_html_file(html_file);
+	if (!_request.isCgi())
+	{
+		response_text = read_html_file(html_file);
+	}
+	else
+	{
+		// read from the pipe
+		char buffer[1000];
+		int ret = read(_readFd, buffer, 1000);
+
+
+	}
 }
 
 void Response::r_send(){
 	//std::cout << "Message to send : " << response_text << std::endl;
-	if (send(_fd, response_text.c_str(), response_text.length(), 0) == -1) {
+	if (send(_writeFd, response_text.c_str(), response_text.length(), 0) == -1) {
 		std::cerr << "Error sending response" << std::endl;
 	}
 }
