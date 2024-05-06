@@ -17,11 +17,10 @@ class Socket
 		int _serverNum;
 
 	public:
-		Socket(int port, int serverNum);
+		Socket(int port);
 		~Socket(void);
 
 		Socket &operator=(Socket &other) noexcept;
 
 		int	getFd( void );
-		int	getServerNum( void );
 };

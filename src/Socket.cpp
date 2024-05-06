@@ -1,7 +1,7 @@
 #include "Socket.hpp"
 #include "webserver.hpp"
 
-Socket::Socket(int port, int serverNum) : _serverNum(serverNum)
+Socket::Socket(int port)
 {
 	struct addrinfo hints, *res, *tmp;
 	std::string port_str = std::to_string(port);
@@ -63,9 +63,4 @@ Socket &Socket::operator=(Socket &other) noexcept
 int	Socket::getFd( void )
 {
 	return (_fd);
-}
-
-int	Socket::getServerNum( void )
-{
-	return (_serverNum);
 }

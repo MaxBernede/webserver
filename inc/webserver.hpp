@@ -25,7 +25,6 @@
 #define MIN_PORT 8000
 #define MAX_PORT 8100
 
-#include "utils.hpp"
 #include "response.hpp"
 #include "signal.hpp"
 #include "server.hpp"

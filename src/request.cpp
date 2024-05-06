@@ -32,7 +32,7 @@ std::vector<std::pair<std::string, std::string>> parse_response(const std::strin
 	return request;
 }
 
-void request::fill_boundary(std::string text){
+void Request::fill_boundary(std::string text){
 	std::string search = "boundary=";
 	size_t pos = text.find(search);
 	if (pos == std::string::npos){
@@ -48,8 +48,8 @@ void request::fill_boundary(std::string text){
     _boundary = text.substr(pos, endPos - pos);
 }
 
-//Constructor that parse everything
-request::request(int clientFd) : _clientFd(clientFd)
+//Constructor that parses everything
+Request::Request(int clientFd) : _clientFd(clientFd)
 {
 	char buffer[BUFFER_SIZE];
 
@@ -68,8 +68,10 @@ request::request(int clientFd) : _clientFd(clientFd)
 
 }
 
+Request::~Request() {}
+
 //Return the value of the found key, otherwise empty string
-std::string request::get_values(std::string key){
+std::string Request::get_values(std::string key){
 	for (const auto& pair : _request) {
 		if (pair.first == key)
 			return pair.second;
@@ -89,7 +91,8 @@ std::string firstWord(const std::string& str) {
 }
 
 //Return the first word after GET (usually the html) otherwise empty
-std::string request::get_html(){
+std::string Request::getFileName( void )
+{
 	std::string val = get_values("GET");
 	if (val.empty()){
 		val = get_values("POST");
@@ -102,10 +105,10 @@ std::string request::get_html(){
 	return html_file;
 }
 
-bool request::isCgi()
+bool Request::isCgi()
 {
 	// check extension x.substr(x.find_last_of("*******") + 2) == "cx")
-	std::string fileName = get_html();
+	std::string fileName = getFileName();
 	size_t dotIndex = fileName.find_last_of(".");
 	if (dotIndex != std::string::npos)
 	{
@@ -115,17 +118,17 @@ bool request::isCgi()
 	return (false);
 }
 
-int request::getClientFd()
+int Request::getClientFd()
 {
 	return (_clientFd);
 }
 
-std::vector<std::pair<std::string, std::string>> request::getContent()
+std::vector<std::pair<std::string, std::string>> Request::getContent()
 {
 	return (_request);
 }
 
-std::string request::getRequestStr()
+std::string Request::getRequestStr()
 {
 	return (request_str);
 }

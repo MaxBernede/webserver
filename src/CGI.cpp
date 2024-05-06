@@ -1,6 +1,6 @@
 #include "CGI.hpp"
 
-CGI::CGI(request req, int clientFd) : _request(req), _clientFd(clientFd), _cgiEnv(makeEnv())
+CGI::CGI(Request *request, int clientFd) : _request(request), _clientFd(clientFd), _cgiEnv(makeEnv())
 {
 	pipe(_sendPipe);
 }
@@ -8,6 +8,7 @@ CGI::CGI(request req, int clientFd) : _request(req), _clientFd(clientFd), _cgiEn
 CGI::~CGI(void)
 {
 	delete [] _cgiEnv;
+	delete _request;
 }
 
 void CGI::runCgi()
@@ -20,7 +21,7 @@ void CGI::runCgi()
 		dup2(_sendPipe[1], STDOUT_FILENO); // write to response pipe
 
 		std::string cgiFilePath = "html/cgi-bin/";
-		std::string cgiFilename = _request.get_html();
+		std::string cgiFilename = _request->getFileName();
 		cgiFilePath + "python.cgi";
 		char *argv[2] = {(char *)cgiFilename.c_str(), NULL};
 		execve(cgiFilename.c_str(), argv, _cgiEnv);
@@ -49,7 +50,7 @@ char **CGI::makeEnv()
 		"REMOTE_USER=",
 		"REQUEST_METHOD=",
 		"SCRIPT_NAME=" ,
-		"SCRIPT_FILENAME=" + _request.get_html(),
+		"SCRIPT_FILENAME=" + _request->getFileName(),
 		"SERVER_NAME=",
 		"SERVER_PORT=",
 		"SERVER_PROTOCOL=HTTP/1.1", // fixed
