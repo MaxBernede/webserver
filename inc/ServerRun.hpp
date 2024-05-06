@@ -30,7 +30,7 @@ class ServerRun
 		std::list<Server> _servers; // Server blocks from config file
 		std::vector<Socket *> _listenSockets; // Listener sockets 
 		std::unordered_map<int, Request *> _requests; // Request (not cgi)
-		std::unordered_map<int, CGI> _cgi; // Cgi requests, int: pollFd (clientFd) -> create response
+		std::unordered_map<int, CGI *> _cgi; // Cgi requests, int: pollFd (clientFd) -> create response
 		std::unordered_map<int, Response> _responses; // Responses to be sent, int: pollFd to write to
 		std::unordered_map<int, s_poll_data> _pollData; // int: polFd
 		std::vector<struct pollfd> _pollFds; // vector to pass to poll
@@ -46,7 +46,6 @@ class ServerRun
 	void acceptNewConnection(int listenerFd);
 	void readRequest(int clientFd);
 	void removeConnection(int idx);
-	void prepareResponse(s_poll_data pollData, int clientFd, int idx);
 
 	void dataIn(s_poll_data pollData, struct pollfd pollFd); // read from client
 	void dataOut(s_poll_data pollData, struct pollfd pollFd, int idx); // write to client

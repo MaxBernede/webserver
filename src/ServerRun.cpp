@@ -132,10 +132,10 @@ void ServerRun::readRequest(int clientFd)
 
 	if (newRequest->isCgi())
 	{
-		CGI cgiRequest(newRequest, clientFd);
+		CGI *cgiRequest = new CGI(newRequest, clientFd);
 		_cgi[clientFd] = cgiRequest;
 		addQueue(CGI_READ_WAITING, clientFd);
-		cgiRequest.runCgi();
+		cgiRequest->runCgi();
 	}
 	else // Static file
 	{
@@ -175,7 +175,6 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd, int idx)
 	switch (pollData.pollType)
 	{
 		case CGI_READ_DONE:
-			prepareResponse(pollData, pollFd.fd, idx); // write to the client
 			break ;
 		case FILE_READ_DONE:
 			// Send response
