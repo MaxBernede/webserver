@@ -42,7 +42,7 @@ Socket::Socket(int port)
 		close(_fd);
 		std::cout << "listening failed on socketfd " << _fd << " on port " << port << std::endl; 
 	}
-	std::cout << "Sockets created" << std::endl;
+	std::cout << "Sockets created: " << _fd << std::endl;
 }
 	
 Socket::~Socket()

@@ -7,21 +7,24 @@
 
 class Response {
 	public:
-		Response(Request req, int clientFd);
+		Response(Request *req, int clientFd);
 		~Response();
 
 		//Members functions
 		std::string makeResponse(std::ifstream &file);
-		std::string readHtmlFile(void);
+		std::string makeStrResponse( void );
+		std::string readHtmlFile( void );
 		std::string readFromPipe( void );
-		void readContents(void);
-		void rSend();
+		void addToBuffer(std::string buffer);
+		void setReady( void );
+		void rSend( void );
 	
 	private:
 		std::string file;
 		std::string response_text;
 		std::string	_html_file;
-		Request	_request;
+		Request	*_request;
 		int	_clientFd;
 		int	_readFd;
+		bool ready;
 };

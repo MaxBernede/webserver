@@ -1,6 +1,7 @@
 #include "webserver.hpp"
 #include <utility>
 #include <algorithm>
+#include <string>
 #include <sys/socket.h>
 #include "CGI.hpp"
 
@@ -78,10 +79,16 @@ void ServerRun::serverRunLoop( void )
 	int nCliCon = -1;
 
 	printColor(GREEN, "Server running...");
+	for (auto item : _pollFds)
+	{
+		std::cout << item.fd << std::endl;
+	}
 	while (true)
 	{
 		
 		nCliCon = poll(_pollFds.data(), _pollFds.size(), 0);
+		// if (nCliCon)
+		// 	std::cout << "ncliCon: " << nCliCon << std::endl;
 		if (nCliCon <= 0)
 		{
 			if (nCliCon < 0 and errno != EAGAIN) // EGAIN: Resource temporarily unavailable
@@ -96,14 +103,16 @@ void ServerRun::serverRunLoop( void )
 				{
 					// Only start reading CGI once the write end of the pipe is closed
 					if ((_pollFds[i].revents & POLLHUP) && _pollData[_pollFds[i].fd].pollType == CGI_READ_WAITING)
+					{
 						_pollData[_pollFds[i].fd].pollType = CGI_READ_READING;
+					}
 					//Read from client
-					dataIn(_pollData[i], _pollFds[i]);
+					dataIn(_pollData[_pollFds[i].fd], _pollFds[i]);
 				}
 				if (_pollFds[i].revents & POLLOUT)
 				{
 					// Write to client
-					dataOut(_pollData[i], _pollFds[i], i);
+					dataOut(_pollData[_pollFds[i].fd], _pollFds[i]);
 				}
 			}
 			catch(const Exception& e)
@@ -139,12 +148,50 @@ void ServerRun::readRequest(int clientFd)
 	}
 	else // Static file
 	{
-		_requests[clientFd] = newRequest;
 		std::string filePath = "html/" + newRequest->getFileName();
 		int fileFd = open(filePath.c_str(), O_RDONLY);
 		if (fileFd < 0)
 			throw(Exception("Opening static file failed!", errno));
-		addQueue(FILE_READ_READING, clientFd);
+		_requests[fileFd] = newRequest; // TODO: We need to add the request header reading in here too
+		addQueue(FILE_READ_READING, fileFd);
+	}
+}
+void ServerRun::removeConnection(int fd)
+{
+	for (int i = 0; i < (int)_pollFds.size(); i++)
+	{
+		if (_pollFds[i].fd == fd)
+		{
+			_pollFds.erase(_pollFds.begin() + i);
+			break ;
+		}
+	}
+	_pollData.erase(fd);
+}
+
+void ServerRun::readFile(int fd)
+{
+	char buffer[BUFFER_SIZE];
+
+	int clientFd = _requests[fd]->getClientFd();
+	if (_responses.find(clientFd) == _responses.end()) // Response object no created
+	{
+		Response *response = new Response(_requests[fd], clientFd);
+		_responses[clientFd] = response;
+	}
+	int readChars = read(fd, buffer, BUFFER_SIZE);
+	if (readChars < 0)
+		throw(Exception("Read failed!", errno));
+	buffer[readChars] = '\0';
+	if (readChars > 0)
+	{
+		_responses[clientFd]->addToBuffer(buffer);
+	}
+	if (readChars == 0)
+	{
+		_pollData[fd].pollType = FILE_READ_DONE;
+		_responses[clientFd]->setReady();
+		close(fd);
 	}
 }
 
@@ -156,28 +203,40 @@ void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd)
 			acceptNewConnection(pollFd.fd);
 			break ;
 		case CLIENT_CONNECTION: 
-			readRequest(pollFd.fd); // TODO this READS and WRITES the request and closes connection... we need to separate this 
+			readRequest(pollFd.fd);
 			break ;
-		// Add case to read the request here -> add file to read for request in poll_fd as STATIC_FILE
+
 		case CGI_READ_READING:
 			// Read from pipe
 			break ;
 		case FILE_READ_READING:
-			// Read static file
+			readFile(pollFd.fd);
 			break ;
 		default:
 			break ;
 	}
 }
 
-void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd, int idx)
+void ServerRun::sendResponse(int fd)
+{
+		std::cout << "SENDING RESPONSE" << std::endl;
+		int clientFd = _requests[fd]->getClientFd();
+		Response *r = _responses[clientFd];
+		r->rSend();
+		// removeConnection(fd);
+		std::cout << "!!!" << std::endl;
+		// _requests.erase(fd);
+		// _responses.erase(clientFd);
+}
+
+void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 {
 	switch (pollData.pollType)
 	{
 		case CGI_READ_DONE:
 			break ;
 		case FILE_READ_DONE:
-			// Send response
+			sendResponse(pollFd.fd);
 			break ;
 		default:
 			break ;

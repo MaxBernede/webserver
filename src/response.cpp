@@ -4,11 +4,11 @@
 #define BUFFER_SIZE 1024
 
 //!Constructors
-Response::Response(Request req, int clientFd) : _request(req), _clientFd(clientFd)
+Response::Response(Request *req, int clientFd) : _request(req), _clientFd(clientFd), ready(false)
 {
-	_html_file = this->_request.getFileName();
+	_html_file = this->_request->getFileName();
 	std::cout << "Default constructor Response" << std::endl;
-	for (const auto& pair : _request.getContent()) {
+	for (const auto& pair : _request->getContent()) {
 		std::cout << pair.first << ": " << pair.second << std::endl;
 	}
 }
@@ -28,6 +28,15 @@ std::string Response::makeResponse(std::ifstream &file)
 	return oss.str();
 }
 
+std::string Response::makeStrResponse(void)
+{
+	std::ostringstream oss;
+	oss << "HTTP/1.1 404 OK\r\nContent-Type: text/html\r\n\r\n";
+	oss << response_text;
+
+	return oss.str();
+}
+
 // TODO: 'html/' should be replaced with the root defined in the config file
 std::string Response::readHtmlFile(void)
 {
@@ -43,28 +52,22 @@ std::string Response::readHtmlFile(void)
 
 //Read from the FD and fill the buffer with a max of 1024, then get the html out of it
 //read the HTML and return it as a string
-void Response::readContents(void)
+void Response::addToBuffer(std::string buffer)
 {
-	if (!_request.isCgi()) // read from static HTML
-	{
-		response_text = readHtmlFile();
-	}
-	else // if it is CGI() read from pipe
-	{
-		char buffer[BUFFER_SIZE];
-		int ret = read(_readFd, buffer, BUFFER_SIZE);
-		if (ret < 0)
-			throw(Exception("Reading static file failed", errno));
-		if (ret == 0)
-		{
-			//update the status of the pollFd
-		}
-	}
+	response_text += buffer;
 }
 
-void Response::rSend(){
-	//std::cout << "Message to send : " << response_text << std::endl;
-	if (send(_clientFd, response_text.c_str(), response_text.length(), 0) == -1) {
-		std::cerr << "Error sending response" << std::endl;
+void Response::rSend( void ){
+	std::string response = makeStrResponse();
+	std::cout << "Message to send : " << response << std::endl;
+	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
+	{
+		throw(Exception("Error sending response", errno));
 	}
+
+}
+
+void Response::setReady( void )
+{
+	ready = true;
 }
