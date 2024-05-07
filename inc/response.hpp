@@ -2,12 +2,16 @@
 
 #include "webserver.hpp"
 #include "request.hpp"
+#include "CGI.hpp"
 
 #define BUFFER_SIZE 1024
+
+class CGI;
 
 class Response {
 	public:
 		Response(Request *req, int clientFd);
+		Response(CGI *cgi, int clientFd);
 		~Response();
 
 		//Members functions
@@ -24,6 +28,7 @@ class Response {
 		std::string response_text;
 		std::string	_html_file;
 		Request	*_request;
+		CGI *_cgi;
 		int	_clientFd;
 		int	_readFd;
 		bool ready;

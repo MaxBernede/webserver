@@ -32,6 +32,7 @@ class CGI {
 		char	**makeEnv(); // should take data from the request header
 		int		getReadFd();
 		int		getClientFd();
+		Request *getRequest();
 
 };
 

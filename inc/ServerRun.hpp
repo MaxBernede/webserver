@@ -50,7 +50,8 @@ class ServerRun
 	void dataIn(s_poll_data pollData, struct pollfd pollFd); // read from client
 	void dataOut(s_poll_data pollData, struct pollfd pollFd); // write to client
 
-	void readFile(int readFd);
-	void readPipe(int readFd, s_poll_data pollData);
+	void readFile(int fd);
+	void readPipe(int fd);
 	void sendResponse(int fd);
+	void sendCgiResponse(int fd);
 };

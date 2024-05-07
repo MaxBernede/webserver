@@ -19,10 +19,8 @@ void CGI::runCgi()
 		// redirect I/O
 		close(_sendPipe[0]); // close read-end of response
 		dup2(_sendPipe[1], STDOUT_FILENO); // write to response pipe
-
-		std::string cgiFilePath = "html/cgi-bin/";
-		std::string cgiFilename = _request->getFileName();
-		cgiFilePath + "python.cgi";
+		std::string cgiFilePath = "html";
+		std::string cgiFilename = cgiFilePath + _request->getFileName();
 		char *argv[2] = {(char *)cgiFilename.c_str(), NULL};
 		execve(cgiFilename.c_str(), argv, _cgiEnv);
 		// if execve fails
@@ -76,4 +74,9 @@ int CGI::getReadFd()
 int CGI::getClientFd()
 {
 	return (_clientFd);
+}
+
+Request *CGI::getRequest()
+{
+	return (_request);
 }
