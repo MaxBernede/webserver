@@ -107,6 +107,8 @@ void ServerRun::serverRunLoop( void )
 						std::cout << "CGI write side finished writing to the pipe\n";
 						_pollData[_pollFds[i].fd].pollType = CGI_READ_READING;
 					}
+					if (_pollData[_pollFds[i].fd].pollType == CGI_READ_READING)
+						std::cout <<  "cgi read waiting!\n";
 					//Read from client
 					dataIn(_pollData[_pollFds[i].fd], _pollFds[i]);
 				}
@@ -133,13 +135,14 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	connFd = accept(listenerFd, (struct sockaddr *)cli_addr, &len);
 	if (connFd == -1)
 		throw(Exception("accept() errored and returned -1", errno));
-	addQueue(CLIENT_CONNECTION, connFd);
+	addQueue(CLIENT_CONNECTION_READY, connFd);
 }
 
 void ServerRun::readRequest(int clientFd)
 {
 	Request *newRequest = new Request(clientFd);
 
+	_pollData[clientFd].pollType = CLIENT_CONNECTION_WAIT;
 	if (newRequest->isCgi())
 	{
 		std::cout << "It is a CGI Request!\n";
@@ -187,7 +190,7 @@ void ServerRun::readFile(int fd) // Static file fd
 	}
 	int readChars = read(fd, buffer, BUFFER_SIZE);
 	if (readChars < 0)
-		throw(Exception("Read failed!", errno));
+		throw(Exception("Read file failed", errno));
 	if (readChars > 0)
 	{
 		_responses[clientFd]->addToBuffer(buffer);
@@ -214,10 +217,12 @@ void ServerRun::readPipe(int fd) // Pipe read end fd
 		_responses[clientFd] = response;
 	}
 	int readChars = read(fd, buffer, BUFFER_SIZE);
+	std::cout << "cgi read chars " << readChars << std::endl;
 	if (readChars < 0)
-		throw(Exception("Read failed!", errno));
+		throw(Exception("Read pipe failed!", errno));
 	if (readChars > 0)
 	{
+		std::cout << "adding it!!!\n";
 		_responses[clientFd]->addToBuffer(buffer);
 	}
 	if (readChars == 0)
@@ -236,7 +241,7 @@ void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd)
 		case LISTENER:
 			acceptNewConnection(pollFd.fd);
 			break ;
-		case CLIENT_CONNECTION: 
+		case CLIENT_CONNECTION_READY: 
 			readRequest(pollFd.fd);
 			break ;
 		case CGI_READ_READING:
@@ -260,6 +265,7 @@ void ServerRun::sendResponse(int fd)
 		removeConnection(fd);
 		_requests.erase(fd);
 		_responses.erase(clientFd);
+		_pollData[clientFd].pollType = CLIENT_CONNECTION_READY;
 }
 
 void ServerRun::sendCgiResponse(int fd)
