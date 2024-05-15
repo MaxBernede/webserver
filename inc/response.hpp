@@ -4,7 +4,7 @@
 #include "request.hpp"
 #include "CGI.hpp"
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 10
 
 class CGI;
 

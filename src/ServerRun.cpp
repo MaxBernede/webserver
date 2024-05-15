@@ -20,7 +20,6 @@ ServerRun::ServerRun(const std::list<Server> config)
 		for (auto port : server.getPorts())
 		{
 			listens.push_back(port.nmb);
-			// TODO might be nice to add te name of the IP attached to the port as well
 		}
 	}
 	//create listening sockets
@@ -76,7 +75,7 @@ void ServerRun::addQueue(pollType type, int fd)
 void ServerRun::serverRunLoop( void )
 {
 	// create epoll queue...
-	int nCliCon = -1;
+	int nCon = -1;
 
 	printColor(GREEN, "Server running...");
 	for (auto item : _pollFds)
@@ -86,12 +85,10 @@ void ServerRun::serverRunLoop( void )
 	while (true)
 	{
 		
-		nCliCon = poll(_pollFds.data(), _pollFds.size(), 0);
-		// if (nCliCon)
-		// 	std::cout << "ncliCon: " << nCliCon << std::endl;
-		if (nCliCon <= 0)
+		nCon = poll(_pollFds.data(), _pollFds.size(), 0);
+		if (nCon <= 0)
 		{
-			if (nCliCon < 0 and errno != EAGAIN) // EGAIN: Resource temporarily unavailable
+			if (nCon < 0 and errno != EAGAIN) // EGAIN: Resource temporarily unavailable
 				throw(Exception("Poll failed", errno));
 			continue ;
 		}
@@ -107,8 +104,6 @@ void ServerRun::serverRunLoop( void )
 						std::cout << "CGI write side finished writing to the pipe\n";
 						_pollData[_pollFds[i].fd].pollType = CGI_READ_READING;
 					}
-					if (_pollData[_pollFds[i].fd].pollType == CGI_READ_READING)
-						std::cout <<  "cgi read waiting!\n";
 					//Read from client
 					dataIn(_pollData[_pollFds[i].fd], _pollFds[i]);
 				}
@@ -138,29 +133,44 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	addQueue(CLIENT_CONNECTION_READY, connFd);
 }
 
+
+// Only continue after reading the whole request
 void ServerRun::readRequest(int clientFd)
 {
-	Request *newRequest = new Request(clientFd);
-
-	_pollData[clientFd].pollType = CLIENT_CONNECTION_WAIT;
-	if (newRequest->isCgi())
+	if (_requests.find(clientFd) == _requests.end())
 	{
-		std::cout << "It is a CGI Request!\n";
-		CGI *cgiRequest = new CGI(newRequest, clientFd);
-		int pipeFd = cgiRequest->getReadFd();
-		_cgi[pipeFd] = cgiRequest;
-		std::cout << "PIPE FD: " << pipeFd << std::endl;
-		addQueue(CGI_READ_WAITING, pipeFd);
-		cgiRequest->runCgi();
+		Request *newRequest = new Request(clientFd);
+		_requests[clientFd] = newRequest;
 	}
-	else // Static file
+	else if (_requests[clientFd]->isDoneReading() == false)
 	{
-		std::string filePath = "html/" + newRequest->getFileName();
-		int fileFd = open(filePath.c_str(), O_RDONLY);
-		if (fileFd < 0)
-			throw(Exception("Opening static file failed!", errno));
-		_requests[fileFd] = newRequest; // TODO: We need to add the request header reading in here too
-		addQueue(FILE_READ_READING, fileFd);
+		_requests[clientFd]->readRequest();
+	}
+	if (_requests[clientFd]->isDoneReading() == true)
+	{
+		_pollData[clientFd].pollType = CLIENT_CONNECTION_WAIT;
+		if (_requests[clientFd]->isCgi()) // TODO and is cGI allowed
+		{
+			std::cout << "It is a CGI Request!\n";
+			CGI *cgiRequest = new CGI(_requests[clientFd], clientFd);
+			int pipeFd = cgiRequest->getReadFd();
+			_cgi[pipeFd] = cgiRequest;
+			// std::cout << "Cgi Pipe FD: " << pipeFd << std::endl;
+			addQueue(CGI_READ_WAITING, pipeFd);
+			cgiRequest->runCgi();
+		}
+		else // Static file
+		{
+			std::string filePath = "html/" + _requests[clientFd]->getFileName(); // TODO root path based on config
+			int fileFd = open(filePath.c_str(), O_RDONLY);
+			if (fileFd < 0)
+			{
+				std::cout << "Failed opening file: " << filePath << std::endl; // TODO 404 error
+				throw(Exception("Opening static file failed", errno));
+			}
+			_requests[fileFd] = _requests[clientFd]; // TODO: We need to add the request header reading in here too
+			addQueue(FILE_READ_READING, fileFd);
+		}
 	}
 }
 void ServerRun::removeConnection(int fd)
@@ -188,14 +198,14 @@ void ServerRun::readFile(int fd) // Static file fd
 		Response *response = new Response(_requests[fd], clientFd);
 		_responses[clientFd] = response;
 	}
-	int readChars = read(fd, buffer, BUFFER_SIZE);
+	int readChars = read(fd, buffer, BUFFER_SIZE - 1);
 	if (readChars < 0)
 		throw(Exception("Read file failed", errno));
 	if (readChars > 0)
 	{
 		_responses[clientFd]->addToBuffer(buffer);
 	}
-	if (readChars == 0)
+	if (readChars < BUFFER_SIZE - 1)
 	{
 		_pollData[fd].pollType = FILE_READ_DONE;
 		_responses[clientFd]->setReady();
@@ -207,7 +217,6 @@ void ServerRun::readPipe(int fd) // Pipe read end fd
 {
 	char buffer[BUFFER_SIZE];
 
-	std::cout << "Fd reading from pipe: " << fd << std::endl;
 	for (int i = 0; i < BUFFER_SIZE; i++)
 		buffer[i] = '\0';
 	int clientFd = _cgi[fd]->getClientFd();
@@ -216,16 +225,16 @@ void ServerRun::readPipe(int fd) // Pipe read end fd
 		Response *response = new Response(_cgi[fd]->getRequest(), clientFd);
 		_responses[clientFd] = response;
 	}
-	int readChars = read(fd, buffer, BUFFER_SIZE);
-	std::cout << "cgi read chars " << readChars << std::endl;
+	int readChars = read(fd, buffer, BUFFER_SIZE - 1);
+	std::cout << "Cgi read chars " << readChars << std::endl;
 	if (readChars < 0)
 		throw(Exception("Read pipe failed!", errno));
 	if (readChars > 0)
 	{
-		std::cout << "adding it!!!\n";
+		std::cout << "Cgi: adding to buffer\n";
 		_responses[clientFd]->addToBuffer(buffer);
 	}
-	if (readChars == 0)
+	if (readChars < BUFFER_SIZE - 1)
 	{
 		_pollData[fd].pollType = CGI_READ_DONE;
 		std::cout << "Setting CGI READ DONE\n";
@@ -236,6 +245,7 @@ void ServerRun::readPipe(int fd) // Pipe read end fd
 
 void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd)
 {
+	// std::cout << "Poll FD: " << pollFd.fd << " Poll type: " << pollData.pollType << std::endl;
 	switch (pollData.pollType)
 	{
 		case LISTENER:
@@ -270,7 +280,7 @@ void ServerRun::sendResponse(int fd)
 
 void ServerRun::sendCgiResponse(int fd)
 {
-		std::cout << "SENDING RESPONSE" << std::endl;
+		std::cout << "SENDING CGI RESPONSE" << std::endl;
 		int clientFd = _cgi[fd]->getClientFd();
 		Response *r = _responses[clientFd];
 		r->rSend();
@@ -278,6 +288,7 @@ void ServerRun::sendCgiResponse(int fd)
 		removeConnection(fd);
 		_cgi.erase(fd);
 		_responses.erase(clientFd);
+		_pollData[clientFd].pollType = CLIENT_CONNECTION_READY;
 }
 
 void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
@@ -285,7 +296,6 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 	switch (pollData.pollType)
 	{
 		case CGI_READ_DONE:
-			std::cout << "TRYING TO SEND CGI RESPONSE\n";
 			sendCgiResponse(pollFd.fd);
 			break ;
 		case FILE_READ_DONE:

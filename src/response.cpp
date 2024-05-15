@@ -1,7 +1,6 @@
 #include "../inc/webserver.hpp"
 #include "../inc/response.hpp"
 
-#define BUFFER_SIZE 1024
 
 //!Constructors
 Response::Response(Request *req, int clientFd) : _request(req), _clientFd(clientFd), ready(false)
@@ -13,14 +12,14 @@ Response::Response(Request *req, int clientFd) : _request(req), _clientFd(client
 	}
 }
 
-Response::Response(CGI *cgi, int clientFd) : _cgi(cgi), _clientFd(clientFd), ready(false)
-{
-	_html_file = this->_request->getFileName();
-	std::cout << "Default constructor Response" << std::endl;
-	for (const auto& pair : _request->getContent()) {
-		std::cout << pair.first << ": " << pair.second << std::endl;
-	}
-}
+// Response::Response(CGI *cgi, int clientFd) : _cgi(cgi), _clientFd(clientFd), ready(false)
+// {
+// 	// _html_file = this->_request->getFileName();
+// 	std::cout << "Default constructor Response" << std::endl;
+// 	for (const auto& pair : _request->getContent()) {
+// 		std::cout << pair.first << ": " << pair.second << std::endl;
+// 	}
+// }
 
 Response::~Response() {}
 
@@ -68,7 +67,7 @@ void Response::addToBuffer(std::string buffer)
 
 void Response::rSend( void ){
 	std::string response = makeStrResponse();
-	std::cout << "Message to send : " << response << std::endl;
+	// std::cout << "Message to send : " << response << std::endl;
 	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
 	{
 		throw(Exception("Error sending response", errno));

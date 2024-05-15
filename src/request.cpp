@@ -1,8 +1,6 @@
 #include "../inc/webserver.hpp"
 #include "../inc/request.hpp"
 
-#define BUFFER_SIZE 1024
-
 //Create a pair out of the line and the int pos of the delimiter (: for every lines or space for the first line)
 std::pair<std::string, std::string> create_pair(const std::string &line, size_t pos){
 	std::string key = line.substr(0, pos);
@@ -13,6 +11,7 @@ std::pair<std::string, std::string> create_pair(const std::string &line, size_t 
 }
 
 //fill the _request
+// TODO clean this class, rename function
 std::vector<std::pair<std::string, std::string>> parse_response(const std::string& headers) {
 	std::vector<std::pair<std::string, std::string>> request;
 
@@ -28,7 +27,6 @@ std::vector<std::pair<std::string, std::string>> parse_response(const std::strin
 		if (pos != std::string::npos)
 			request.emplace_back(create_pair(line, pos));
 	}
-
 	return request;
 }
 
@@ -49,26 +47,33 @@ void Request::fill_boundary(std::string text){
 }
 
 //Constructor that parses everything
-Request::Request(int clientFd) : _clientFd(clientFd)
+Request::Request(int clientFd) : _clientFd(clientFd), doneReading(false) {}
+
+Request::~Request() {}
+
+void Request::readRequest()
 {
 	char buffer[BUFFER_SIZE];
+	int rb;
 
-	if (read(clientFd, buffer, BUFFER_SIZE) < 0){
+	rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
+	if (rb < 0){
 		std::cerr << "Error reading request" << std::endl;
 		return;
 	}
-
-	printColor(RED, "Request constructor called ");
-	fill_boundary(buffer);
-	_request = parse_response(buffer);
-	for (const auto& pair : _request) {
-		std::cout << pair.first << ": " << pair.second << std::endl;
+	buffer[rb] = '\0';
+	_request_text += buffer;;
+	if (rb < BUFFER_SIZE - 1)
+	{
+		doneReading = true;
+		printColor(RED, "Request constructor called ");
+		fill_boundary(_request_text);
+		_request = parse_response(_request_text);
+		for (const auto& pair : _request) {
+			std::cout << pair.first << ": " << pair.second << std::endl;
+		}
 	}
-
-
 }
-
-Request::~Request() {}
 
 //Return the value of the found key, otherwise empty string
 std::string Request::get_values(std::string key){
@@ -101,7 +106,7 @@ std::string Request::getFileName( void )
 	}
 	std::string html_file = firstWord(val);
 	if (html_file == "/")
-		return "index.html";
+		return "index.html"; //TODO: make it modular according to config
 	return html_file;
 }
 
@@ -131,4 +136,9 @@ std::vector<std::pair<std::string, std::string>> Request::getContent()
 std::string Request::getRequestStr()
 {
 	return (request_str);
+}
+
+bool Request::isDoneReading()
+{
+	return (doneReading);
 }

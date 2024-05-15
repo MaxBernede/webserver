@@ -9,9 +9,11 @@ class Request
 
 		void		fill_boundary(std::string text);
 		std::string	get_values(std::string key);
+		void		readRequest();
 		std::string	getFileName();
 		int			getClientFd();
 		bool		isCgi(); // boolean to tell if request is Cgi
+		bool		isDoneReading();
 
 		std::vector<std::pair<std::string, std::string>>	getContent();
 		std::string		getRequestStr();
@@ -21,4 +23,6 @@ class Request
 		std::string	request_str; // parsed request string
 		std::string	_boundary;
 		int			_clientFd;
+		std::string	_request_text;
+		bool		doneReading;
 };
