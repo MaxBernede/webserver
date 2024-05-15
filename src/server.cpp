@@ -50,10 +50,10 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 static std::list<s_port> defaultPorts(){
 	std::list<s_port> ports;
 	s_port def;
-	def.nmb = 80;
+	def.nmb = 8080;
 	def.type = "default_server";
 	s_port ssl;
-	ssl.nmb = 443;
+	ssl.nmb = 8000;
 	ssl.type = "ssl";
 	ports.push_back(def);
 	ports.push_back(ssl);

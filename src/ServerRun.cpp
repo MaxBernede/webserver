@@ -78,13 +78,8 @@ void ServerRun::serverRunLoop( void )
 	int nCon = -1;
 
 	printColor(GREEN, "Server running...");
-	for (auto item : _pollFds)
-	{
-		std::cout << item.fd << std::endl;
-	}
 	while (true)
 	{
-		
 		nCon = poll(_pollFds.data(), _pollFds.size(), 0);
 		if (nCon <= 0)
 		{
@@ -94,23 +89,24 @@ void ServerRun::serverRunLoop( void )
 		}
 		for (int i = 0; i < (int)_pollFds.size(); i++)
 		{
+			int fd = _pollFds[i].fd;
 			try
 			{
 				if (_pollFds[i].revents & POLLIN)
 				{
 					// Only start reading CGI once the write end of the pipe is closed
-					if ((_pollFds[i].revents & POLLHUP) && _pollData[_pollFds[i].fd].pollType == CGI_READ_WAITING)
+					if ((_pollFds[i].revents & POLLHUP) && _pollData[fd].pollType == CGI_READ_WAITING)
 					{
 						std::cout << "CGI write side finished writing to the pipe\n";
-						_pollData[_pollFds[i].fd].pollType = CGI_READ_READING;
+						_pollData[fd].pollType = CGI_READ_READING;
 					}
 					//Read from client
-					dataIn(_pollData[_pollFds[i].fd], _pollFds[i]);
+					dataIn(_pollData[fd], _pollFds[i]);
 				}
-				if (_pollFds[i].revents & POLLOUT || _pollData[_pollFds[i].fd].pollType == CGI_READ_DONE)
+				if (_pollFds[i].revents & POLLOUT || _pollData[fd].pollType == CGI_READ_DONE)
 				{
 					// Write to client
-					dataOut(_pollData[_pollFds[i].fd], _pollFds[i]);
+					dataOut(_pollData[fd], _pollFds[i]);
 				}
 			}
 			catch(const Exception& e)
