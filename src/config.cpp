@@ -92,7 +92,6 @@ void confErrorPage(std::string value, Server &serv){
 		ePage.url = tmp;
 		serv.setErrorPages(ePage);
 	}
-
 }
 
 void confIndex(std::string value, Server &serv){
@@ -112,4 +111,33 @@ void confAutoIndex(std::string value, Server &serv){
 		serv.setAutoIndex(false);
 	else
 		throw syntaxError();
+}
+
+void confRedirect(std::string value, Server &serv){
+	
+	std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
+	if (num.length() != 3 || num.find_first_not_of("1234567890") != std::string::npos)
+		throw syntaxError();
+	value.erase(0, num.length());
+	while (value.find_first_of("\t\n\v\f\r ") == 0)
+		value.erase(0, 1);
+	std::string from = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
+	if (from.length() == 0)
+		throw syntaxError();
+	value.erase(0, from.length());
+	while (value.find_first_of("\t\n\v\f\r ") == 0)
+		value.erase(0, 1);
+	std::string to = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
+	if (to.length() == 0)
+		throw syntaxError();
+	value.erase(0, to.length());
+	while (value.find_first_of("\t\n\v\f\r ") == 0)
+		value.erase(0, 1);
+	if (value != ";")
+		throw syntaxError();
+	s_redirect redir;
+	redir.returnValue = std::stoi(num);
+	redir.redirFrom = from;
+	redir.redirTo = to;
+	serv.setRedirect(redir);
 }

@@ -72,7 +72,6 @@ static bool compare(std::string s1, std::string s2){
 	return false;
 }
 
-// TODO check if pwd even exist/find alternative?
 static std::string defaultRoot(char **env){
 	int i = 0;
 	while (env[i] && !compare(env[i], "PWD=")){
@@ -97,21 +96,27 @@ static std::vector<bool> defaultMethods(){
 
 static std::list<s_ePage> defaultErrorPages(std::string root){
 	std::list<s_ePage> erorPages;
-	s_ePage fofo;
-	fofo.err = 404;
-	fofo.url = root + "errdir/404.html";
-	s_ePage fofv;
-	fofv.err = 405;
-	fofv.url = root + "errdir/405.html";
-	erorPages.push_back(fofo);
-	erorPages.push_back(fofv);
+	s_ePage fourOfour;
+	fourOfour.err = 404;
+	fourOfour.url = root + "errdir/404.html";
+	s_ePage fourOfive;
+	fourOfive.err = 405;
+	fourOfive.url = root + "errdir/405.html";
+	erorPages.push_back(fourOfour);
+	erorPages.push_back(fourOfive);
 	return erorPages;
 }
 
 static std::list<std::string> defaultIndex(){
 	std::list<std::string> index = 
-		{"index.php", "index.html", "index.htm"};
+		{"index.html", "index.php", "index.htm"};
 	return index;
+}
+
+static std::list<s_redirect> defaultRedirect(){
+	std::list<s_redirect> redirect;
+	redirect.clear();
+	return redirect;
 }
 
 //default consructor
@@ -124,7 +129,8 @@ Server::Server(char **env):
 	_maxBody(1048576),
 	_errorPages(defaultErrorPages(_root)),
 	_index(defaultIndex()),
-	_autoIndex(true){
+	_autoIndex(true),
+	_redirect(defaultRedirect()){
 }
 
 Server::~Server() {
@@ -140,6 +146,7 @@ Server &Server::operator=(const Server &obj) {
 	this->_errorPages = obj.getErrorPages();
 	this->_index = obj.getIndex();
 	this->_autoIndex = obj.getAutoIndex();
+	this->_redirect = obj.getRedirect();
 	return *this;
 }
 
@@ -187,16 +194,18 @@ bool Server::getAutoIndex()	const{
 	return _autoIndex;
 }
 
+std::list<s_redirect> Server::getRedirect() const{
+	return _redirect;
+}
+
 void Server::clearPort(){
 	_ports.clear();
 }
 
 void Server::clearName(){
-	// _name = "";
 }
 
 void Server::clearRoot(){
-	// _root = "";
 }
 
 void Server::clearMethods(){
@@ -205,11 +214,9 @@ void Server::clearMethods(){
 }
 
 void Server::clearCGI(){
-	// _cgi = false;
 }
 
 void Server::clearMaxBody(){
-	// _maxBody = 200;
 }
 
 void Server::clearEPage(){
@@ -221,13 +228,15 @@ void Server::clearIndex(){
 }
 
 void Server::clearAutoIndex(){
-	// _autoIndex = false;
+}
+
+void Server::clearRedirect(){
 }
 
 void Server::clearData(int index){
-	void (Server::*ptr[9])(void) = 
+	void (Server::*ptr[10])(void) = 
 		{&Server::clearPort, &Server::clearName, &Server::clearRoot, &Server::clearMethods, &Server::clearCGI,
-		&Server::clearMaxBody, &Server::clearEPage, &Server::clearIndex, &Server::clearAutoIndex};
+		&Server::clearMaxBody, &Server::clearEPage, &Server::clearIndex, &Server::clearAutoIndex, &Server::clearRedirect};
 	(this->*ptr[index])();
 }
 
@@ -267,6 +276,10 @@ void Server::setAutoIndex(bool autoIndex){
 	_autoIndex = autoIndex;
 }
 
+void Server::setRedirect(s_redirect redir){
+	_redirect.push_back(redir);
+}
+
 std::string boolstring(const bool& src){
 	if (!src)
 		return "false";
@@ -295,6 +308,9 @@ std::ostream & operator<< (std::ostream &out, const Server& src){
 		out << "Index\t" << index << std::endl;
 	}
 	out << "auto Index\t" << boolstring(src.getAutoIndex()) << std::endl;
-	
+	for (s_redirect redir : src.getRedirect()){
+		out << "Value\t" << redir.returnValue << "\tFROM " << redir.redirFrom 
+			<< "\tTO " << redir.redirTo << std::endl;
+	}
 	return out;
 }
