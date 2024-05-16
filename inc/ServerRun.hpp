@@ -57,4 +57,6 @@ class ServerRun
 	void readPipe(int fd);
 	void sendResponse(int fd);
 	void sendCgiResponse(int fd);
+
+	Server getConfig(int port);
 };

@@ -135,6 +135,20 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	addQueue(CLIENT_CONNECTION_READY, connFd);
 }
 
+Server ServerRun::getConfig(int port)
+{
+	for (auto server : _servers)
+	{
+		for (auto p : server.getPorts())
+		{
+			if (p.nmb == port)
+			{
+				return (server);
+			}
+		}
+	}
+	return (nullptr);
+}
 
 // Only continue after reading the whole request
 void ServerRun::readRequest(int clientFd)
@@ -150,7 +164,8 @@ void ServerRun::readRequest(int clientFd)
 	}
 	if (_requests[clientFd]->isDoneReading() == true)
 	{
-		std::cout << "FINISHED READING REQUEST\n";
+		int port = _requests[clientFd]->getRequestPort();
+		Server config = getConfig(port);
 		_pollData[clientFd].pollType = CLIENT_CONNECTION_WAIT;
 		if (_requests[clientFd]->isCgi()) // TODO and is cGI allowed
 		{

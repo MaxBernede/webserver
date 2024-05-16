@@ -13,6 +13,7 @@ class Request
 		void		readRequest();
 		std::string	getFileName();
 		int			getClientFd();
+		int			getRequestPort();
 		bool		isCgi(); // boolean to tell if request is Cgi
 		bool		isDoneReading();
 

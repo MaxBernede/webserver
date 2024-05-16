@@ -138,6 +138,20 @@ std::string Request::getRequestStr()
 	return (request_str);
 }
 
+int	Request::getRequestPort()
+{
+	std::string host = this->get_values("Host");
+	std::string port;
+	size_t colonIndex = host.find_last_of(":");
+	if (colonIndex != std::string::npos)
+	{
+		port = host.substr(colonIndex + 1);
+		int p = std::stoi(port);
+		return (p);
+	}
+	return (-1);
+}
+
 bool Request::isDoneReading()
 {
 	return (doneReading);
