@@ -67,7 +67,9 @@ void Response::addToBuffer(std::string buffer)
 
 void Response::rSend( void ){
 	std::string response = makeStrResponse();
-	// std::cout << "Message to send : " << response << std::endl;
+	std::cout << "_______________________________________________\n";
+	std::cout << "Message to send =>\n " << response << std::endl;
+	std::cout << "_______________________________________________\n";
 	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
 	{
 		throw(Exception("Error sending response", errno));

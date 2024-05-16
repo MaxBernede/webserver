@@ -1,6 +1,7 @@
 #pragma once
 #include "webserver.hpp"
 
+//TODO getter for port and host
 class Request
 {
 	public:

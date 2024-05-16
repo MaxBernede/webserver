@@ -19,7 +19,13 @@ ServerRun::ServerRun(const std::list<Server> config)
 	{
 		for (auto port : server.getPorts())
 		{
-			listens.push_back(port.nmb);
+			if (std::find(listens.begin(), listens.end(), port.nmb) == listens.end())
+				listens.push_back(port.nmb);
+			else
+			{
+				std::cout << "port: " << port.nmb << std::endl;
+				std::cout << "Servers have the same port in config" << std::endl;
+			}
 		}
 	}
 	//create listening sockets
@@ -76,7 +82,6 @@ void ServerRun::serverRunLoop( void )
 {
 	// create epoll queue...
 	int nCon = -1;
-
 	printColor(GREEN, "Server running...");
 	while (true)
 	{
@@ -124,6 +129,7 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	socklen_t len = sizeof(sockaddr_in);
 
 	connFd = accept(listenerFd, (struct sockaddr *)cli_addr, &len);
+	std::cout << "New Client Connected accepted\n";
 	if (connFd == -1)
 		throw(Exception("accept() errored and returned -1", errno));
 	addQueue(CLIENT_CONNECTION_READY, connFd);
@@ -144,6 +150,7 @@ void ServerRun::readRequest(int clientFd)
 	}
 	if (_requests[clientFd]->isDoneReading() == true)
 	{
+		std::cout << "FINISHED READING REQUEST\n";
 		_pollData[clientFd].pollType = CLIENT_CONNECTION_WAIT;
 		if (_requests[clientFd]->isCgi()) // TODO and is cGI allowed
 		{
@@ -157,7 +164,8 @@ void ServerRun::readRequest(int clientFd)
 		}
 		else // Static file
 		{
-			std::string filePath = "html/" + _requests[clientFd]->getFileName(); // TODO root path based on config
+			std::string filePath = "html" + _requests[clientFd]->getFileName(); // TODO root path based on config
+			std::cout << "opening file: " << filePath << std::endl;
 			int fileFd = open(filePath.c_str(), O_RDONLY);
 			if (fileFd < 0)
 			{
@@ -167,6 +175,7 @@ void ServerRun::readRequest(int clientFd)
 			_requests[fileFd] = _requests[clientFd]; // TODO: We need to add the request header reading in here too
 			addQueue(FILE_READ_READING, fileFd);
 		}
+		_requests.erase(clientFd);
 	}
 }
 void ServerRun::removeConnection(int fd)
@@ -179,7 +188,8 @@ void ServerRun::removeConnection(int fd)
 			break ;
 		}
 	}
-	_pollData.erase(fd);
+	if (_pollData.count(fd))
+		_pollData.erase(fd);
 }
 
 void ServerRun::readFile(int fd) // Static file fd
@@ -267,10 +277,26 @@ void ServerRun::sendResponse(int fd)
 		int clientFd = _requests[fd]->getClientFd();
 		Response *r = _responses[clientFd];
 		r->rSend();
-		close(clientFd); // only loads in the browser one the fd is closed...should we keep the connectioned?
 		removeConnection(fd);
-		_requests.erase(fd);
-		_responses.erase(clientFd);
+		// _requests.erase(clientFd);
+		if (_responses.count(clientFd))
+		{
+			std::cout << "1\n";
+			delete _responses[clientFd];
+			_responses.erase(clientFd);
+		}
+		if (_requests.count(fd))
+		{
+			std::cout << "2\n";
+			delete _requests[fd];
+			_requests.erase(fd);
+		}
+		if (!_responses.count(clientFd) and !_requests.count(fd))
+		{
+			std::cout << "3\n";
+			close(clientFd); // only loads in the browser one the fd is closed...should we keep the connectioned?
+			removeConnection(clientFd);
+		}
 		_pollData[clientFd].pollType = CLIENT_CONNECTION_READY;
 }
 
@@ -282,8 +308,21 @@ void ServerRun::sendCgiResponse(int fd)
 		r->rSend();
 		close(clientFd); // only loads in the browser one the fd is closed...should we keep the connectioned?
 		removeConnection(fd);
-		_cgi.erase(fd);
-		_responses.erase(clientFd);
+		if (_cgi.count(fd))
+		{
+			delete _cgi[fd];
+			_cgi.erase(fd);
+		}
+		if (_responses.count(clientFd))
+		{
+			delete _responses[clientFd];
+			_responses.erase(clientFd);
+		}
+		if (_requests.count(fd))
+		{
+			delete _requests[fd];
+			_requests.erase(fd);
+		}
 		_pollData[clientFd].pollType = CLIENT_CONNECTION_READY;
 }
 
