@@ -26,6 +26,7 @@ $(OBJ_DIRS):
 	mkdir -p $@
 
 clean:
+	$(RM) saved_files/*
 	$(RM) $(OBJ)
 
 fclean: clean

@@ -98,4 +98,11 @@ void Request::construct_request(){
 	fill_boundary(_request_text);
 	parse_response(_request_text);	
 	setFile();
+	print_all_datas();
+	//Below is the equivalent of execution of the POST
+	std::string body = get_values("Body");
+	if (!body.empty()){
+		printColor(RED, "BODY CREATE");
+		create_file(body, "saved_files");
+	}
 }

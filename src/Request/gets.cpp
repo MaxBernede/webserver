@@ -57,7 +57,7 @@ std::string Request::get_values(std::string key){
 
 // Method[3], 0 = Methode(Post, delete, etc..), 1 = Link (html/ cgi/ .ico), 2 = HTTP version
 std::string Request::get_method(int index){
-	if (index >= _method.size())
+	if (index < 0 || static_cast<std::vector<std::string>::size_type>(index) >= _method.size())
 		return "";
 	return _method[index];
 }
