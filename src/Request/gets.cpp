@@ -1,18 +1,19 @@
 #include "webserver.hpp"
 
-int Request::getClientFd()
-{
+int Request::getClientFd(){
 	return (_clientFd);
 }
 
-std::vector<std::pair<std::string, std::string>> Request::getContent()
-{
+std::vector<std::pair<std::string, std::string>> Request::getContent(){
 	return (_request);
 }
 
-std::string Request::getRequestStr()
-{
+std::string Request::getRequestStr(){
 	return (request_str);
+}
+
+std::string Request::getFile(){
+	return _file;
 }
 
 int	Request::getRequestPort()
@@ -46,13 +47,17 @@ std::string Request::getFileName( void )
 	return html_file;
 }
 
-std::string Request::getFile(){
-	return _file;
-}
 
 //Return the value of the found key, otherwise empty string
 std::string Request::get_values(std::string key){
 	for (const auto& pair : _request)
 		if (pair.first == key) return pair.second;
 	return "";
+}
+
+// Method[3], 0 = Methode(Post, delete, etc..), 1 = Link (html/ cgi/ .ico), 2 = HTTP version
+std::string Request::get_method(int index){
+	if (index >= _method.size())
+		return "";
+	return _method[index];
 }
