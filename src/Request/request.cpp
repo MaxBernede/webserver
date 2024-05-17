@@ -1,5 +1,5 @@
-#include "../inc/webserver.hpp"
-#include "../inc/request.hpp"
+#include "webserver.hpp"
+#include "request.hpp"
 
 //Create a pair out of the line and the int pos of the delimiter (: for every lines or space for the first line)
 std::pair<std::string, std::string> create_pair(const std::string &line, size_t pos){
