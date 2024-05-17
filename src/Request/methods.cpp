@@ -15,12 +15,7 @@ void Request::readRequest()
 	if (rb < BUFFER_SIZE - 1)
 	{
 		doneReading = true;
-		printColor(RED, "Request constructor called ");
-		fill_boundary(_request_text);
-		_request = parse_response(_request_text);
-		for (const auto& pair : _request) {
-			std::cout << pair.first << ": " << pair.second << std::endl;
-		}
+		construct_request();
 	}
 }
 
@@ -36,6 +31,7 @@ bool Request::isCgi()
 	}
 	return (false);
 }
+
 
 bool Request::isDoneReading()
 {

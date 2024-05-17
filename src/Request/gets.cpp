@@ -32,6 +32,8 @@ int	Request::getRequestPort()
 //Return the first word after GET (usually the html) otherwise empty
 std::string Request::getFileName( void )
 {
+	//! the GetFileName is almost the same as getFile as setFile do the same,
+	//!need to check with yzaim if this one is necesarry about the config ?
 	std::string val = get_values("GET");
 	if (val.empty()){
 		val = get_values("POST");
@@ -44,12 +46,13 @@ std::string Request::getFileName( void )
 	return html_file;
 }
 
+std::string Request::getFile(){
+	return _file;
+}
+
 //Return the value of the found key, otherwise empty string
 std::string Request::get_values(std::string key){
-	for (const auto& pair : _request) {
-		if (pair.first == key)
-			return pair.second;
-	}
-	printColor(RED, key, " is not found in request");
+	for (const auto& pair : _request)
+		if (pair.first == key) return pair.second;
 	return "";
 }
