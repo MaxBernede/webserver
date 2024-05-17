@@ -16,6 +16,7 @@ class Request
 		int			getRequestPort();
 		bool		isCgi(); // boolean to tell if request is Cgi
 		bool		isDoneReading();
+		std::vector<std::pair<std::string, std::string>> parse_response(const std::string& headers);
 
 		std::vector<std::pair<std::string, std::string>>	getContent();
 		std::string		getRequestStr();
