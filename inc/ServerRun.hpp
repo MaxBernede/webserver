@@ -23,7 +23,7 @@ enum pollType
 
 typedef struct t_poll_data
 {
-	pollType pollType;
+	pollType _pollType;
 } s_poll_data;
 
 

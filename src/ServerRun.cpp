@@ -72,7 +72,7 @@ void ServerRun::addQueue(pollType type, int fd)
 	struct pollfd newPollFd;
 
 	newPollFd = {fd, POLLIN | POLLOUT, 0};
-	newPollItem.pollType = type;
+	newPollItem._pollType = type;
 	_pollFds.push_back(newPollFd);
 	_pollData[fd] = newPollItem;
 }
@@ -100,15 +100,15 @@ void ServerRun::serverRunLoop( void )
 				if (_pollFds[i].revents & POLLIN)
 				{
 					// Only start reading CGI once the write end of the pipe is closed
-					if ((_pollFds[i].revents & POLLHUP) && _pollData[fd].pollType == CGI_READ_WAITING)
+					if ((_pollFds[i].revents & POLLHUP) && _pollData[fd]._pollType == CGI_READ_WAITING)
 					{
 						std::cout << "CGI write side finished writing to the pipe\n";
-						_pollData[fd].pollType = CGI_READ_READING;
+						_pollData[fd]._pollType = CGI_READ_READING;
 					}
 					//Read from client
 					dataIn(_pollData[fd], _pollFds[i]);
 				}
-				if (_pollFds[i].revents & POLLOUT || _pollData[fd].pollType == CGI_READ_DONE)
+				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollType == CGI_READ_DONE)
 				{
 					// Write to client
 					dataOut(_pollData[fd], _pollFds[i]);
@@ -166,8 +166,8 @@ void ServerRun::readRequest(int clientFd)
 	{
 		int port = _requests[clientFd]->getRequestPort();
 		Server config = getConfig(port);
-		_pollData[clientFd].pollType = CLIENT_CONNECTION_WAIT;
-		if (_requests[clientFd]->isCgi()) // TODO and is cGI allowed
+		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
+		if (_requests[clientFd]->isCgi()) // TODO and is CGI allowed
 		{
 			std::cout << "It is a CGI Request!\n";
 			CGI *cgiRequest = new CGI(_requests[clientFd], clientFd);
@@ -228,7 +228,7 @@ void ServerRun::readFile(int fd) // Static file fd
 	}
 	if (readChars < BUFFER_SIZE - 1)
 	{
-		_pollData[fd].pollType = FILE_READ_DONE;
+		_pollData[fd]._pollType = FILE_READ_DONE;
 		_responses[clientFd]->setReady();
 		close(fd);
 	}
@@ -257,7 +257,7 @@ void ServerRun::readPipe(int fd) // Pipe read end fd
 	}
 	if (readChars < BUFFER_SIZE - 1)
 	{
-		_pollData[fd].pollType = CGI_READ_DONE;
+		_pollData[fd]._pollType = CGI_READ_DONE;
 		std::cout << "Setting CGI READ DONE\n";
 		_responses[clientFd]->setReady();
 		close(fd);
@@ -267,7 +267,7 @@ void ServerRun::readPipe(int fd) // Pipe read end fd
 void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd)
 {
 	// std::cout << "Poll FD: " << pollFd.fd << " Poll type: " << pollData.pollType << std::endl;
-	switch (pollData.pollType)
+	switch (pollData._pollType)
 	{
 		case LISTENER:
 			acceptNewConnection(pollFd.fd);
@@ -312,7 +312,7 @@ void ServerRun::sendResponse(int fd)
 			close(clientFd); // only loads in the browser one the fd is closed...should we keep the connectioned?
 			removeConnection(clientFd);
 		}
-		_pollData[clientFd].pollType = CLIENT_CONNECTION_READY;
+		_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
 
 void ServerRun::sendCgiResponse(int fd)
@@ -338,12 +338,12 @@ void ServerRun::sendCgiResponse(int fd)
 			delete _requests[fd];
 			_requests.erase(fd);
 		}
-		_pollData[clientFd].pollType = CLIENT_CONNECTION_READY;
+		_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
 
 void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 {
-	switch (pollData.pollType)
+	switch (pollData._pollType)
 	{
 		case CGI_READ_DONE:
 			sendCgiResponse(pollFd.fd);
