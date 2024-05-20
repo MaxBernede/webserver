@@ -30,6 +30,19 @@ int	Request::getRequestPort()
 	return (-1);
 }
 
+std::string	Request::getRequestHost()
+{
+	std::string host = this->get_values("Host");
+	std::string port;
+	size_t colonIndex = host.find_last_of(":");
+	if (colonIndex != std::string::npos)
+	{
+		port = host.substr(colonIndex + 1);
+		return (port);
+	}
+	return ("");
+}
+
 //Return the first word after GET (usually the html) otherwise empty
 std::string Request::getFileName( void )
 {

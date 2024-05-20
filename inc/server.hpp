@@ -54,6 +54,7 @@ class Server {
 		bool					_autoIndex;
 
 	public:
+		Server();
 		Server(char **env);
 		~Server();
 		Server(const Server &obj);

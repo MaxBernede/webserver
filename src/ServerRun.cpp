@@ -150,9 +150,23 @@ Server ServerRun::getConfig(int port)
 	return (nullptr);
 }
 
+Server ServerRun::getConfig(std::string host)
+{
+	for (auto server : _servers)
+	{
+		if (server.getName() == host)
+		{
+			return (server);
+		}
+	}
+	throw Exception("Server not found", 404);
+	return (nullptr);
+}
+
 // Only continue after reading the whole request
 void ServerRun::readRequest(int clientFd)
-{
+{	
+	Server config;
 	if (_requests.find(clientFd) == _requests.end())
 	{
 		Request *newRequest = new Request(clientFd);
@@ -165,7 +179,13 @@ void ServerRun::readRequest(int clientFd)
 	if (_requests[clientFd]->isDoneReading() == true)
 	{
 		int port = _requests[clientFd]->getRequestPort();
-		Server config = getConfig(port);
+		if (port != -1)
+			config = getConfig(port);
+		else {
+			std::string host = _requests[clientFd]->getRequestHost(); //doesn't work this way, apparently :/, figure out what to do
+			config = getConfig(host);
+		} //TODO if server == not found, error is thrown, please catch
+		std::cout << config.getRoot() << std::endl;
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 		if (_requests[clientFd]->isCgi()) // TODO and is CGI allowed
 		{

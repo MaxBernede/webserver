@@ -24,9 +24,11 @@ bool exists (const std::string& name) {
   return (stat (name.c_str(), &buffer) == 0); 
 }
 
-void create_file(std::string const &content, std::string const &location){
+void create_file(std::string const &content, std::string const &location){ // not currently working, look into it
 	size_t i = 0;
 	std::string key = "filename=\"";
+	// printColor(GREEN, content);
+	// printColor(MAGENTA, location);
 	size_t start = content.find(key) + key.length();
 	std::string fileName = content.substr(start, content.find('\"', start) - start);
     fileName = location + "/" + fileName;

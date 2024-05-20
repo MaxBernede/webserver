@@ -43,9 +43,9 @@ void Request::parse_first_line(std::istringstream &iss){
 	std::getline(iss, line);
     std::istringstream line_stream(line);
 
-    while (std::getline(line_stream, arg, ' '))
+    while (std::getline(line_stream, arg, ' ')){
         _method.push_back(arg);
-
+	}
 	size_t pos = line.find(' ');
 	if (pos != std::string::npos)
 		_request.emplace_back(create_pair(line, pos));
@@ -103,6 +103,6 @@ void Request::construct_request(){
 	std::string body = get_values("Body");
 	if (!body.empty()){
 		printColor(RED, "BODY CREATE");
-		create_file(body, "saved_files");
+		create_file(body, "/home/posthum/Desktop/saved_files");
 	}
 }

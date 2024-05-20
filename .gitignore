@@ -3,3 +3,4 @@ obj/
 .vscode
 *.o
 exe
+ubuntu_*

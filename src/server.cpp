@@ -73,10 +73,10 @@ static bool compare(std::string s1, std::string s2){
 // TODO check if pwd even exist/find alternative?
 static std::string defaultRoot(char **env){
 	int i = 0;
-	while (env[i] && !compare(env[i], "PWD=")){
+	while (env != nullptr && env[i] && !compare(env[i], "PWD=")){
 		i++;
 	}
-	if (!env[i])
+	if (!env || !env[i])
 		return ("/var/www/");
 	std::string test = (env[i] + 4);
 	return test + '/';
@@ -117,6 +117,18 @@ Server::Server(char **env):
 	_ports(defaultPorts()),
 	_name(defaultName()),
 	_root(defaultRoot(env)),
+	_methods(defaultMethods()),
+	_cgi(true),
+	_maxBody(1048576),
+	_errorPages(defaultErrorPages(_root)),
+	_index(defaultIndex()),
+	_autoIndex(true){
+}
+
+Server::Server():
+	_ports(defaultPorts()),
+	_name(defaultName()),
+	_root(defaultRoot(nullptr)),
 	_methods(defaultMethods()),
 	_cgi(true),
 	_maxBody(1048576),
