@@ -181,14 +181,21 @@ void ServerRun::readRequest(int clientFd)
 		int port = _requests[clientFd]->getRequestPort();
 		if (port != -1)
 			config = getConfig(port);
-		else {
+		else
+		{
 			std::string host = _requests[clientFd]->getRequestHost(); //doesn't work this way, apparently :/, figure out what to do
 			config = getConfig(host);
 		} //TODO if server == not found, error is thrown, please catch
+		_requests[clientFd]->setConfig(config);
 		std::cout << config.getRoot() << std::endl;
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-		if (_requests[clientFd]->isCgi()) // TODO and is CGI allowed
+		if (_requests[clientFd]->isCgi())
 		{
+			if (!config.getCGI())
+			{
+				std::cout << "CGI is not allowed for this server\n";
+				return ;
+			}
 			std::cout << "It is a CGI Request!\n";
 			CGI *cgiRequest = new CGI(_requests[clientFd], clientFd);
 			int pipeFd = cgiRequest->getReadFd();

@@ -14,40 +14,46 @@ void Request::readRequest()
 	_request_text += buffer;;
 	if (rb < BUFFER_SIZE - 1)
 	{
-		doneReading = true;
-		construct_request();
+		_doneReading = true;
+		constructRequest();
 	}
+}
+
+std::string Request::getExtension(std::string fileName)
+{
+	size_t dotIndex = fileName.find_last_of(".");
+	if (dotIndex != std::string::npos)
+	{
+		std::string extension = fileName.substr(dotIndex + 1);
+		return (extension);
+	}
+	return (nullptr);
 }
 
 bool Request::isCgi()
 {
 	// check extension x.substr(x.find_last_of("*******") + 2) == "cx")
 	std::string fileName = getFileName();
-	size_t dotIndex = fileName.find_last_of(".");
-	if (dotIndex != std::string::npos)
-	{
-		std::string extension = fileName.substr(dotIndex + 1);
-		return (extension == "cgi");
-	}
-	return (false);
+	std::string extension = getExtension(fileName);
+	return (extension == "cgi");
 }
 
 
 bool Request::isDoneReading()
 {
-	return (doneReading);
+	return (_doneReading);
 }
 
 //check that it's not the Content-Type defined line
 //then return false or true if boundary found
-bool Request::is_boundary(const std::string &line){
+bool Request::isBoundary(const std::string &line){
 	if (line.find("Content-Type") != std::string::npos)
 		return false;
 	return line.find(_boundary) != std::string::npos;
 }
 
 
-void Request::print_all_datas(){
+void Request::printAllData(){
 	printColor(YELLOW, "All the datas on the Request Class :");
 	std::cout << "Boudary: " << _boundary << std::endl;
 	std::cout << "Method: ";

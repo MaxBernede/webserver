@@ -3,13 +3,21 @@
 
 
 
-void Request::setFile(){
-	std::string val = get_values("GET");
+void Request::setFile() {
+	std::string val = getValues("GET");
 	if (val.empty())
-		val = get_values("POST");
+		val = getValues("POST");
 	_file = val.empty() ? "" : firstWord(val);
 	if (_file == "/")
-		_file = "index.html";
+	{
+		for (auto item : _config.getIndex())
+		{
+			std::string extension = getExtension(item);
+			if (extension == ".html")
+				_file = item;
+		}
+	}
+	// _file = "index.html";
 }
 
 //Create a pair out of the line and the int pos of the delimiter (: for every lines or space for the first line)
@@ -21,12 +29,12 @@ std::pair<std::string, std::string> create_pair(const std::string &line, size_t 
 	return std::make_pair(key, value);
 }
 
-void Request::parse_body(std::istringstream &iss, std::string &line) {
+void Request::parseBody(std::istringstream &iss, std::string &line) {
     std::string body = "Body ";
 
-    if (_boundary != "" && is_boundary(line)) {
+    if (_boundary != "" && isBoundary(line)) {
         while (std::getline(iss, line)) {
-            if (_boundary != "" && is_boundary(line)) {
+            if (_boundary != "" && isBoundary(line)) {
                 _request.emplace_back(create_pair(body, 4));
                 break;
             }
@@ -38,7 +46,7 @@ void Request::parse_body(std::istringstream &iss, std::string &line) {
 
 
 //save as well the GET request in the all datas AND the _method
-void Request::parse_first_line(std::istringstream &iss){
+void Request::parseFirstLine(std::istringstream &iss){
 	std::string line, arg;
 	std::getline(iss, line);
     std::istringstream line_stream(line);
@@ -54,11 +62,11 @@ void Request::parse_first_line(std::istringstream &iss){
 //fill the _request
 // it works as : get the first line based on space
 // then check for the ':' however if there is a boundary and its found, keep everything between as body
-void Request::parse_response(const std::string& headers) {
+void Request::parseResponse(const std::string& headers) {
 	std::istringstream iss(headers);
 	std::string line;
 
-	parse_first_line(iss);
+	parseFirstLine(iss);
 	while (std::getline(iss, line)) {
 		if (line == "\r")
 			break;
@@ -67,10 +75,10 @@ void Request::parse_response(const std::string& headers) {
 			_request.emplace_back(create_pair(line, pos));
 	}
     if (std::getline(iss, line))
-        parse_body(iss, line);
+        parseBody(iss, line);
 }
 
-void Request::fill_boundary(std::string text){
+void Request::fillBoundary(std::string text){
 	std::string search = "boundary=";
 	size_t pos = text.find(search);
 	if (pos == std::string::npos){
@@ -89,18 +97,18 @@ void Request::fill_boundary(std::string text){
 }
 
 //Constructor that parses everything
-Request::Request(int clientFd) : _clientFd(clientFd), doneReading(false) {}
+Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false) {}
 
 Request::~Request() {}
 
-void Request::construct_request(){
+void Request::constructRequest(){
 	printColor(BLUE, "Constructor request call");
-	fill_boundary(_request_text);
-	parse_response(_request_text);	
+	fillBoundary(_request_text);
+	parseResponse(_request_text);	
 	setFile();
-	print_all_datas();
+	printAllData();
 	//Below is the equivalent of execution of the POST
-	std::string body = get_values("Body");
+	std::string body = getValues("Body");
 	if (!body.empty()){
 		printColor(RED, "BODY CREATE");
 		create_file(body, "/home/posthum/Desktop/saved_files");
