@@ -37,6 +37,7 @@ class Request
 		std::string	getMethod(int index);
 		std::vector<std::pair<std::string, std::string>>	getContent();
 		std::string getResponse(void);
+		std::string getFileNameProtected( void );
 
 		// SET
 		void		setFile();

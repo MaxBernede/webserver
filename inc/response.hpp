@@ -33,4 +33,10 @@ class Response {
 		int	_clientFd;
 		int	_readFd;
 		bool ready;
+		const std::unordered_map<std::string,std::string> contentType = {
+			{"html","text/html"},
+			{"ico","image/x-icon"},
+			{"cgi","text/html"}
+
+		};
 };

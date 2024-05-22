@@ -30,7 +30,14 @@ std::string Response::makeResponse(std::ifstream &file)
 std::string Response::makeStrResponse(void)
 {
 	std::ostringstream oss;
-	oss << "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+	std::string httpStatus = _request->getMethod(2);
+
+	//Below is to get the content type
+	std::string file = _request->getFileNameProtected();
+	oss << httpStatus << " ";
+	oss << "200 OK\r\n";
+	oss << "Content-Type: " << contentType.at(getExtension(file)) << "\r\n";
+	oss << "\r\n";
 	oss << response_text;
 
 	return oss.str();

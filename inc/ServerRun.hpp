@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include "webserver.hpp"
-#include <unordered_map>
 
 class CGI;
 

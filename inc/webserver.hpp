@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <unordered_map>
 
 // for containers
 #include <vector>
