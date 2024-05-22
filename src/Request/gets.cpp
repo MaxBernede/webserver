@@ -43,11 +43,22 @@ std::string	Request::getRequestHost()
 	return ("");
 }
 
+std::string Request::getFileNameProtected( void ){
+	if (_file != "/")
+		return _file;
+	for (auto item : _config.getIndex())
+	{
+		if (getExtension(item) == "html")
+			return (item);
+	}
+	//!TAKE CARE IF NOT FOUND IN CONFIG FILE PROBLEM
+	return "";
+}
+
+//WTF ? Why the hell am ireturning the file name only if it's a post or get
 //Return the first word after GET (usually the html) otherwise empty
 std::string Request::getFileName( void )
 {
-	//! the GetFileName is almost the same as getFile as setFile do the same,
-	//!need to check with yzaim if this one is necesarry about the config ?
 	std::string val = getValues("GET");
 	if (val.empty()){
 		val = getValues("POST");
@@ -74,6 +85,7 @@ std::string Request::getMethod(int index){
 		return "";
 	return _method[index];
 }
+
 std::string Request::getResponse(void){
 	std::string response_header;
 	response_header = getMethod(2) + " 200 OK\r\nContent-Type: " + getMethod(1) + "\r\n\r\n";

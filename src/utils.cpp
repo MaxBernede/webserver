@@ -19,6 +19,18 @@ bool endsWith(const std::string& str, const std::string& suffix) {
     return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
 
+std::string getExtension(std::string fileName)
+{
+	size_t dotIndex = fileName.find_last_of(".");
+	if (dotIndex != std::string::npos)
+	{
+		std::string extension = fileName.substr(dotIndex + 1);
+		return (extension);
+	}
+	return (nullptr);
+}
+
+
 bool exists (const std::string& name) {
   struct stat buffer;   
   return (stat (name.c_str(), &buffer) == 0); 

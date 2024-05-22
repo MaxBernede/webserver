@@ -24,7 +24,6 @@ class Request
 		void		parseFirstLine(std::istringstream &iss);
 		void		parseBody(std::istringstream &iss, std::string &line);
 		void 		parseResponse(const std::string& headers);
-		std::string	getExtension(std::string fileName);
 
 		//GET
 		std::string	getFile();
@@ -36,6 +35,7 @@ class Request
 		std::string	getMethod(int index);
 		std::vector<std::pair<std::string, std::string>>	getContent();
 		std::string getResponse(void);
+		std::string getFileNameProtected( void );
 
 		// SET
 		void	setConfig(Server config);	

@@ -19,16 +19,7 @@ void Request::readRequest()
 	}
 }
 
-std::string Request::getExtension(std::string fileName)
-{
-	size_t dotIndex = fileName.find_last_of(".");
-	if (dotIndex != std::string::npos)
-	{
-		std::string extension = fileName.substr(dotIndex + 1);
-		return (extension);
-	}
-	return (nullptr);
-}
+
 
 bool Request::isCgi()
 {
