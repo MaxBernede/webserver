@@ -74,6 +74,12 @@ std::string Request::getMethod(int index){
 		return "";
 	return _method[index];
 }
+std::string Request::getResponse(void){
+	std::string response_header;
+	response_header = getMethod(2) + " 200 OK\r\nContent-Type: " + getMethod(1) + "\r\n\r\n";
+	std::cout << "getmethod for the Response" << response_header;
+	return response_header;
+}
 
 // Setters
 

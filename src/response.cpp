@@ -12,15 +12,6 @@ Response::Response(Request *req, int clientFd) : _request(req), _clientFd(client
 	}
 }
 
-// Response::Response(CGI *cgi, int clientFd) : _cgi(cgi), _clientFd(clientFd), ready(false)
-// {
-// 	// _html_file = this->_request->getFileName();
-// 	std::cout << "Default constructor Response" << std::endl;
-// 	for (const auto& pair : _request->getContent()) {
-// 		std::cout << pair.first << ": " << pair.second << std::endl;
-// 	}
-// }
-
 Response::~Response() {}
 
 //Try to read an html file and return it as a string with a specific text for response

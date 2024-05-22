@@ -1,6 +1,7 @@
 #pragma once
 
 #include "webserver.hpp"
+#include "server.hpp"
 #include "request.hpp"
 #include "CGI.hpp"
 

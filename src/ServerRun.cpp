@@ -321,13 +321,13 @@ void ServerRun::sendResponse(int fd)
 		r->rSend();
 		removeConnection(fd);
 		// _requests.erase(clientFd);
-		if (_responses.count(clientFd))
+		if (_responses.count(clientFd) == 1)
 		{
 			std::cout << "1\n";
 			delete _responses[clientFd];
 			_responses.erase(clientFd);
 		}
-		if (_requests.count(fd))
+		if (_requests.count(fd) == 1)
 		{
 			std::cout << "2\n";
 			delete _requests[fd];
@@ -336,8 +336,8 @@ void ServerRun::sendResponse(int fd)
 		if (!_responses.count(clientFd) and !_requests.count(fd))
 		{
 			std::cout << "3\n";
-			close(clientFd); // only loads in the browser one the fd is closed...should we keep the connectioned?
-			removeConnection(clientFd);
+			close(clientFd); // only loads in the browser one the fd is closed...should we keep the connection?
+			// removeConnection(clientFd);
 		}
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }

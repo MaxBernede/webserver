@@ -1,6 +1,12 @@
 #pragma once
 #include "webserver.hpp"
 
+enum reqType
+{
+	HTML,
+	IMG
+};
+
 //TODO getter for port and host
 class Request
 {
@@ -8,7 +14,7 @@ class Request
 		//constructors
 		Request(int clientFd);
 		~Request();
-		void constructRequest();
+		void	constructRequest();
 
 		//SET
 		void		setFile();
@@ -21,14 +27,15 @@ class Request
 		std::string	getExtension(std::string fileName);
 
 		//GET
-		std::string getFile();
+		std::string	getFile();
 		std::string	getFileName();
 		int			getClientFd();
 		int			getRequestPort();
 		std::string	getRequestHost();
 		std::string	getRequestStr();
-		std::string getMethod(int index);
+		std::string	getMethod(int index);
 		std::vector<std::pair<std::string, std::string>>	getContent();
+		std::string getResponse(void);
 
 		// SET
 		void	setConfig(Server config);	
@@ -40,7 +47,6 @@ class Request
 
 		void		printAllData();
 
-
 	private:
 		std::vector<std::string> _method;
 		std::vector<std::pair<std::string, std::string>>	_request;
@@ -49,6 +55,6 @@ class Request
 		int			_clientFd;
 		std::string	_request_text;
 		bool		_doneReading;
-		std::string _file;
+		std::string	_file;
 		Server		_config;
 };

@@ -11,7 +11,7 @@ void Request::readRequest()
 		return;
 	}
 	buffer[rb] = '\0';
-	_request_text += buffer;;
+	_request_text += std::string(buffer, rb);
 	if (rb < BUFFER_SIZE - 1)
 	{
 		_doneReading = true;
