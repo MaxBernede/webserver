@@ -11,7 +11,10 @@ void Request::readRequest()
 		return;
 	}
 	buffer[rb] = '\0';
+	_read_bytes += rb;
 	_request_text += std::string(buffer, rb);
+	if (_request_text.length())
+		throw Exception("Payload too large", 413);
 	if (rb < BUFFER_SIZE - 1)
 	{
 		_doneReading = true;
@@ -62,4 +65,35 @@ void Request::printAllData(){
 	std::cout << std::endl;
 	for (const auto& pair : _request)
 		printColor(RESET, pair.first, ": ", pair.second);
+}
+
+void Request::checkRequest()
+{
+	std::string method = getMethod(0);
+	int index = -1;
+	std::cout << "CHECKING    Method: " << method << std::endl;
+	
+	if (method == "GET")
+		index = GET;
+	else if (method == "POST")
+		index = POST;
+	else if (method == "DELETE")
+		index = DELETE;
+	if (!_config.getMethod(index))
+	{
+		int found = false;
+		std::cout << "Method: " << method << " ";
+		for (auto item : _config.getErrorPages())
+		{
+			if (item.err == 405)
+			{
+				found = true;
+				_file = item.url;
+			}
+		}
+		if (!found)
+			
+		//throw(Exception("Method not allowed", 1));
+	}
+
 }

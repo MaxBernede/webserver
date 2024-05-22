@@ -187,6 +187,7 @@ void ServerRun::readRequest(int clientFd)
 			config = getConfig(host);
 		} //TODO if server == not found, error is thrown, please catch
 		_requests[clientFd]->setConfig(config);
+		_requests[clientFd]->checkRequest();
 		std::cout << config.getRoot() << std::endl;
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 		if (_requests[clientFd]->isCgi())
@@ -337,7 +338,7 @@ void ServerRun::sendResponse(int fd)
 		{
 			std::cout << "3\n";
 			close(clientFd); // only loads in the browser one the fd is closed...should we keep the connection?
-			// removeConnection(clientFd);
+			removeConnection(clientFd);
 		}
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }

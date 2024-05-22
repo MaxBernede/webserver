@@ -7,6 +7,8 @@ enum reqType
 	IMG
 };
 
+#define METHODS {"GET",	"POST",	"DELETE", "PUT", "PATCH", "CONNECT", "OPTIONS", "TRACE"}
+
 //TODO getter for port and host
 class Request
 {
@@ -16,18 +18,17 @@ class Request
 		~Request();
 		void	constructRequest();
 
-		//SET
-		void		setFile();
 		void		fillBoundary(std::string text);
 		std::string	getValues(std::string key);
 		void		readRequest();
 		void		parseFirstLine(std::istringstream &iss);
 		void		parseBody(std::istringstream &iss, std::string &line);
 		void 		parseResponse(const std::string& headers);
-		std::string	getExtension(std::string fileName);
+		void		checkRequest();
 
 		//GET
 		std::string	getFile();
+		std::string	getExtension(std::string fileName);
 		std::string	getFileName();
 		int			getClientFd();
 		int			getRequestPort();
@@ -38,6 +39,7 @@ class Request
 		std::string getResponse(void);
 
 		// SET
+		void		setFile();
 		void	setConfig(Server config);	
 
 		//Methods
@@ -56,5 +58,7 @@ class Request
 		std::string	_request_text;
 		bool		_doneReading;
 		std::string	_file;
+		uint32_t	_read_bytes;
 		Server		_config;
+
 };
