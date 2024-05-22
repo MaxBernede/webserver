@@ -38,7 +38,7 @@ bool exists (const std::string& name) {
 
 void create_file(std::string const &content, std::string const &location){ // not currently working, look into it
 	size_t i = 0;
-	std::string key = "filename=\"";
+	std::string key = "filename=\"";           
 	// printColor(GREEN, content);
 	// printColor(MAGENTA, location);
 	size_t start = content.find(key) + key.length();
