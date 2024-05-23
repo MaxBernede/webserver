@@ -28,7 +28,7 @@ class Request
 
 		//GET
 		std::string	getFile();
-		std::string	getExtension(std::string fileName);
+		// std::string	getExtension(std::string fileName);
 		std::string	getFileName();
 		int			getClientFd();
 		int			getRequestPort();

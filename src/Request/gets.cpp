@@ -67,7 +67,7 @@ std::string Request::getFileName( void )
 	}
 	std::string html_file = firstWord(val);
 	if (html_file == "/")
-		return "/index.html"; //TODO: make it modular according to config
+		return *(_config.getIndex()).begin(); //TODO: make it modular according to config
 	return html_file;
 }
 

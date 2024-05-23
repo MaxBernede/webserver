@@ -27,7 +27,7 @@ std::string getExtension(std::string fileName)
 		std::string extension = fileName.substr(dotIndex + 1);
 		return (extension);
 	}
-	return (nullptr);
+	return ("");
 }
 
 

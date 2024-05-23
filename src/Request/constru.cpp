@@ -111,6 +111,6 @@ void Request::constructRequest(){
 	std::string body = getValues("Body");
 	if (!body.empty()){
 		printColor(RED, "BODY CREATE");
-		create_file(body, "/home/posthum/Desktop/saved_files");
+		create_file(body, "/home/kposthum/Desktop/");
 	}
 }

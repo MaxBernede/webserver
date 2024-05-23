@@ -166,7 +166,6 @@ Server ServerRun::getConfig(std::string host)
 // Only continue after reading the whole request
 void ServerRun::readRequest(int clientFd)
 {	
-	Server config;
 	if (_requests.find(clientFd) == _requests.end())
 	{
 		Request *newRequest = new Request(clientFd);
@@ -179,16 +178,13 @@ void ServerRun::readRequest(int clientFd)
 	if (_requests[clientFd]->isDoneReading() == true)
 	{
 		int port = _requests[clientFd]->getRequestPort();
-		if (port != -1)
-			config = getConfig(port);
-		else
-		{
-			std::string host = _requests[clientFd]->getRequestHost(); //doesn't work this way, apparently :/, figure out what to do
-			config = getConfig(host);
-		} //TODO if server == not found, error is thrown, please catch
+		if (port < 0)
+			throw Exception("Port not found", 404);
+		Server config = getConfig(port);
+		//TODO if server == not found, error is thrown, please catch
 		_requests[clientFd]->setConfig(config);
 		_requests[clientFd]->checkRequest();
-		std::cout << config.getRoot() << std::endl;
+		std::cout << "ROOT directory:\t" << config.getRoot() << std::endl;
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 		if (_requests[clientFd]->isCgi())
 		{
@@ -207,7 +203,7 @@ void ServerRun::readRequest(int clientFd)
 		}
 		else // Static file
 		{
-			std::string filePath = "html" + _requests[clientFd]->getFileName(); // TODO root path based on config
+			std::string filePath = config.getRoot() + _requests[clientFd]->getFileName(); // TODO root path based on config
 			std::cout << "opening file: " << filePath << std::endl;
 			int fileFd = open(filePath.c_str(), O_RDONLY);
 			if (fileFd < 0)
@@ -239,10 +235,9 @@ void ServerRun::readFile(int fd) // Static file fd
 {
 	char buffer[BUFFER_SIZE];
 
-	for (int i = 0; i < BUFFER_SIZE; i++)
-		buffer[i] = '\0';
+	memset(buffer, '\0', BUFFER_SIZE);
 	int clientFd = _requests[fd]->getClientFd();
-	if (_responses.find(clientFd) == _responses.end()) // Response object no created
+	if (_responses.find(clientFd) == _responses.end()) // Response object not created
 	{
 		Response *response = new Response(_requests[fd], clientFd);
 		_responses[clientFd] = response;

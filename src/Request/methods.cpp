@@ -1,4 +1,5 @@
 #include "webserver.hpp"
+#include <utils.hpp>
 
 void Request::readRequest()
 {
@@ -13,7 +14,7 @@ void Request::readRequest()
 	buffer[rb] = '\0';
 	_read_bytes += rb;
 	_request_text += std::string(buffer, rb);
-	if (_request_text.length())
+	if (_request_text.length() > _config.getMaxBody())
 		throw Exception("Payload too large", 413);
 	if (rb < BUFFER_SIZE - 1)
 	{
