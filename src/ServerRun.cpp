@@ -163,6 +163,7 @@ Server ServerRun::getConfig(std::string host)
 	return (nullptr);
 }
 
+//!two same functions name in serverrun and _request for readRequest
 // Only continue after reading the whole request
 void ServerRun::readRequest(int clientFd)
 {	

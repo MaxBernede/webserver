@@ -32,6 +32,7 @@ test_endpoint() {
 
 test_endpoint "/" 200 "$BASE_URL"  # Testing root endpoint
 test_endpoint "/page1.html" 200 "$BASE_URL"
+test_endpoint "/complete_error" 200 "$BASE_URL"
 
 # Add more tests as needed
 

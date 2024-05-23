@@ -45,12 +45,10 @@ std::string Response::makeStrResponse(void)
 {
 	std::ostringstream oss;
 	std::string httpStatus = _request->getMethod(2);
-	//std::cout << "HTTPS STATUS IS " << httpStatus << std::endl;
 
 	//Below is to get the content type
 	std::string file = _request->getFileNameProtected();
 	
-	std::cout << "Appending HTTP status line: " << httpStatus << " 200 OK\r\n";
     oss << httpStatus << " 200 OK\r\n";
 	oss << "Content-Type: " << _contentType.at(getExtension(file)) << "\r\n";
 	oss << "Content-Length: " << response_text.length() << "\r\n";
