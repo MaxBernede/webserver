@@ -40,6 +40,12 @@ typedef struct t_ePage{
 	std::string	url;
 }	s_ePage;
 
+typedef struct t_redirect{
+	uint16_t	returnValue;
+	std::string	redirFrom;
+	std::string	redirTo;
+}	s_redirect;
+
 class Server {
 
 	private:
@@ -52,6 +58,7 @@ class Server {
 		std::list<s_ePage>		_errorPages;
 		std::list<std::string>	_index;
 		bool					_autoIndex;
+		std::list<s_redirect>	_redirect;
 
 	public:
 		Server();
@@ -70,6 +77,7 @@ class Server {
 		std::list<s_ePage>		getErrorPages()	const;
 		std::list <std::string>	getIndex()	const;
 		bool					getAutoIndex()	const;
+		std::list<s_redirect>	getRedirect() const;
 
 		void	setPort(s_port port);
 		void	setName(std::string name);
@@ -80,6 +88,7 @@ class Server {
 		void	setErrorPages(s_ePage ePage);
 		void	setIndex(std::string index);
 		void	setAutoIndex(bool autoIndex);
+		void	setRedirect(s_redirect redir);
 
 		void	clearPort();
 		void	clearName();
@@ -90,6 +99,7 @@ class Server {
 		void	clearEPage();
 		void	clearIndex();
 		void	clearAutoIndex();
+		void	clearRedirect();
 
 		void	clearData(int index);
 };

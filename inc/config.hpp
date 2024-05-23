@@ -9,3 +9,4 @@ void confMaxBody(std::string value, Server &serv);
 void confErrorPage(std::string value, Server &serv);
 void confIndex(std::string value, Server &serv);
 void confAutoIndex(std::string value, Server &serv);
+void confRedirect(std::string value, Server &serv);

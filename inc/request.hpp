@@ -38,7 +38,7 @@ class Request
 		std::vector<std::pair<std::string, std::string>>	getContent();
 		std::string getResponse(void);
 		std::string getFileNameProtected( void );
-
+		Server		getConfig();
 		// SET
 		void		setFile();
 		void	setConfig(Server config);	

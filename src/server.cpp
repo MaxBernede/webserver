@@ -1,4 +1,4 @@
-#include "../inc/webserver.hpp"
+#include <webserver.hpp>
 
 // add check for empty line
 bool servBlockStart(std::string buf){
@@ -112,7 +112,13 @@ static std::list<std::string> defaultIndex(){
 	return index;
 }
 
-//default consructor
+static std::list<s_redirect> defaultRedirect(){
+	std::list<s_redirect> redirect;
+	redirect.clear();
+	return redirect;
+}
+
+//default constructor
 Server::Server(char **env):
 	_ports(defaultPorts()),
 	_name(defaultName()),
@@ -122,7 +128,8 @@ Server::Server(char **env):
 	_maxBody(1048576),
 	_errorPages(defaultErrorPages(_root)),
 	_index(defaultIndex()),
-	_autoIndex(true){
+	_autoIndex(true),
+	_redirect(defaultRedirect()){
 }
 
 Server::Server():
@@ -134,7 +141,8 @@ Server::Server():
 	_maxBody(1048576),
 	_errorPages(defaultErrorPages(_root)),
 	_index(defaultIndex()),
-	_autoIndex(true){
+	_autoIndex(true),
+	_redirect(defaultRedirect()){
 }
 
 Server::~Server() {
@@ -150,6 +158,7 @@ Server &Server::operator=(const Server &obj) {
 	this->_errorPages = obj.getErrorPages();
 	this->_index = obj.getIndex();
 	this->_autoIndex = obj.getAutoIndex();
+	this->_redirect = obj.getRedirect();
 	return *this;
 }
 
@@ -197,16 +206,18 @@ bool Server::getAutoIndex()	const{
 	return _autoIndex;
 }
 
+std::list<s_redirect> Server::getRedirect() const{
+	return _redirect;
+}
+
 void Server::clearPort(){
 	_ports.clear();
 }
 
 void Server::clearName(){
-	// _name = "";
 }
 
 void Server::clearRoot(){
-	// _root = "";
 }
 
 void Server::clearMethods(){
@@ -215,11 +226,9 @@ void Server::clearMethods(){
 }
 
 void Server::clearCGI(){
-	// _cgi = false;
 }
 
 void Server::clearMaxBody(){
-	// _maxBody = 200;
 }
 
 void Server::clearEPage(){
@@ -231,13 +240,15 @@ void Server::clearIndex(){
 }
 
 void Server::clearAutoIndex(){
-	// _autoIndex = false;
+}
+
+void Server::clearRedirect(){
 }
 
 void Server::clearData(int index){
-	void (Server::*ptr[9])(void) = 
+	void (Server::*ptr[10])(void) = 
 		{&Server::clearPort, &Server::clearName, &Server::clearRoot, &Server::clearMethods, &Server::clearCGI,
-		&Server::clearMaxBody, &Server::clearEPage, &Server::clearIndex, &Server::clearAutoIndex};
+		&Server::clearMaxBody, &Server::clearEPage, &Server::clearIndex, &Server::clearAutoIndex, &Server::clearRedirect};
 	(this->*ptr[index])();
 }
 
@@ -277,6 +288,10 @@ void Server::setAutoIndex(bool autoIndex){
 	_autoIndex = autoIndex;
 }
 
+void Server::setRedirect(s_redirect redir){
+	_redirect.push_back(redir);
+}
+
 std::string boolstring(const bool& src){
 	if (!src)
 		return "false";
@@ -305,6 +320,9 @@ std::ostream & operator<< (std::ostream &out, const Server& src){
 		out << "Index\t" << index << std::endl;
 	}
 	out << "auto Index\t" << boolstring(src.getAutoIndex()) << std::endl;
-	
+	for (s_redirect redir : src.getRedirect()){
+		out << "Value\t" << redir.returnValue << "\tFROM " << redir.redirFrom 
+			<< "\tTO " << redir.redirTo << std::endl;
+	}	
 	return out;
 }

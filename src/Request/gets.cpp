@@ -93,6 +93,10 @@ std::string Request::getResponse(void){
 	return response_header;
 }
 
+Server	Request::getConfig(){
+	return _config;
+}
+
 // Setters
 
 void	Request::setConfig(Server config)

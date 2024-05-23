@@ -10,7 +10,6 @@ ServerRun::ServerRun(const std::list<Server> config)
 {
 	std::vector<int> listens;
 
-
 	if (config.empty())
 		throw(Exception("No servers defined in the config file", 1));
 	_servers = config;
@@ -179,12 +178,13 @@ void ServerRun::readRequest(int clientFd)
 	{
 		int port = _requests[clientFd]->getRequestPort();
 		if (port < 0)
-			throw Exception("Port not found", 404);
+			throw Exception("Port not found", errno);
 		Server config = getConfig(port);
-		//TODO if server == not found, error is thrown, please catch
+		//TODO if server == not found, error should be thrown, please catch
 		_requests[clientFd]->setConfig(config);
 		_requests[clientFd]->checkRequest();
-		std::cout << "ROOT directory:\t" << config.getRoot() << std::endl;
+		std::cout << "ROOT directory:\t"
+			<< _requests[clientFd]->getConfig().getRoot() << std::endl;
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 		if (_requests[clientFd]->isCgi())
 		{
@@ -203,7 +203,8 @@ void ServerRun::readRequest(int clientFd)
 		}
 		else // Static file
 		{
-			std::string filePath = config.getRoot() + _requests[clientFd]->getFileName(); // TODO root path based on config
+			// TODO check if _requests[clientFd]->getFileName() is defined in the configs redirect
+			std::string filePath = _requests[clientFd]->getConfig().getRoot() + _requests[clientFd]->getFileName(); // TODO root path based on config
 			std::cout << "opening file: " << filePath << std::endl;
 			int fileFd = open(filePath.c_str(), O_RDONLY);
 			if (fileFd < 0)
@@ -249,7 +250,7 @@ void ServerRun::readFile(int fd) // Static file fd
 	{
 		_responses[clientFd]->addToBuffer(buffer);
 	}
-	if (readChars < BUFFER_SIZE - 1)
+	if (readChars == 0)
 	{
 		_pollData[fd]._pollType = FILE_READ_DONE;
 		_responses[clientFd]->setReady();

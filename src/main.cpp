@@ -1,4 +1,4 @@
-#include "../inc/webserver.hpp"
+#include<webserver.hpp>
 #include<string>
 #include<iostream>
 #include<iomanip>
@@ -19,8 +19,8 @@ std::string findKey(std::string str){
 
 Server	pushBlock(std::list<std::string> block, char **env){
 	Server serv(env);
-	void (*ptr[9])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
-		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex};
+	void (*ptr[10])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
+		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex, &confRedirect};
 	std::string const keys[9] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed",
 		"clientMaxBodySize", "errorPage", "index", "autoIndex"};
 	bool clear[10] = {false, false, false, false, false,
@@ -58,10 +58,9 @@ Server	pushBlock(std::list<std::string> block, char **env){
 	return serv;
 }
 
-// TODO add signal handler to close all fd's when someone presses CTRL C
+// TODO add signal handler to close all fd's when someone presses CTRL C?
 int main(int argc, char** argv, char** env) {
 
-	//!KOEN WORK 
 	std::list<Server> server;
 
 	try{
