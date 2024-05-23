@@ -38,5 +38,21 @@ re: fclean all
 run: $(NAME)
 	./$(NAME)
 
-.PHONY: clean all fclean re run
+
+
+CONFIG_FILE = template.conf
+TEST_SCRIPT = ./testScript.sh
+
+test: all run_server test_webserver
+
+run_server:
+	@echo "Running web server..."
+	./$(NAME) $(CONFIG_FILE)&
+	@sleep 1
+
+test_webserver:
+	@echo "Running web server tests..."
+	$(TEST_SCRIPT)
+
+.PHONY: clean all fclean re run test run_server test_webserver
 

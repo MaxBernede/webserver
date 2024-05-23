@@ -82,7 +82,7 @@ void ServerRun::serverRunLoop( void )
 {
 	// create epoll queue...
 	int nCon = -1;
-	printColor(GREEN, "Server running...");
+	printColor(GREEN, "Server running...", RESET);
 	while (true)
 	{
 		nCon = poll(_pollFds.data(), _pollFds.size(), 0);

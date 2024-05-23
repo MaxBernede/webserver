@@ -3,7 +3,7 @@
 
 
 //!Constructors
-Response::Response(Request *req, int clientFd) : _request(req), _clientFd(clientFd), ready(false)
+Response::Response(Request *req, int clientFd) : _request(req), _clientFd(clientFd), ready(false), _responseStatusCode(StatusCode::Null)
 {
 	_html_file = this->_request->getFileName();
 	std::cout << "Default constructor Response" << std::endl;
@@ -27,6 +27,20 @@ std::string Response::makeResponse(std::ifstream &file)
 	return oss.str();
 }
 
+void Response::setStatusCode(StatusCode code) {
+	_responseStatusCode = code;
+}
+
+StatusCode Response::getStatusCode( void ) {
+	return _responseStatusCode;
+}
+
+// Function to print the status code
+void Response::printStatusCode() {
+	;
+	//std::cout << "Status Code: " << static_cast<int>(_responseStatusCode) << std::endl;
+}
+
 std::string Response::makeStrResponse(void)
 {
 	std::ostringstream oss;
@@ -36,7 +50,7 @@ std::string Response::makeStrResponse(void)
 	std::string file = _request->getFileNameProtected();
 	oss << httpStatus << " ";
 	oss << "200 OK\r\n";
-	oss << "Content-Type: " << contentType.at(getExtension(file)) << "\r\n";
+	oss << "Content-Type: " << _contentType.at(getExtension(file)) << "\r\n";
 	oss << "\r\n";
 	oss << response_text;
 
@@ -65,9 +79,9 @@ void Response::addToBuffer(std::string buffer)
 
 void Response::rSend( void ){
 	std::string response = makeStrResponse();
-	std::cout << "_______________________________________________\n";
-	std::cout << "Message to send =>\n " << response << std::endl;
-	std::cout << "_______________________________________________\n";
+	// std::cout << "_______________________________________________\n";
+	// std::cout << "Message to send =>\n " << response << std::endl;
+	// std::cout << "_______________________________________________\n";
 	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
 	{
 		throw(Exception("Error sending response", errno));
