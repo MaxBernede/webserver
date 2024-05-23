@@ -47,12 +47,12 @@ test: all run_server test_webserver
 
 run_server:
 	@echo "Running web server..."
-	./$(NAME) $(CONFIG_FILE)&
+	@./$(NAME) $(CONFIG_FILE) > /dev/null 2>&1 &
 	@sleep 1
 
 test_webserver:
 	@echo "Running web server tests..."
-	$(TEST_SCRIPT)
+	@$(TEST_SCRIPT)
 
 .PHONY: clean all fclean re run test run_server test_webserver
 

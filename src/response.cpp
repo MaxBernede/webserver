@@ -7,9 +7,9 @@ Response::Response(Request *req, int clientFd) : _request(req), _clientFd(client
 {
 	_html_file = this->_request->getFileName();
 	std::cout << "Default constructor Response" << std::endl;
-	for (const auto& pair : _request->getContent()) {
-		std::cout << pair.first << ": " << pair.second << std::endl;
-	}
+	// for (const auto& pair : _request->getContent()) {
+	// 	std::cout << pair.first << ": " << pair.second << std::endl;
+	// }
 }
 
 Response::~Response() {}
@@ -45,15 +45,18 @@ std::string Response::makeStrResponse(void)
 {
 	std::ostringstream oss;
 	std::string httpStatus = _request->getMethod(2);
+	//std::cout << "HTTPS STATUS IS " << httpStatus << std::endl;
 
 	//Below is to get the content type
 	std::string file = _request->getFileNameProtected();
-	oss << httpStatus << " ";
-	oss << "200 OK\r\n";
+	
+	std::cout << "Appending HTTP status line: " << httpStatus << " 200 OK\r\n";
+    oss << httpStatus << " 200 OK\r\n";
 	oss << "Content-Type: " << _contentType.at(getExtension(file)) << "\r\n";
+	oss << "Content-Length: " << response_text.length() << "\r\n";
 	oss << "\r\n";
 	oss << response_text;
-
+	
 	return oss.str();
 }
 
@@ -79,6 +82,7 @@ void Response::addToBuffer(std::string buffer)
 
 void Response::rSend( void ){
 	std::string response = makeStrResponse();
+	std::cout << response << std::endl;
 	// std::cout << "_______________________________________________\n";
 	// std::cout << "Message to send =>\n " << response << std::endl;
 	// std::cout << "_______________________________________________\n";

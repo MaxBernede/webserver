@@ -323,19 +323,19 @@ void ServerRun::sendResponse(int fd)
 		// _requests.erase(clientFd);
 		if (_responses.count(clientFd) == 1)
 		{
-			std::cout << "1\n";
+			//std::cout << "1\n";
 			delete _responses[clientFd];
 			_responses.erase(clientFd);
 		}
 		if (_requests.count(fd) == 1)
 		{
-			std::cout << "2\n";
+			//std::cout << "2\n";
 			delete _requests[fd];
 			_requests.erase(fd);
 		}
 		if (!_responses.count(clientFd) and !_requests.count(fd))
 		{
-			std::cout << "3\n";
+			//std::cout << "3\n";
 			close(clientFd); // only loads in the browser one the fd is closed...should we keep the connection?
 			// removeConnection(clientFd);
 		}

@@ -54,6 +54,7 @@ void Request::parseFirstLine(std::istringstream &iss){
     while (std::getline(line_stream, arg, ' ')){
         _method.push_back(arg);
 	}
+	_method[2].erase(std::remove(_method[2].begin(), _method[2].end(), '\r'), _method[2].end());
 	size_t pos = line.find(' ');
 	if (pos != std::string::npos)
 		_request.emplace_back(create_pair(line, pos));
@@ -103,6 +104,12 @@ Request::~Request() {}
 
 void Request::constructRequest(){
 	printColor(BLUE, "Constructor request call");
+	std::cout << _request_text << std::endl;
+	//!below is important work on in case of empty connexion fron nc -z
+	if (_request_text.empty()){
+		std::cout << "EMPTY request" << std::endl;
+		return ;
+	}
 	fillBoundary(_request_text);
 	parseResponse(_request_text);	
 	setFile();
