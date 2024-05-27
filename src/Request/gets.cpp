@@ -80,6 +80,7 @@ std::string Request::getValues(std::string key){
 	return "";
 }
 
+// TODO make an enum for this, remove '/r' char from the end of the lines
 // Method[3], 0 = Methode(Post, delete, etc..), 1 = Link (html/ cgi/ .ico), 2 = HTTP version
 std::string Request::getMethod(int index){
 	if (index < 0 || static_cast<std::vector<std::string>::size_type>(index) >= _method.size())

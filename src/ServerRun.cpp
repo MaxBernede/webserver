@@ -146,7 +146,7 @@ Server ServerRun::getConfig(int port)
 			}
 		}
 	}
-	return (nullptr);
+	throw(Exception("Server not found", 404));
 }
 
 Server ServerRun::getConfig(std::string host)
@@ -159,7 +159,6 @@ Server ServerRun::getConfig(std::string host)
 		}
 	}
 	throw Exception("Server not found", 404);
-	return (nullptr);
 }
 
 // Only continue after reading the whole request
