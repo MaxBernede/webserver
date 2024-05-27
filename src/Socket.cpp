@@ -12,6 +12,8 @@ Socket::Socket(int port)
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE; // fills in your local host ip for you, saves you from having to hard code it
 
+	// TODO add IP number as argument one. see if getaddrinfo accepts IPv4
+	//127.0.0.1 - 127.255.255.254
 	int status = getaddrinfo(NULL, port_str.c_str(), &hints, &res);
 	bool bound = false;
 	if(status != 0)

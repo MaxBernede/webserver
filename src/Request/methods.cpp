@@ -63,7 +63,6 @@ void Request::checkRequest()
 {
 	std::string method = getMethod(0);
 	int index = -1;
-	std::cout << "CHECKING    Method: " << method << std::endl;
 	
 	if (method == "GET")
 		index = GET;
@@ -74,7 +73,7 @@ void Request::checkRequest()
 	if (!_config.getMethod(index))
 	{
 		int found = false;
-		std::cout << "Method: " << method << " ";
+		// std::cout << "\n\nMethod: " << method << " ";
 		for (auto item : _config.getErrorPages())
 		{
 			if (item.err == 405)
@@ -83,7 +82,10 @@ void Request::checkRequest()
 				_file = item.url;
 			}
 		}
-			
+		if (!found)
+		{
+
+		}
 		//throw(Exception("Method not allowed", 1));
 	}
 }

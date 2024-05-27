@@ -19,6 +19,7 @@ std::string Request::getFile(){
 int	Request::getRequestPort()
 {
 	std::string host = this->getValues("Host");
+	std::cout << "\n\nHost: " << host << std::endl;
 	std::string port;
 	size_t colonIndex = host.find_last_of(":");
 	if (colonIndex != std::string::npos)

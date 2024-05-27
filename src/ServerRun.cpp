@@ -178,13 +178,16 @@ void ServerRun::readRequest(int clientFd)
 	{
 		int port = _requests[clientFd]->getRequestPort();
 		if (port < 0)
+		{
 			throw Exception("Port not found", errno);
+			exit(1);
+		}
 		Server config = getConfig(port);
 		//TODO if server == not found, error should be thrown, please catch
 		_requests[clientFd]->setConfig(config);
 		_requests[clientFd]->checkRequest();
-		std::cout << "ROOT directory:\t"
-			<< _requests[clientFd]->getConfig().getRoot() << std::endl;
+		// std::cout << "ROOT directory:\t"
+		// 	<< _requests[clientFd]->getConfig().getRoot() << std::endl;
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 		if (_requests[clientFd]->isCgi())
 		{
@@ -248,7 +251,7 @@ void ServerRun::readFile(int fd) // Static file fd
 		throw(Exception("Read file failed", errno));
 	if (readChars > 0)
 	{
-		_responses[clientFd]->addToBuffer(buffer);
+		_responses[clientFd]->addToBuffer(std::string(buffer, readChars));
 	}
 	if (readChars == 0)
 	{
@@ -277,7 +280,7 @@ void ServerRun::readPipe(int fd) // Pipe read end fd
 	if (readChars > 0)
 	{
 		std::cout << "Cgi: adding to buffer\n";
-		_responses[clientFd]->addToBuffer(buffer);
+		_responses[clientFd]->addToBuffer(std::string(buffer, readChars));
 	}
 	if (readChars < BUFFER_SIZE - 1)
 	{
