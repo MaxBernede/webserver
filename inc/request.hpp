@@ -58,7 +58,7 @@ class Request
 		std::string	_request_text;
 		bool		_doneReading;
 		std::string	_file;
-		uint32_t	_read_bytes;
+		uint32_t	_recv_bytes;
 		Server		_config;
 
 };

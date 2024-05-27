@@ -6,13 +6,13 @@ void Request::readRequest()
 	char buffer[BUFFER_SIZE];
 	int rb;
 
-	rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
+	rb = recv(_clientFd, buffer, BUFFER_SIZE - 1, 0);
 	if (rb < 0){
 		std::cerr << "Error reading request" << std::endl;
 		return;
 	}
 	buffer[rb] = '\0';
-	_read_bytes += rb;
+	_recv_bytes += rb;
 	_request_text += std::string(buffer, rb);
 	if (_request_text.length() > _config.getMaxBody())
 		throw Exception("Payload too large", 413);
