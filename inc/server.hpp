@@ -37,7 +37,7 @@ typedef struct t_port{
 
 typedef struct t_ePage{
 	uint16_t	err;
-	std::string	url;
+	std::string	url; 
 }	s_ePage;
 
 typedef struct t_redirect{

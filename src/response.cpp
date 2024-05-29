@@ -3,7 +3,7 @@
 
 
 //!Constructors
-Response::Response(Request *req, int clientFd) : _request(req), _clientFd(clientFd), ready(false)
+Response::Response(Request *req, int clientFd, bool def_error) : _request(req), _clientFd(clientFd), _ready(false), _default_error(def_error)
 {
 	_html_file = this->_request->getFileName();
 	std::cout << "Default constructor Response" << std::endl;
@@ -31,16 +31,8 @@ std::string Response::makeStrResponse(void)
 {
 	std::ostringstream oss;
 	std::string httpStatus = _request->getMethod(2);
-	std::string str = httpStatus.substr(0, httpStatus.length() - 1);
-
-	// std::cout << "HTTP STAT: " << httpStatus << std::endl;
-
-	//Below is to get the content type
-	// std::string file = _request->getFileNameProtected();
-	// oss << "Content-Type: " << contentType.at(getExtension(file)) << "\r\n";
-	// oss << httpStatus << " ";
-	oss << str << " 200 OK\r\n\r\n";
-	oss << response_text;
+	oss << httpStatus << " 200 OK\r\n\r\n";
+	oss << _response_text;
 
 	return oss.str();
 }
@@ -49,24 +41,27 @@ std::string Response::makeStrResponse(void)
 std::string Response::readHtmlFile(void)
 {
 	std::string file_path = "html/" + _html_file;
-	std::ifstream file(file_path);
+	std::ifstream _file(file_path);
 
-	if (!file.is_open()){
+	if (!_file.is_open()){
 		std::cout << "Error: Impossible to open the file " << file_path << std::endl;
 		return "";
 	}
-	return makeResponse(file);
+	return makeResponse(_file);
 }
 
 //Read from the FD and fill the buffer with a max of 1024, then get the html out of it
 //read the HTML and return it as a string
 void Response::addToBuffer(std::string buffer)
 {
-	response_text += buffer;
+	_response_text += buffer;
 }
 
-void Response::rSend( void ){
-	std::string response = makeStrResponse();
+void Response::rSend( void )
+{
+	std::string response = _response_text;
+	if (!_default_error)
+		response = makeStrResponse();
 	std::cout << "_______________________________________________\n";
 	std::cout << "Message to send =>\n " << response << std::endl;
 	std::cout << "_______________________________________________\n";
@@ -74,10 +69,14 @@ void Response::rSend( void ){
 	{
 		throw(Exception("Error sending response", errno));
 	}
-
 }
 
 void Response::setReady( void )
 {
-	ready = true;
+	_ready = true;
+}
+
+void Response::setResponseString(std::string response)
+{
+	_response_text = response;
 }

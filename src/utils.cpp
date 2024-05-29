@@ -13,10 +13,10 @@ std::string firstWord(const std::string& str) {
 
 //Check if the first string end with the second
 bool endsWith(const std::string& str, const std::string& suffix) {
-    if (str.length() < suffix.length()) {
-        return false;
-    }
-    return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
+	if (str.length() < suffix.length()) {
+		return false;
+	}
+	return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
 
 std::string getExtension(std::string fileName)
@@ -30,20 +30,19 @@ std::string getExtension(std::string fileName)
 	return ("");
 }
 
-
 bool exists (const std::string& name) {
-  struct stat buffer;   
-  return (stat (name.c_str(), &buffer) == 0); 
+	struct stat buffer;
+	return (stat (name.c_str(), &buffer) == 0); 
 }
 
 void create_file(std::string const &content, std::string const &location){ // not currently working, look into it
 	size_t i = 0;
-	std::string key = "filename=\"";           
+	std::string key = "filename=\"";
 	// printColor(GREEN, content);
 	// printColor(MAGENTA, location);
 	size_t start = content.find(key) + key.length();
 	std::string fileName = content.substr(start, content.find('\"', start) - start);
-    fileName = location + "/" + fileName;
+	fileName = location + "/" + fileName;
 	std::string extension = fileName.substr(fileName.rfind('.'));
 	std::string name = fileName.substr(0, fileName.find(extension));
 	while (exists(fileName) == true){

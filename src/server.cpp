@@ -97,10 +97,10 @@ static std::list<s_ePage> defaultErrorPages(std::string root){
 	std::list<s_ePage> erorPages;
 	s_ePage fofo;
 	fofo.err = 404;
-	fofo.url = root + "errdir/404.html";
+	fofo.url = "errdir/404.html";
 	s_ePage fofv;
 	fofv.err = 405;
-	fofv.url = root + "errdir/405.html";
+	fofv.url = "errdir/405.html";
 	erorPages.push_back(fofo);
 	erorPages.push_back(fofv);
 	return erorPages;

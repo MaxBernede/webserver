@@ -17,7 +17,8 @@ enum pollType
 	FILE_READ_DONE,
 	CGI_READ_WAITING,
 	CGI_READ_READING,
-	CGI_READ_DONE
+	CGI_READ_DONE,
+	SEND_REDIR,
 };
 
 typedef struct t_poll_data
@@ -52,10 +53,15 @@ class ServerRun
 	void dataIn(s_poll_data pollData, struct pollfd pollFd); // read from client
 	void dataOut(s_poll_data pollData, struct pollfd pollFd); // write to client
 
+	void handleCGIRequest(int clientFd);
+	void handleStaticFileRequest(int clientFd);
+
+	void redirectToError(int ErrCode, Request *request, int clientFd); // Redirect to 404, 405
 	void readFile(int fd);
 	void readPipe(int fd);
 	void sendResponse(int fd);
 	void sendCgiResponse(int fd);
+	void sendRedir(int fd);
 
 	Server getConfig(int port);
 	Server getConfig(std::string host);

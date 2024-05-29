@@ -35,3 +35,4 @@
 #include "request.hpp"
 #include "print_colors.hpp"
 #include "CGI.hpp"
+#include "error.hpp"

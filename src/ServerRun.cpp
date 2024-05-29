@@ -134,7 +134,7 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	addQueue(CLIENT_CONNECTION_READY, connFd);
 }
 
-Server ServerRun::getConfig(int port)
+Server ServerRun::getConfig(int port) // WILL ADD HOST
 {
 	for (auto server : _servers)
 	{
@@ -146,7 +146,7 @@ Server ServerRun::getConfig(int port)
 			}
 		}
 	}
-	throw(Exception("Server not found", 404));
+	throw(Exception("Server not found", 1));
 }
 
 Server ServerRun::getConfig(std::string host)
@@ -158,7 +158,47 @@ Server ServerRun::getConfig(std::string host)
 			return (server);
 		}
 	}
-	throw Exception("Server not found", 404);
+	throw Exception("Server not found", 1);
+}
+
+void ServerRun::handleCGIRequest(int clientFd)
+{
+	std::cout << "It is a CGI Request!\n";
+	CGI *cgiRequest = new CGI(_requests[clientFd], clientFd);
+	int pipeFd = cgiRequest->getReadFd();
+	_cgi[pipeFd] = cgiRequest;
+	// std::cout << "Cgi Pipe FD: " << pipeFd << std::endl;
+	addQueue(CGI_READ_WAITING, pipeFd);
+	cgiRequest->runCgi();
+}
+
+void ServerRun::handleStaticFileRequest(int clientFd)
+{
+	// TODO check if _requests[clientFd]->getFileName() is defined in the configs redirect
+	std::string filePath = _requests[clientFd]->getConfig().getRoot() + _requests[clientFd]->getFileName(); // TODO root path based on config
+	std::cout << "Opening static file: " << filePath << std::endl;
+	int fileFd = open(filePath.c_str(), O_RDONLY);
+	if (fileFd < 0)
+	{
+		std::cout << "Failed opening file: " << filePath << std::endl; // TODO 404 error
+		throw(Exception("Opening static file failed", errno));
+	}
+	_requests[fileFd] = _requests[clientFd]; // TODO: We need to add the request header reading in here too
+	addQueue(FILE_READ_READING, fileFd);
+}
+
+void ServerRun::redirectToError(int ErrCode, Request *request, int clientFd)
+{
+	if (_responses.find(clientFd) == _responses.end()) 
+	{
+		Response *response = new Response(request, clientFd, true);
+		if (ErrCode == 404)
+			response->setResponseString(NOT_FOUND);
+		if (ErrCode == 405)
+			response->setResponseString(NOT_ALLOWED);
+		_responses[clientFd] = response;
+		_pollData[clientFd]._pollType = SEND_REDIR;
+	}
 }
 
 // Only continue after reading the whole request
@@ -184,38 +224,26 @@ void ServerRun::readRequest(int clientFd)
 		Server config = getConfig(port);
 		//TODO if server == not found, error should be thrown, please catch
 		_requests[clientFd]->setConfig(config);
-		_requests[clientFd]->checkRequest();
-		// std::cout << "ROOT directory:\t"
-		// 	<< _requests[clientFd]->getConfig().getRoot() << std::endl;
+		int ErrCode = _requests[clientFd]->checkRequest();
+		if (ErrCode != 0)
+		{
+			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
+			redirectToError(ErrCode, _requests[clientFd], clientFd);
+			return ;
+		}
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-		if (_requests[clientFd]->isCgi())
+		if (_requests[clientFd]->isCgi()) // What do we do when CGI is not allowed?
 		{
 			if (!config.getCGI())
 			{
 				std::cout << "CGI is not allowed for this server\n";
 				return ;
 			}
-			std::cout << "It is a CGI Request!\n";
-			CGI *cgiRequest = new CGI(_requests[clientFd], clientFd);
-			int pipeFd = cgiRequest->getReadFd();
-			_cgi[pipeFd] = cgiRequest;
-			// std::cout << "Cgi Pipe FD: " << pipeFd << std::endl;
-			addQueue(CGI_READ_WAITING, pipeFd);
-			cgiRequest->runCgi();
+			handleCGIRequest(clientFd);
 		}
 		else // Static file
 		{
-			// TODO check if _requests[clientFd]->getFileName() is defined in the configs redirect
-			std::string filePath = _requests[clientFd]->getConfig().getRoot() + _requests[clientFd]->getFileName(); // TODO root path based on config
-			std::cout << "opening file: " << filePath << std::endl;
-			int fileFd = open(filePath.c_str(), O_RDONLY);
-			if (fileFd < 0)
-			{
-				std::cout << "Failed opening file: " << filePath << std::endl; // TODO 404 error
-				throw(Exception("Opening static file failed", errno));
-			}
-			_requests[fileFd] = _requests[clientFd]; // TODO: We need to add the request header reading in here too
-			addQueue(FILE_READ_READING, fileFd);
+			handleStaticFileRequest(clientFd);
 		}
 		_requests.erase(clientFd);
 	}
@@ -242,7 +270,7 @@ void ServerRun::readFile(int fd) // Static file fd
 	int clientFd = _requests[fd]->getClientFd();
 	if (_responses.find(clientFd) == _responses.end()) // Response object not created
 	{
-		Response *response = new Response(_requests[fd], clientFd);
+		Response *response = new Response(_requests[fd], clientFd, false);
 		_responses[clientFd] = response;
 	}
 	int readChars = read(fd, buffer, BUFFER_SIZE - 1);
@@ -269,22 +297,19 @@ void ServerRun::readPipe(int fd) // Pipe read end fd
 	int clientFd = _cgi[fd]->getClientFd();
 	if (_responses.find(clientFd) == _responses.end()) // Response object not created
 	{
-		Response *response = new Response(_cgi[fd]->getRequest(), clientFd);
+		Response *response = new Response(_cgi[fd]->getRequest(), clientFd, false);
 		_responses[clientFd] = response;
 	}
 	int readChars = read(fd, buffer, BUFFER_SIZE - 1);
-	std::cout << "Cgi read chars " << readChars << std::endl;
 	if (readChars < 0)
 		throw(Exception("Read pipe failed!", errno));
 	if (readChars > 0)
 	{
-		std::cout << "Cgi: adding to buffer\n";
 		_responses[clientFd]->addToBuffer(std::string(buffer, readChars));
 	}
 	if (readChars < BUFFER_SIZE - 1)
 	{
 		_pollData[fd]._pollType = CGI_READ_DONE;
-		std::cout << "Setting CGI READ DONE\n";
 		_responses[clientFd]->setReady();
 		close(fd);
 	}
@@ -319,22 +344,18 @@ void ServerRun::sendResponse(int fd)
 		Response *r = _responses[clientFd];
 		r->rSend();
 		removeConnection(fd);
-		// _requests.erase(clientFd);
 		if (_responses.count(clientFd) == 1)
 		{
-			std::cout << "1\n";
 			delete _responses[clientFd];
 			_responses.erase(clientFd);
 		}
 		if (_requests.count(fd) == 1)
 		{
-			std::cout << "2\n";
 			delete _requests[fd];
 			_requests.erase(fd);
 		}
 		if (!_responses.count(clientFd) and !_requests.count(fd))
 		{
-			std::cout << "3\n";
 			close(clientFd); // only loads in the browser one the fd is closed...should we keep the connection?
 			removeConnection(clientFd);
 		}
@@ -359,12 +380,26 @@ void ServerRun::sendCgiResponse(int fd)
 			delete _responses[clientFd];
 			_responses.erase(clientFd);
 		}
-		if (_requests.count(fd))
+		if (_requests.count(clientFd) == 1)
 		{
-			delete _requests[fd];
-			_requests.erase(fd);
+			delete _requests[clientFd];
+			_requests.erase(clientFd);
 		}
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
+}
+
+void ServerRun::sendRedir(int clientFd)
+{
+	std::cout << "SENDING REDIR ERROR" << std::endl;
+	Response *r = _responses[clientFd];
+	r->rSend();
+	close(clientFd);
+	if (_responses.count(clientFd))
+	{
+		delete _responses[clientFd];
+		_responses.erase(clientFd);
+	}
+	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY; // But did I not close this?
 }
 
 void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
@@ -377,6 +412,8 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 		case FILE_READ_DONE:
 			sendResponse(pollFd.fd);
 			break ;
+		case SEND_REDIR:
+			sendRedir(pollFd.fd);
 		default:
 			break ;
 	}
