@@ -4,9 +4,10 @@
 void Request::readRequest()
 {
 	char buffer[BUFFER_SIZE];
-	int rb;
+	ssize_t rb;
 
-	rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
+	// rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
+	rb = recv(_clientFd, buffer, (BUFFER_SIZE - 1), MSG_DONTWAIT | MSG_CMSG_CLOEXEC);
 	if (rb < 0){
 		std::cerr << "Error reading request" << std::endl;
 		return;
@@ -23,7 +24,14 @@ void Request::readRequest()
 	}
 }
 
-
+bool Request::isRedirect(){
+	std::list<s_redirect> redirs = _config.getRedirect();
+	for (s_redirect r : redirs){
+		if (getFileName() == r.redirFrom)
+			return true;
+	}
+	return false;
+}
 
 bool Request::isCgi()
 {
@@ -50,11 +58,11 @@ bool Request::isBoundary(const std::string &line){
 
 void Request::printAllData(){
 	printColor(YELLOW, "All the datas on the Request Class :");
-	std::cout << "Boudary: " << _boundary << std::endl;
-	std::cout << "Method: ";
-	for (const auto &method : _method)
-		std::cout << method << " ";
-	std::cout << std::endl;
+	// std::cout << "Boundary: " << _boundary << std::endl;
+	// std::cout << "Method: ";
+	// for (const auto &method : _method)
+	// 	std::cout << method << " ";
+	// std::cout << std::endl;
 	for (const auto& pair : _request)
 		printColor(RESET, pair.first, ": ", pair.second);
 }

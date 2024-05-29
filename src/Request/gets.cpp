@@ -55,7 +55,7 @@ std::string Request::getFileNameProtected( void ){
 	return "";
 }
 
-//WTF ? Why the hell am ireturning the file name only if it's a post or get
+//WTF ? Why the hell am returning the file name only if it's a post or get
 //Return the first word after GET (usually the html) otherwise empty
 std::string Request::getFileName( void )
 {
@@ -99,7 +99,7 @@ Server	Request::getConfig(){
 
 // Setters
 
-void	Request::setConfig(Server config)
+void	Request::setConfig(Server &config)
 {
 	_config = config;
 }

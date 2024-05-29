@@ -1,6 +1,21 @@
 #include "utils.hpp"
 #include <sys/stat.h>
 
+uint32_t configIP(std::string ip){
+	uint32_t host = 0;
+	while(ip != ""){
+		std::string temp = ip.substr(0, ip.find_first_of(".;"));
+		if (temp.length() > 3 || temp.length() < 1 || std::stoi(temp) > UINT8_MAX)
+			throw syntaxError();
+		host = host << 4;
+		host += std::stoi(temp);
+		ip.erase(0, temp.length() + 1);
+	}
+	if (host == 0)
+		throw syntaxError();
+	return host;
+}
+
 //Return the first word after GET (usually the html)
 //Check the scalability in case of different parsing ways to do
 std::string firstWord(const std::string& str) {
@@ -39,8 +54,8 @@ bool exists (const std::string& name) {
 void create_file(std::string const &content, std::string const &location){ // not currently working, look into it
 	size_t i = 0;
 	std::string key = "filename=\"";           
-	// printColor(GREEN, content);
-	// printColor(MAGENTA, location);
+	printColor(GREEN, content);
+	printColor(MAGENTA, location);
 	size_t start = content.find(key) + key.length();
 	std::string fileName = content.substr(start, content.find('\"', start) - start);
     fileName = location + "/" + fileName;
@@ -51,8 +66,10 @@ void create_file(std::string const &content, std::string const &location){ // no
 		i++;
 	}
 	std::string temp = content;
-	while (temp[0] != '\n')
-		temp.erase(0, (temp.find('\n') + 1));
+	std::cout << temp << std::endl;
+	// while (temp[0] != '\n'){
+	// 	temp.erase(0, (temp.find('\n') + 1));
+	// 	printColor(BLUE, "stuck?");}
 	temp.erase(0, 1);
 	std::ofstream upload(fileName.c_str(), std::ios::out);
 	upload << temp;

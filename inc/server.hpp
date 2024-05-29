@@ -31,8 +31,8 @@ enum methods{
 };
 
 typedef struct t_port{
-	uint16_t	nmb;
-	std::string	type;
+	uint32_t	host;
+	uint16_t	port;
 }	s_port;
 
 typedef struct t_ePage{

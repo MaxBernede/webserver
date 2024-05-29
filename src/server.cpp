@@ -1,4 +1,5 @@
 #include <webserver.hpp>
+#include<utils.hpp>
 
 // add check for empty line
 bool servBlockStart(std::string buf){
@@ -50,11 +51,11 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 static std::list<s_port> defaultPorts(){
 	std::list<s_port> ports;
 	s_port def;
-	def.nmb = 8080;
-	def.type = "default_server";
+	def.port = 8080;
+	def.host = configIP("127.0.0.1");
 	s_port ssl;
-	ssl.nmb = 8000;
-	ssl.type = "ssl";
+	ssl.port = 8000;
+	ssl.host = configIP("127.0.0.1");
 	ports.push_back(def);
 	ports.push_back(ssl);
 	return ports;
@@ -302,7 +303,7 @@ std::string boolstring(const bool& src){
 std::ostream & operator<< (std::ostream &out, const Server& src){
 
 	for (s_port port : src.getPorts()){
-		out << "port\t" << port.nmb << "\t" << port.type << std::endl;
+		out << "port\t" << port.host << "\t" << port.port << std::endl;
 	}
 	out << "name\t" << src.getName() << std::endl;
 	out << "root\t" << src.getRoot() << std::endl;

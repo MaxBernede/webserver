@@ -1,15 +1,33 @@
-#include "../inc/webserver.hpp"
+#include <webserver.hpp>
+#include <server.hpp>
+#include<utils.hpp>
 
 void confPort(std::string value, Server &serv){
 	s_port port;
 
-	std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r "));
-	size_t pos = num.length();
-	while (value.find_first_of("\t\n\v\f\r ", pos) == 0)
-		pos++;
-	port.type = value.substr(pos, value.length());
-	port.type.pop_back();
-	port.nmb = std::stol(num);
+	std::string ip = value.substr(0, value.find_first_of(":"));
+	std::string num = value.substr((value.find_first_of(":") + 1), (value.length() - ip.length() - 1));
+	num.pop_back();
+	if (ip == "localhost")
+		port.host = configIP("127.0.0.1");
+	else{
+		if (ip.find_first_not_of("1234567890.") != std::string::npos)
+			throw syntaxError();
+		int j = 0;
+		for (size_t i = 0; ip[i]; i++){
+			if (ip[i] == '.')
+				j++;
+			if (j > 3)
+				throw syntaxError();
+		}
+		if (j != 3)
+			throw syntaxError();
+		port.host = configIP(ip);
+	}
+	if (num.find_first_not_of("1234567890") != std::string::npos || num.length() < 1
+		|| num.length() > 5 || std::stoi(num) > UINT16_MAX)
+		throw syntaxError();
+	port.port = std::stol(num);
 	serv.setPort(port);
 }
 
@@ -117,25 +135,25 @@ void confAutoIndex(std::string value, Server &serv){
 void confRedirect(std::string value, Server &serv){
 	
 	std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-	if (num.length() != 3 || num.find_first_not_of("1234567890") != std::string::npos)
-		throw syntaxError();
+	if (num.length() != 3 || num.find_first_not_of("1234567890") != std::string::npos){
+		throw syntaxError();}
 	value.erase(0, num.length());
 	while (value.find_first_of("\t\n\v\f\r ") == 0)
 		value.erase(0, 1);
 	std::string from = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-	if (from.length() == 0)
-		throw syntaxError();
+	if (from.length() == 0){
+		throw syntaxError();}
 	value.erase(0, from.length());
 	while (value.find_first_of("\t\n\v\f\r ") == 0)
 		value.erase(0, 1);
 	std::string to = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-	if (to.length() == 0)
-		throw syntaxError();
+	if (to.length() == 0){
+		throw syntaxError();}
 	value.erase(0, to.length());
 	while (value.find_first_of("\t\n\v\f\r ") == 0)
 		value.erase(0, 1);
-	if (value != ";")
-		throw syntaxError();
+	if (value != ";"){
+		throw syntaxError();}
 	s_redirect redir;
 	redir.returnValue = std::stoi(num);
 	redir.redirFrom = from;

@@ -18,11 +18,11 @@ ServerRun::ServerRun(const std::list<Server> config)
 	{
 		for (auto port : server.getPorts())
 		{
-			if (std::find(listens.begin(), listens.end(), port.nmb) == listens.end())
-				listens.push_back(port.nmb);
+			if (std::find(listens.begin(), listens.end(), port.port) == listens.end())
+				listens.push_back(port.port);
 			else
 			{
-				std::cout << "port: " << port.nmb << std::endl;
+				std::cout << "port: " << port.port << std::endl;
 				std::cout << "Servers have the same port in config" << std::endl;
 			}
 		}
@@ -140,7 +140,7 @@ Server ServerRun::getConfig(int port)
 	{
 		for (auto p : server.getPorts())
 		{
-			if (p.nmb == port)
+			if (p.port == port)
 			{
 				return (server);
 			}
@@ -186,34 +186,43 @@ void ServerRun::readRequest(int clientFd)
 		std::cout << "ROOT directory:\t"
 			<< _requests[clientFd]->getConfig().getRoot() << std::endl;
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-		if (_requests[clientFd]->isCgi())
-		{
-			if (!config.getCGI())
-			{
-				std::cout << "CGI is not allowed for this server\n";
-				return ;
+		// TODO check if _requests[clientFd]->getFileName() is defined in the configs redirect
+		// if (_requests[clientFd]->isRedirect()){
+
+		// }
+		// else {
+			if (_requests[clientFd]->isCgi()) {
+				if (!config.getCGI())
+				{
+					std::cout << "CGI is not allowed for this server\n";
+					return ;
+				}
+				std::cout << "It is a CGI Request!\n";
+				CGI *cgiRequest = new CGI(_requests[clientFd], clientFd);
+				int pipeFd = cgiRequest->getReadFd();
+				_cgi[pipeFd] = cgiRequest;
+				// std::cout << "Cgi Pipe FD: " << pipeFd << std::endl;
+				addQueue(CGI_READ_WAITING, pipeFd);
+				cgiRequest->runCgi();
 			}
-			std::cout << "It is a CGI Request!\n";
-			CGI *cgiRequest = new CGI(_requests[clientFd], clientFd);
-			int pipeFd = cgiRequest->getReadFd();
-			_cgi[pipeFd] = cgiRequest;
-			// std::cout << "Cgi Pipe FD: " << pipeFd << std::endl;
-			addQueue(CGI_READ_WAITING, pipeFd);
-			cgiRequest->runCgi();
-		}
-		else // Static file
-		{
-			// TODO check if _requests[clientFd]->getFileName() is defined in the configs redirect
-			std::string filePath = _requests[clientFd]->getConfig().getRoot() + _requests[clientFd]->getFileName(); // TODO root path based on config
-			std::cout << "opening file: " << filePath << std::endl;
-			int fileFd = open(filePath.c_str(), O_RDONLY);
-			if (fileFd < 0)
-			{
-				std::cout << "Failed opening file: " << filePath << std::endl; // TODO 404 error
-				throw(Exception("Opening static file failed", errno));
+			else { // Static file
+				std::string filePath = _requests[clientFd]->getConfig().getRoot() + _requests[clientFd]->getFileName();
+				std::cout << "opening file: " << filePath << std::endl;
+				int fileFd = open(filePath.c_str(), O_RDONLY);
+				if (fileFd < 0)
+				{
+					std::cout << "Failed opening file: " << filePath << std::endl; // TODO 404 error
+					throw(Exception("Opening static file failed", errno));
+				}
+				_requests[fileFd] = _requests[clientFd]; // TODO: We need to add the request header reading in here too
+				addQueue(FILE_READ_READING, fileFd);
 			}
-			_requests[fileFd] = _requests[clientFd]; // TODO: We need to add the request header reading in here too
-			addQueue(FILE_READ_READING, fileFd);
+		// }
+		std::string body = _requests[clientFd]->getValues("Body");
+		std::cout << _requests[clientFd]->getConfig() << std::endl;
+		if (!body.empty()){
+			printColor(RED, "BODY CREATE");
+			create_file(body, _requests[clientFd]->getConfig().getRoot());
 		}
 		_requests.erase(clientFd);
 	}

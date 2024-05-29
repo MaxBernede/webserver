@@ -41,9 +41,10 @@ class Request
 		Server		getConfig();
 		// SET
 		void		setFile();
-		void	setConfig(Server config);	
+		void		setConfig(Server &config);	
 
 		//Methods
+		bool		isRedirect();
 		bool		isCgi(); // boolean to tell if request is Cgi
 		bool		isDoneReading();
 		bool		isBoundary(const std::string &line);

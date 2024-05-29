@@ -21,8 +21,8 @@ Server	pushBlock(std::list<std::string> block, char **env){
 	Server serv(env);
 	void (*ptr[10])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
 		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex, &confRedirect};
-	std::string const keys[9] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed",
-		"clientMaxBodySize", "errorPage", "index", "autoIndex"};
+	std::string const keys[10] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed",
+		"clientMaxBodySize", "errorPage", "index", "autoIndex", "return"};
 	bool clear[10] = {false, false, false, false, false,
 		false, false, false, false, false};
 	for (std::string str : block){
@@ -77,8 +77,8 @@ int main(int argc, char** argv, char** env) {
 	}
 
 	// initialise ServerRun obj
-	ServerRun runningServer(server);
+	// ServerRun runningServer(server);
 	// Run server loop
-	runningServer.serverRunLoop();
+	// runningServer.serverRunLoop();
 	return 0;
 }

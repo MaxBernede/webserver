@@ -108,9 +108,10 @@ void Request::constructRequest(){
 	setFile();
 	printAllData();
 	//Below is the equivalent of execution of the POST
-	std::string body = getValues("Body");
-	if (!body.empty()){
-		printColor(RED, "BODY CREATE");
-		create_file(body, "/home/kposthum/Desktop/");
-	}
+	// std::string body = getValues("Body");
+	// std::cout << _config << std::endl;
+	// if (!body.empty()){
+	// 	printColor(RED, "BODY CREATE");
+	// 	create_file(body, _config.getRoot());
+	// }
 }
