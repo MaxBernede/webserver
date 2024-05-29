@@ -28,7 +28,6 @@
 
 #include "response.hpp"
 #include "utils.hpp"
-#include "signal.hpp"
 #include "server.hpp"
 #include "config.hpp"
 #include "Socket.hpp"

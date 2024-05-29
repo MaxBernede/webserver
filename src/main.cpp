@@ -37,7 +37,7 @@ Server	pushBlock(std::list<std::string> block, char **env){
 			str.erase(0, key.length());
 			while (str.find_first_of("\t\n\v\f\r ") == 0)
 				str.erase(0, 1);
-			for (int i = 0; i < 10; i++){
+			for (int i = 0; i < 9; i++){ // TELL KOEN: Ive changed this from 10 to 9
 				if (key == keys[i]){
 					if (clear[i] == false){
 						serv.clearData(i);
