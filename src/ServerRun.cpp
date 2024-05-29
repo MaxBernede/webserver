@@ -128,7 +128,7 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	socklen_t len = sizeof(sockaddr_in);
 
 	connFd = accept(listenerFd, (struct sockaddr *)cli_addr, &len);
-	std::cout << "New Client Connected accepted\n";
+	std::cout << "New Client Connected accepted, CONN: " << connFd << std::endl;
 	if (connFd == -1)
 		throw(Exception("accept() errored and returned -1", errno));
 	addQueue(CLIENT_CONNECTION_READY, connFd);
@@ -398,6 +398,11 @@ void ServerRun::sendRedir(int clientFd)
 	{
 		delete _responses[clientFd];
 		_responses.erase(clientFd);
+	}
+	if (_requests.count(clientFd) == 1)
+	{
+		delete _requests[clientFd];
+		_requests.erase(clientFd);
 	}
 	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY; // But did I not close this?
 }

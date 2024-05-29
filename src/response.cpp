@@ -67,6 +67,7 @@ void Response::rSend( void )
 	std::cout << "_______________________________________________\n";
 	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
 	{
+		std::cout << "ERROR with SEND " << _clientFd << std::endl;
 		throw(Exception("Error sending response", errno));
 	}
 }

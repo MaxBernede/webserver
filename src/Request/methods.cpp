@@ -95,6 +95,7 @@ bool Request::redirRequest404()
 	std::string root = _config.getRoot();
 	std::string filepath = root + _file;
 	std::cout << "checking file: " << filepath << std::endl;
+	std::cout << "FILE: " << _file << std::endl;
 	if (access(filepath.c_str(), F_OK) == -1) // If file does not exist
 	{
 		int found = false;
@@ -106,7 +107,8 @@ bool Request::redirRequest404()
 				_file = item.url; // redir to error page on Server
 			}
 		}
-		std::cout << "_file after looping errorpgs: " << std::endl;
+		std::cout << "_file after looping errorpgs: " << _file << std::endl;
+		filepath = root + _file;
 		if (access(filepath.c_str(), F_OK) == -1 || !found)
 		{
 			return (false); // redirect to hardcoded 404 error
