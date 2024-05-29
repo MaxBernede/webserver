@@ -46,13 +46,7 @@ std::string	Request::getRequestHost()
 std::string Request::getFileNameProtected( void ){
 	if (_file != "/")
 		return _file;
-	for (auto item : _config.getIndex())
-	{
-		if (getExtension(item) == "html")
-			return (item);
-	}
-	//!TAKE CARE IF NOT FOUND IN CONFIG FILE PROBLEM
-	return "";
+	return (_config.getIndex());
 }
 
 //WTF ? Why the hell am returning the file name only if it's a post or get
@@ -67,7 +61,7 @@ std::string Request::getFileName( void )
 	}
 	std::string html_file = firstWord(val);
 	if (html_file == "/")
-		return *(_config.getIndex()).begin(); //TODO: make it modular according to config
+		return (_config.getIndex()); //TODO: make it modular according to config
 	return html_file;
 }
 

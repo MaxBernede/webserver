@@ -1,5 +1,5 @@
 #include <webserver.hpp>
-#include <server.hpp>
+#include <Server.hpp>
 #include<utils.hpp>
 
 void confPort(std::string value, Server &serv){
@@ -114,13 +114,10 @@ void confErrorPage(std::string value, Server &serv){
 }
 
 void confIndex(std::string value, Server &serv){
-	while (value != ";"){
-		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-		value.erase(0, tmp.length());
-		while (value.find_first_of("\t\n\v\f\r ") == 0)
-			value.erase(0, 1);
-		serv.setIndex(tmp);
-	}
+	value.pop_back();
+	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
+		throw syntaxError();
+	serv.setIndex(value);
 }
 
 void confAutoIndex(std::string value, Server &serv){

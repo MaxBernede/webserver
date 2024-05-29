@@ -4,6 +4,8 @@
 #include <string>
 #include <list>
 #include <vector>
+#include<Location.hpp>
+#include<utils.hpp>
 
 class	invalidFile : public std::exception{
 	public:
@@ -19,32 +21,7 @@ class	syntaxError : public std::exception{
 		}
 };
 
-enum methods{
-	GET,
-	POST,
-	DELETE,
-	PUT,
-	PATCH,
-	CONNECT,
-	OPTIONS,
-	TRACE
-};
-
-typedef struct t_port{
-	uint32_t	host;
-	uint16_t	port;
-}	s_port;
-
-typedef struct t_ePage{
-	uint16_t	err;
-	std::string	url;
-}	s_ePage;
-
-typedef struct t_redirect{
-	uint16_t	returnValue;
-	std::string	redirFrom;
-	std::string	redirTo;
-}	s_redirect;
+class Location;
 
 class Server {
 
@@ -56,9 +33,10 @@ class Server {
 		bool					_cgi;
 		uint64_t				_maxBody;
 		std::list<s_ePage>		_errorPages;
-		std::list<std::string>	_index;
+		std::string				_index;
 		bool					_autoIndex;
 		std::list<s_redirect>	_redirect;
+		std::list<Location>		_location;
 
 	public:
 		Server();
@@ -75,9 +53,10 @@ class Server {
 		bool					getCGI()	const;
 		uint64_t				getMaxBody()	const;
 		std::list<s_ePage>		getErrorPages()	const;
-		std::list <std::string>	getIndex()	const;
+		std::string				getIndex()	const;
 		bool					getAutoIndex()	const;
 		std::list<s_redirect>	getRedirect() const;
+		std::list<Location>		getLocation() const;
 
 		void	setPort(s_port port);
 		void	setName(std::string name);
@@ -89,6 +68,9 @@ class Server {
 		void	setIndex(std::string index);
 		void	setAutoIndex(bool autoIndex);
 		void	setRedirect(s_redirect redir);
+		void	setLocation(Location locaiton);
+
+		void	configLocation();
 
 		void	clearPort();
 		void	clearName();

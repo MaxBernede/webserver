@@ -29,8 +29,9 @@
 #include "response.hpp"
 #include "utils.hpp"
 #include "signal.hpp"
-#include "server.hpp"
-#include "config.hpp"
+#include "Server.hpp"
+#include "Config.hpp"
+#include <Location.hpp>
 #include "Socket.hpp"
 #include "ServerRun.hpp"
 #include "request.hpp"

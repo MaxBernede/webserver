@@ -1,5 +1,4 @@
 #include <webserver.hpp>
-#include<utils.hpp>
 
 // add check for empty line
 bool servBlockStart(std::string buf){
@@ -94,23 +93,21 @@ static std::vector<bool> defaultMethods(){
 	return methods;
 }
 
-static std::list<s_ePage> defaultErrorPages(std::string root){
+static std::list<s_ePage> defaultErrorPages(){
 	std::list<s_ePage> erorPages;
 	s_ePage fofo;
 	fofo.err = 404;
-	fofo.url = root + "errdir/404.html";
+	fofo.url = "errdir/404.html";
 	s_ePage fofv;
 	fofv.err = 405;
-	fofv.url = root + "errdir/405.html";
+	fofv.url = "errdir/405.html";
 	erorPages.push_back(fofo);
 	erorPages.push_back(fofv);
 	return erorPages;
 }
 
-static std::list<std::string> defaultIndex(){
-	std::list<std::string> index = 
-		{"index.php", "index.html", "index.htm"};
-	return index;
+static std::string defaultIndex(){
+	return "";
 }
 
 static std::list<s_redirect> defaultRedirect(){
@@ -127,7 +124,7 @@ Server::Server(char **env):
 	_methods(defaultMethods()),
 	_cgi(true),
 	_maxBody(1048576),
-	_errorPages(defaultErrorPages(_root)),
+	_errorPages(defaultErrorPages()),
 	_index(defaultIndex()),
 	_autoIndex(true),
 	_redirect(defaultRedirect()){
@@ -140,7 +137,7 @@ Server::Server():
 	_methods(defaultMethods()),
 	_cgi(true),
 	_maxBody(1048576),
-	_errorPages(defaultErrorPages(_root)),
+	_errorPages(defaultErrorPages()),
 	_index(defaultIndex()),
 	_autoIndex(true),
 	_redirect(defaultRedirect()){
@@ -199,7 +196,7 @@ std::list<s_ePage> Server::getErrorPages()	const{
 	return _errorPages;
 }
 
-std::list<std::string> Server::getIndex()	const{
+std::string Server::getIndex()	const{
 	return _index;
 }
 
@@ -282,7 +279,7 @@ void Server::setErrorPages(s_ePage ePage){
 }
 
 void Server::setIndex(std::string index){
-	_index.push_back(index);
+	_index = index;
 }
 
 void Server::setAutoIndex(bool autoIndex){
@@ -291,13 +288,6 @@ void Server::setAutoIndex(bool autoIndex){
 
 void Server::setRedirect(s_redirect redir){
 	_redirect.push_back(redir);
-}
-
-std::string boolstring(const bool& src){
-	if (!src)
-		return "false";
-	else
-		return "true";
 }
 
 std::ostream & operator<< (std::ostream &out, const Server& src){
@@ -317,9 +307,7 @@ std::ostream & operator<< (std::ostream &out, const Server& src){
 	for (s_ePage ePage : src.getErrorPages()){
 		out << "Error\t" << ePage.err << "\t" << ePage.url << std::endl;
 	}
-	for (std::string index : src.getIndex()){
-		out << "Index\t" << index << std::endl;
-	}
+	out << "Index\t" << src.getIndex() << std::endl;
 	out << "auto Index\t" << boolstring(src.getAutoIndex()) << std::endl;
 	for (s_redirect redir : src.getRedirect()){
 		out << "Value\t" << redir.returnValue << "\tFROM " << redir.redirFrom 

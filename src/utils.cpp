@@ -34,8 +34,7 @@ bool endsWith(const std::string& str, const std::string& suffix) {
     return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
 
-std::string getExtension(std::string fileName)
-{
+std::string getExtension(std::string fileName){
 	size_t dotIndex = fileName.find_last_of(".");
 	if (dotIndex != std::string::npos)
 	{
@@ -74,4 +73,12 @@ void create_file(std::string const &content, std::string const &location){ // no
 	std::ofstream upload(fileName.c_str(), std::ios::out);
 	upload << temp;
 	upload.close();
+}
+
+
+std::string boolstring(const bool& src){
+	if (!src)
+		return "false";
+	else
+		return "true";
 }

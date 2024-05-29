@@ -1,7 +1,7 @@
 #include "webserver.hpp"
 #include "request.hpp"
-
-
+#include<utils.hpp>
+#include<Server.hpp>
 
 void Request::setFile() {
 	std::string val = getValues("GET");
@@ -9,15 +9,7 @@ void Request::setFile() {
 		val = getValues("POST");
 	_file = val.empty() ? "" : firstWord(val);
 	if (_file == "/")
-	{
-		for (auto item : _config.getIndex())
-		{
-			std::string extension = getExtension(item);
-			if (extension == ".html")
-				_file = item;
-		}
-	}
-	// _file = "index.html";
+		_file = _config.getIndex();
 }
 
 //Create a pair out of the line and the int pos of the delimiter (: for every lines or space for the first line)

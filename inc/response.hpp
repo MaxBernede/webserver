@@ -1,9 +1,10 @@
 #pragma once
 
 #include "webserver.hpp"
-#include "server.hpp"
+#include "Server.hpp"
 #include "request.hpp"
 #include "CGI.hpp"
+#include<utils.hpp>
 
 #define BUFFER_SIZE 1024
 
