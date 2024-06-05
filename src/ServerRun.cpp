@@ -5,7 +5,6 @@
 #include <sys/socket.h>
 #include "CGI.hpp"
 
-// TODO: remove 
 ServerRun::ServerRun(const std::list<Server> config)
 {
 	std::vector<int> listens;
@@ -76,10 +75,8 @@ void ServerRun::addQueue(pollType type, int fd)
 	_pollData[fd] = newPollItem;
 }
 
-// Loop to create sockets(), bind() and listen() for each server
 void ServerRun::serverRunLoop( void )
 {
-	// create epoll queue...
 	int nCon = -1;
 	printColor(GREEN, "Server running...");
 	while (true)
@@ -163,7 +160,7 @@ Server ServerRun::getConfig(std::string host)
 
 void ServerRun::handleCGIRequest(int clientFd)
 {
-	std::cout << "It is a CGI Request!\n";
+	std::cout << "CGI Request\n";
 	CGI *cgiRequest = new CGI(_requests[clientFd], clientFd);
 	int pipeFd = cgiRequest->getReadFd();
 	_cgi[pipeFd] = cgiRequest;

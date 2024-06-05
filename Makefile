@@ -9,6 +9,8 @@ SRC := $(shell find src -type f -name '*.cpp')
 
 INC := $(wildcard inc/*.hpp)
 
+RUN_CMD := ./$(NAME) template.conf
+
 OBJ_DIR := ./obj
 OBJ := $(patsubst src/%.cpp,$(OBJ_DIR)/%.o,$(SRC))
 
@@ -35,7 +37,7 @@ fclean: clean
 
 re: fclean all
 
-run: $(NAME)
-	./$(NAME)
+run: all
+	$(RUN_CMD)	
 
 .PHONY: clean all fclean re run
