@@ -59,6 +59,10 @@ bool	Location::getCGI() const{
 	return _cgi;
 }
 
+std::string	Location::getPath() const{
+	return _path;
+}
+
 void	Location::setName(std::string name){
 	_name = name;
 }
@@ -97,46 +101,51 @@ static std::string	extractName(std::string const &src){
 	return name;
 }
 
-void	confMethods(std::string body, Server &serv, Location &loc){
-(void)body;
-(void)serv;
-(void)loc;
+void	confMethods(std::string value, Server &serv, Location &loc){
+	std::string const meth[8] = {"GET", "POST", "DELETE", "PUT",
+		"PATCH", "CONNECT", "OPTIONS", "TRACE"};
+	for (int i = 0; i < 8; i++){
+		loc.setMethod(i, false);
+	}
+	while (value != ";"){
+		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
+		for (int i = 0; i < 8; i++)
+		{
+			if (tmp == meth[i] && serv.getMethod(i) == true){
+				loc.setMethod(i, true);
+				break;
+			}
+			if (i == 7)
+				throw syntaxError();
+		}
+		value.erase(0, tmp.length());
+		while (value.find_first_of("\t\n\v\f\r ") == 0)
+			value.erase(0, 1);
+	}
 }
 
-void	confRedirect(std::string body, Server &serv, Location &loc){
-(void)body;
-(void)serv;
-(void)loc;
+void	confRedirect(std::string value, Server &serv, Location &loc){
+
 }
 
-void	confRoot(std::string body, Server &serv, Location &loc){
-(void)body;
-(void)serv;
-(void)loc;
+void	confRoot(std::string value, Server &serv, Location &loc){
+
 }
 
-void	confAutoIndex(std::string body, Server &serv, Location &loc){
-(void)body;
-(void)serv;
-(void)loc;
+void	confAutoIndex(std::string value, Server &serv, Location &loc){
+
 }
 
-void	confIndex(std::string body, Server &serv, Location &loc){
-(void)body;
-(void)serv;
-(void)loc;
+void	confIndex(std::string value, Server &serv, Location &loc){
+
 }
 
-void	confCGI(std::string body, Server &serv, Location &loc){
-(void)body;
-(void)serv;
-(void)loc;
+void	confCGI(std::string value, Server &serv, Location &loc){
+
 }
 
-void	confPath(std::string body, Server &serv, Location &loc){
-(void)body;
-(void)serv;
-(void)loc;
+void	confPath(std::string value, Server &serv, Location &loc){
+
 }
 
 static std::string findKey(std::string str){
@@ -189,11 +198,12 @@ void	Location::autoConfig(Server &serv){
 		}
 		it++;
 	}
+	// std::cout << *this << std::endl;
 }
 
 std::ostream & operator<< (std::ostream &out, const Location& src){
 
-	out << "LOCATION";
+	out << "LOCATION\t";
 	out << "name\t" << src.getName() << std::endl;
 	out << "root\t" << src.getRoot() << std::endl;
 	out << "methods\t";
@@ -207,6 +217,7 @@ std::ostream & operator<< (std::ostream &out, const Location& src){
 	for (s_redirect redir : src.getRedirect()){
 		out << "Value\t" << redir.returnValue << "\tFROM " << redir.redirFrom 
 			<< "\tTO " << redir.redirTo << std::endl;
-	}	
+	}
+	out << "PATH\t" << src.getPath() << std::endl;
 	return out;
 }

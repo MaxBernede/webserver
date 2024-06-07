@@ -35,6 +35,7 @@ class Location{
 		bool					getAutoIndex() const;
 		std::string				getIndex() const;
 		bool					getCGI() const;
+		std::string				getPath() const;
 
 		void	setName(std::string name);
 		void	setMethod(int method, bool value);

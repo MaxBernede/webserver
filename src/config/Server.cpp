@@ -54,8 +54,7 @@ Server	pushBlock(std::list<std::string> block, char **env){
 				else if (it == block.end())
 					throw syntaxError();
 			}
-			Location loc(body);
-			serv.setLocation(loc);
+			addLocation(body, serv);
 			continue;
 		}
 		else {
@@ -242,6 +241,7 @@ Server &Server::operator=(const Server &obj) {
 	this->_index = obj.getIndex();
 	this->_autoIndex = obj.getAutoIndex();
 	this->_redirect = obj.getRedirect();
+	this->_location = obj.getLocation();
 	return *this;
 }
 
@@ -294,7 +294,7 @@ std::list<s_redirect> Server::getRedirect() const{
 }
 
 std::list<Location> Server::getLocation() const{
-	std::cout << "yes" << std::endl;
+	// std::cout << "yes" << std::endl;
 	return _location;
 }
 
@@ -383,7 +383,9 @@ void Server::setRedirect(s_redirect redir){
 void Server::setLocation(Location &location){
 	// std::cout << "how many" << std::endl;
 	_location.push_back(location);
+	std::cout << _location.size() << std::endl;
 }
+
 
 void Server::configLocation(){
 	for (Location l : _location){
@@ -415,6 +417,7 @@ std::ostream & operator<< (std::ostream &out, const Server& src){
 		out << "Value\t" << redir.returnValue << "\tFROM " << redir.redirFrom 
 			<< "\tTO " << redir.redirTo << std::endl;
 	}
+	std::cout << "locsize " << (src.getLocation()).size() << std::endl;
 	for (Location l : src.getLocation()){
 		out << "Location\t" << l << std::endl;
 	}

@@ -46,7 +46,8 @@ void confRoot(std::string value, Server &serv){
 }
 
 void confMethods(std::string value, Server &serv){
-	std::string const meth[8] = {"GET", "POST", "DELETE", "PUT", "PATCH", "CONNECT", "OPTIONS", "TRACE"};
+	std::string const meth[8] = {"GET", "POST", "DELETE", "PUT",
+		"PATCH", "CONNECT", "OPTIONS", "TRACE"};
 	while (value != ";"){
 		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
 		for (int i = 0; i < 8; i++)
@@ -156,4 +157,9 @@ void confRedirect(std::string value, Server &serv){
 	redir.redirFrom = from;
 	redir.redirTo = to;
 	serv.setRedirect(redir);
+}
+
+void addLocation(std::list<std::string> &body, Server &serv){
+	Location loc(body);
+	serv.setLocation(loc);
 }
