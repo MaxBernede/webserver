@@ -1,25 +1,11 @@
 #pragma once
 
-#include <iostream>
-#include <string>
-#include <list>
-#include <vector>
+// #include<utils.hpp>
 #include<Location.hpp>
-#include<utils.hpp>
-
-class	invalidFile : public std::exception{
-	public:
-		const char	*what() const noexcept override {
-			return "Could not open file, resort to default config";
-		}
-};
-
-class	syntaxError : public std::exception{
-	public:
-		const char	*what() const noexcept override {
-			return "Syntax error, resort to default config";
-		}
-};
+#include<iostream>
+#include<string>
+#include<list>
+#include<vector>
 
 class Location;
 

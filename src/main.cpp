@@ -9,60 +9,6 @@
 #include <thread>
 #include <chrono>
 
-
-std::string findKey(std::string str){
-	if (str.find_first_of("\t\n\v\f\r ") != std::string::npos)
-		return str.substr(0, str.find_first_of("\t\n\v\f\r "));
-	else
-		return str.substr(0, (str.length() - 1));
-}
-
-Server	pushBlock(std::list<std::string> block, char **env){
-	Server serv(env);
-	void (*ptr[10])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
-		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex, &confRedirect};
-	std::string const keys[10] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed",
-			"clientMaxBodySize", "errorPage", "index", "autoIndex", "return"};
-	bool clear[10] = {false, false, false, false, false,
-		false, false, false, false, false};
-	for (std::string str : block){
-		while (str.find_first_of("\t\n\v\f\r ") == 0)
-			str.erase(0, 1);
-		if (str.front() == '#')
-			continue;
-		if (str.find("location /") == 0){
-			std::cout << "location block found" << std::endl;
-		}
-		else {
-			if (str.back() != ';')
-				throw syntaxError();
-			try{
-				std::string key = findKey(str);
-				str.erase(0, key.length());
-				while (str.find_first_of("\t\n\v\f\r ") == 0)
-					str.erase(0, 1);
-				for (int i = 0; i < 10; i++){
-					if (key == keys[i]){
-						if (clear[i] == false){
-							serv.clearData(i);
-							clear[i] = true;
-						}
-						(*ptr[i])(str, serv);
-						break;
-					}
-					if (i == 9)
-						throw syntaxError();
-				}
-			}
-			catch(std::exception const &e){
-				std::cout << e.what() << std::endl;
-				continue;
-			}
-		}
-	}
-	return serv;
-}
-
 // TODO add signal handler to close all fd's when someone presses CTRL C?
 int main(int argc, char** argv, char** env) {
 
@@ -80,10 +26,12 @@ int main(int argc, char** argv, char** env) {
 		Server def(env);
 		server.push_front(def);
 	}
-
+	for (Server i : server){
+		// std::cout << i << std::endl;
+	}
 	// initialise ServerRun obj
-	ServerRun runningServer(server);
+	// ServerRun runningServer(server);
 	// Run server loop
-	runningServer.serverRunLoop();
+	// runningServer.serverRunLoop();
 	return 0;
 }

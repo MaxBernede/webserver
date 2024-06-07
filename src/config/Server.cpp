@@ -15,10 +15,85 @@ bool servBlockStart(std::string buf){
 	return true;
 }
 
+std::string findKey(std::string str){
+	if (str.find_first_of("\t\n\v\f\r ") != std::string::npos)
+		return str.substr(0, str.find_first_of("\t\n\v\f\r "));
+	else
+		return str.substr(0, (str.length() - 1));
+}
+
+Server	pushBlock(std::list<std::string> block, char **env){
+	Server serv(env);
+	void (*ptr[10])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
+		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex, &confRedirect};
+	std::string const keys[10] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed",
+			"clientMaxBodySize", "errorPage", "index", "autoIndex", "return"};
+	bool clear[10] = {false, false, false, false, false,
+		false, false, false, false, false};
+	std::list<std::string>::iterator it = block.begin();
+	while (it != block.end()){
+		std::string str = *it;
+		while (str.find_first_of("\t\n\v\f\r ") == 0)
+			str.erase(0, 1);
+		if (str.front() == '#'){
+			it++;
+			continue;
+		}
+		if (str.find("location /") == 0 && str.back() == '{'){
+			// std::cout << "found location" << std::endl;
+			std::list<std::string> body;
+			while (true){
+				str = *it;
+				while (str.find_first_of("\t\n\v\f\r ") == 0)
+					str.erase(0, 1);
+				body.push_back(str);
+				// std::cout << *it <<std::endl;
+				it++;
+				if (str.front() == '}' && str.length() == 1)
+					break ;
+				else if (it == block.end())
+					throw syntaxError();
+			}
+			serv.setLocation(body);
+			continue;
+		}
+		else {
+			if (str.back() != ';')
+				throw syntaxError();
+			try{
+				std::string key = findKey(str);
+				str.erase(0, key.length());
+				while (str.find_first_of("\t\n\v\f\r ") == 0)
+					str.erase(0, 1);
+				for (int i = 0; i < 10; i++){
+					if (key == keys[i]){
+						if (clear[i] == false){
+							serv.clearData(i);
+							clear[i] = true;
+						}
+						(*ptr[i])(str, serv);
+						break;
+					}
+					if (i == 9)
+						throw syntaxError();
+				}
+			}
+			catch(std::exception const &e){
+				std::cout << e.what() << std::endl;
+				continue;
+			}
+		}
+		it++;
+	}
+	serv.configLocation();
+	return serv;
+}
+
 std::list<Server>	init_serv(std::ifstream &conf, char **env){
 	std::list<Server> server;
 	std::string buf;
 	std::list<std::string> block;
+	bool location = false;
 
 	while (!conf.eof()){
 		std::getline(conf, buf);
@@ -28,8 +103,18 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 					std::getline(conf, buf);
 					if (buf.empty())
 						continue ;
-					if (buf.front() == '}')
-						break;
+					if (buf.find("location /") == 0 && buf.back() == '{'){
+						if (location == false)
+							location = true;
+						else
+							throw syntaxError();
+					}
+					if (buf.front() == '}' && buf.length() == 1){
+						if (location == false)
+							break;
+						else
+							location = false;
+					}
 					if (conf.eof())
 						throw syntaxError();
 					block.push_back(buf);
@@ -208,6 +293,10 @@ std::list<s_redirect> Server::getRedirect() const{
 	return _redirect;
 }
 
+std::list<Location> Server::getLocation() const{
+	return _location;
+}
+
 void Server::clearPort(){
 	_ports.clear();
 }
@@ -288,6 +377,17 @@ void Server::setAutoIndex(bool autoIndex){
 
 void Server::setRedirect(s_redirect redir){
 	_redirect.push_back(redir);
+}
+
+void Server::setLocation(Location location){
+	_location.push_back(location);
+}
+
+void Server::configLocation(){
+	for (Location l : _location){
+		// std::cout << "YEET" << std::endl;
+		l.autoConfig(*this);
+	}
 }
 
 std::ostream & operator<< (std::ostream &out, const Server& src){

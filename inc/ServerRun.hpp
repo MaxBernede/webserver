@@ -1,6 +1,7 @@
 # pragma once
 
 #include <iostream>
+#include<response.hpp>
 #include "webserver.hpp"
 
 class CGI;

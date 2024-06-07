@@ -1,10 +1,14 @@
 #pragma once
+
+#include<utils.hpp>
+#include<Server.hpp>
+
 #include<string>
 #include<list>
 #include<vector>
 #include<iostream>
-#include<utils.hpp>
-#include<utils.hpp>
+
+class Server;
 
 class Location{
 	private:
@@ -15,9 +19,9 @@ class Location{
 		bool					_autoIndex;
 		std::string				_index;
 		bool					_cgi;
-		std::string				_body;
+		std::list<std::string>	_body;
 	public:
-		Location(std::string body);
+		Location(std::list<std::string> &body);
 		~Location();
 		Location(const Location &obj);
 		Location &operator=(const Location &obj);
@@ -38,6 +42,8 @@ class Location{
 		void	setAutoIndex(bool autoIndex);
 		void	setIndex(std::string index);
 		void	setCGI(bool CGI);
+
+		void	autoConfig(const Server &serv);
 };
 
 std::ostream & operator<< (std::ostream &out, const Location& src);

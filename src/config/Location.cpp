@@ -1,16 +1,31 @@
 #include<Location.hpp>
 
-Location::Location(std::string body){
-	_body = body;
+Location::Location(std::list<std::string> &body){
+	// _body = body;
+	for (std::string s : body)
+		_body.push_back(s);
+	// std::cout << "TEST\n" << std::endl;
+	// for (std::string i : _body){
+	// 	std::cout << i << std::endl;
+	// }
 }
 
 Location::~Location(){}
 
-Location::Location(const Location &obj){
+Location::Location(const Location &obj) : _body(obj._body){
 	*this = obj;
 }
 
-Location &Location::operator=(const Location &obj){}
+Location &Location::operator=(const Location &obj){
+	this->_name = obj.getName();
+	this->_methods = obj.getMethods();
+	this->_redirect = obj.getRedirect();
+	this->_root = obj.getRoot();
+	this->_autoIndex = obj.getAutoIndex();
+	this->_index = obj.getIndex();
+	this->_cgi = obj.getCGI();
+	return *this;
+}
 
 std::string	Location::getName() const{
 	return _name;
@@ -70,6 +85,20 @@ void	Location::setIndex(std::string index){
 
 void	Location::setCGI(bool CGI){
 	_cgi = CGI;
+}
+
+static std::string	extractName(std::string const &src){
+	std::string name = src;
+	name.erase(0, 9);
+	name.erase(name.length() - 1, 1);
+	std::cout << "<" << name << ">" << std::endl;
+	return name;
+}
+
+void	Location::autoConfig(const Server &serv){
+	std::cout << "why" << std::endl;
+	std::list<std::string>::iterator it = _body.begin();
+	_name = extractName(*it);
 }
 
 std::ostream & operator<< (std::ostream &out, const Location& src){

@@ -23,17 +23,17 @@
 #include <iostream>
 #include <csignal>
 
-#define MIN_PORT 8000
-#define MAX_PORT 8100
+#define MIN_PORT 1
+#define MAX_PORT UINT16_MAX
 
-#include "response.hpp"
-#include "utils.hpp"
-#include "signal.hpp"
-#include "Server.hpp"
-#include "Config.hpp"
-#include <Location.hpp>
-#include "Socket.hpp"
-#include "ServerRun.hpp"
-#include "request.hpp"
-#include "print_colors.hpp"
-#include "CGI.hpp"
+// #include<response.hpp>
+#include<utils.hpp>
+#include<signal.hpp>
+#include<Server.hpp>
+#include<Config.hpp>
+#include<Location.hpp>
+#include<Socket.hpp>
+#include<ServerRun.hpp>
+#include<request.hpp>
+#include<print_colors.hpp>
+#include<CGI.hpp>
