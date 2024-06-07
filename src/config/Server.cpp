@@ -15,7 +15,7 @@ bool servBlockStart(std::string buf){
 	return true;
 }
 
-std::string findKey(std::string str){
+static std::string findKey(std::string str){
 	if (str.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		return str.substr(0, str.find_first_of("\t\n\v\f\r "));
 	else
@@ -54,7 +54,8 @@ Server	pushBlock(std::list<std::string> block, char **env){
 				else if (it == block.end())
 					throw syntaxError();
 			}
-			serv.setLocation(body);
+			Location loc(body);
+			serv.setLocation(loc);
 			continue;
 		}
 		else {
@@ -155,7 +156,6 @@ static bool compare(std::string s1, std::string s2){
 	return false;
 }
 
-// TODO check if pwd even exist/find alternative?
 static std::string defaultRoot(char **env){
 	int i = 0;
 	while (env != nullptr && env[i] && !compare(env[i], "PWD=")){
@@ -294,6 +294,7 @@ std::list<s_redirect> Server::getRedirect() const{
 }
 
 std::list<Location> Server::getLocation() const{
+	std::cout << "yes" << std::endl;
 	return _location;
 }
 
@@ -379,7 +380,8 @@ void Server::setRedirect(s_redirect redir){
 	_redirect.push_back(redir);
 }
 
-void Server::setLocation(Location location){
+void Server::setLocation(Location &location){
+	// std::cout << "how many" << std::endl;
 	_location.push_back(location);
 }
 
@@ -412,6 +414,9 @@ std::ostream & operator<< (std::ostream &out, const Server& src){
 	for (s_redirect redir : src.getRedirect()){
 		out << "Value\t" << redir.returnValue << "\tFROM " << redir.redirFrom 
 			<< "\tTO " << redir.redirTo << std::endl;
-	}	
+	}
+	for (Location l : src.getLocation()){
+		out << "Location\t" << l << std::endl;
+	}
 	return out;
 }

@@ -19,6 +19,7 @@ class Location{
 		bool					_autoIndex;
 		std::string				_index;
 		bool					_cgi;
+		std::string				_path;
 		std::list<std::string>	_body;
 	public:
 		Location(std::list<std::string> &body);
@@ -43,7 +44,7 @@ class Location{
 		void	setIndex(std::string index);
 		void	setCGI(bool CGI);
 
-		void	autoConfig(const Server &serv);
+		void	autoConfig(Server &serv);
 };
 
 std::ostream & operator<< (std::ostream &out, const Location& src);

@@ -27,7 +27,7 @@ int main(int argc, char** argv, char** env) {
 		server.push_front(def);
 	}
 	for (Server i : server){
-		// std::cout << i << std::endl;
+		std::cout << i << std::endl;
 	}
 	// initialise ServerRun obj
 	// ServerRun runningServer(server);

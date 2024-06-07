@@ -54,7 +54,7 @@ class Server {
 		void	setIndex(std::string index);
 		void	setAutoIndex(bool autoIndex);
 		void	setRedirect(s_redirect redir);
-		void	setLocation(Location locaiton);
+		void	setLocation(Location &locaiton);
 
 		void	configLocation();
 

@@ -90,15 +90,105 @@ void	Location::setCGI(bool CGI){
 static std::string	extractName(std::string const &src){
 	std::string name = src;
 	name.erase(0, 9);
-	name.erase(name.length() - 1, 1);
-	std::cout << "<" << name << ">" << std::endl;
+	name.erase(name.length() - 2, 2);
+	// std::cout << "<" << name << ">" << std::endl;
+	if (name.length() < 2)
+		throw syntaxError();
 	return name;
 }
 
-void	Location::autoConfig(const Server &serv){
-	std::cout << "why" << std::endl;
+void	confMethods(std::string body, Server &serv, Location &loc){
+(void)body;
+(void)serv;
+(void)loc;
+}
+
+void	confRedirect(std::string body, Server &serv, Location &loc){
+(void)body;
+(void)serv;
+(void)loc;
+}
+
+void	confRoot(std::string body, Server &serv, Location &loc){
+(void)body;
+(void)serv;
+(void)loc;
+}
+
+void	confAutoIndex(std::string body, Server &serv, Location &loc){
+(void)body;
+(void)serv;
+(void)loc;
+}
+
+void	confIndex(std::string body, Server &serv, Location &loc){
+(void)body;
+(void)serv;
+(void)loc;
+}
+
+void	confCGI(std::string body, Server &serv, Location &loc){
+(void)body;
+(void)serv;
+(void)loc;
+}
+
+void	confPath(std::string body, Server &serv, Location &loc){
+(void)body;
+(void)serv;
+(void)loc;
+}
+
+static std::string findKey(std::string str){
+	if (str.find_first_of("\t\n\v\f\r ") != std::string::npos)
+		return str.substr(0, str.find_first_of("\t\n\v\f\r "));
+	else
+		return str.substr(0, (str.length() - 1));
+}
+
+void	Location::autoConfig(Server &serv){
+	// std::cout << "why" << std::endl;
 	std::list<std::string>::iterator it = _body.begin();
 	_name = extractName(*it);
+	_methods = serv.getMethods();
+	_root = serv.getRoot();
+	_autoIndex = serv.getAutoIndex();
+	_index = serv.getIndex();
+	_cgi = serv.getCGI();
+	_path = _root;
+	it++;
+	_body.pop_back();
+	void (*ptr[7])(std::string, Server&, Location&) = {&confMethods, &confRedirect,
+		&confRoot, &confAutoIndex, &confIndex, &confCGI, &confPath};
+	std::string const keys[7] = {"allowedMethods", "return",
+		"root", "autoIndex", "index", "cgiAllowed", "path"};
+	while (it != _body.end()){
+		std::string str = *it;
+		while (str.find_first_of("\t\n\v\f\r ") == 0)
+			str.erase(0, 1);
+		if (str.front() == '#'){
+			it++;
+			continue ;
+		}
+		if (str.back() != ';'){
+			// std::cout << "here1" << std::endl;
+			throw syntaxError();}
+		std::string key = findKey(str);
+		// std::cout << "key\t" << key << std::endl;
+		str.erase(0, key.length());
+		while (str.find_first_of("\t\n\v\f\r ") == 0)
+			str.erase(0, 1);
+		for (int i = 0; i < 7; i++){
+			if (key == keys[i]){
+				(*ptr[i])(str, serv, *this);
+				break;
+			}
+			if (i == 6){
+			// std::cout << "here2" << std::endl;
+				throw syntaxError();}
+		}
+		it++;
+	}
 }
 
 std::ostream & operator<< (std::ostream &out, const Location& src){
