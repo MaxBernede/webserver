@@ -131,7 +131,6 @@ void confAutoIndex(std::string value, Server &serv){
 }
 
 void confRedirect(std::string value, Server &serv){
-	
 	std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
 	if (num.length() != 3 || num.find_first_not_of("1234567890") != std::string::npos){
 		throw syntaxError();}

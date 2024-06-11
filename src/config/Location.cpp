@@ -91,6 +91,10 @@ void	Location::setCGI(bool CGI){
 	_cgi = CGI;
 }
 
+void	Location::setPath(std::string path){
+	_path = path;
+}
+
 static std::string	extractName(std::string const &src){
 	std::string name = src;
 	name.erase(0, 9);
@@ -125,26 +129,73 @@ void	confMethods(std::string value, Server &serv, Location &loc){
 }
 
 void	confRedirect(std::string value, Server &serv, Location &loc){
-
+	(void)serv;
+	std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
+	if (num.length() != 3 || num.find_first_not_of("1234567890") != std::string::npos){
+		throw syntaxError();}
+	value.erase(0, num.length());
+	while (value.find_first_of("\t\n\v\f\r ") == 0)
+		value.erase(0, 1);
+	std::string from = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
+	if (from.length() == 0){
+		throw syntaxError();}
+	value.erase(0, from.length());
+	while (value.find_first_of("\t\n\v\f\r ") == 0)
+		value.erase(0, 1);
+	std::string to = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
+	if (to.length() == 0){
+		throw syntaxError();}
+	value.erase(0, to.length());
+	while (value.find_first_of("\t\n\v\f\r ") == 0)
+		value.erase(0, 1);
+	if (value != ";"){
+		throw syntaxError();}
+	s_redirect redir;
+	redir.returnValue = std::stoi(num);
+	redir.redirFrom = from;
+	redir.redirTo = to;
+	loc.setRedirect(redir);
 }
 
 void	confRoot(std::string value, Server &serv, Location &loc){
-
+	(void)serv;
+	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
+		throw syntaxError();
+	value.pop_back();
+	loc.setRoot(value);
 }
 
 void	confAutoIndex(std::string value, Server &serv, Location &loc){
+	if (value == "on;" && serv.getAutoIndex() == true)
+		loc.setAutoIndex(true);
+	else if (value == "off;" || serv.getAutoIndex() == false)
+		loc.setAutoIndex(false);
+	else
+		throw syntaxError();
 
 }
 
 void	confIndex(std::string value, Server &serv, Location &loc){
-
+	value.pop_back();
+	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
+		throw syntaxError();
+	loc.setIndex(value);
 }
 
 void	confCGI(std::string value, Server &serv, Location &loc){
-
+	if ((value == "yes;" || value == "y;") && serv.getCGI() == true)
+		loc.setCGI(true);
+	else if (value == "no;" || value == "n;" || serv.getCGI() == false)
+		loc.setCGI(false);
+	else
+		throw syntaxError();
 }
 
 void	confPath(std::string value, Server &serv, Location &loc){
+	value.pop_back();
+	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
+		throw syntaxError();
+	loc.setPath(value);
 
 }
 
