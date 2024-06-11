@@ -40,14 +40,12 @@ Server	pushBlock(std::list<std::string> block, char **env){
 			continue;
 		}
 		if (str.find("location /") == 0 && str.back() == '{'){
-			// std::cout << "found location" << std::endl;
 			std::list<std::string> body;
 			while (true){
 				str = *it;
 				while (str.find_first_of("\t\n\v\f\r ") == 0)
 					str.erase(0, 1);
 				body.push_back(str);
-				// std::cout << *it <<std::endl;
 				it++;
 				if (str.front() == '}' && str.length() == 1)
 					break ;
@@ -294,7 +292,6 @@ std::list<s_redirect> Server::getRedirect() const{
 }
 
 std::list<Location> Server::getLocation() const{
-	// std::cout << "yes" << std::endl;
 	return _location;
 }
 
@@ -381,16 +378,14 @@ void Server::setRedirect(s_redirect redir){
 }
 
 void Server::setLocation(Location &location){
-	// std::cout << "how many" << std::endl;
 	_location.push_back(location);
-	std::cout << _location.size() << std::endl;
 }
 
-
 void Server::configLocation(){
-	for (Location l : _location){
-		// std::cout << "YEET" << std::endl;
-		l.autoConfig(*this);
+	std::list<Location>::iterator it = _location.begin();
+	while (it != _location.end()){
+		(*it).autoConfig(*this);
+		it++;	
 	}
 }
 
@@ -417,9 +412,8 @@ std::ostream & operator<< (std::ostream &out, const Server& src){
 		out << "Value\t" << redir.returnValue << "\tFROM " << redir.redirFrom 
 			<< "\tTO " << redir.redirTo << std::endl;
 	}
-	std::cout << "locsize " << (src.getLocation()).size() << std::endl;
 	for (Location l : src.getLocation()){
-		out << "Location\t" << l << std::endl;
+		out << l << std::endl;
 	}
 	return out;
 }

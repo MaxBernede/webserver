@@ -26,12 +26,13 @@ int main(int argc, char** argv, char** env) {
 		Server def(env);
 		server.push_front(def);
 	}
-	for (Server i : server){
-		std::cout << i << std::endl;
-	}
+	// V See if config file has been correctly parsed V
+	// for (Server i : server){
+	// 	std::cout << i << std::endl;
+	// }
 	// initialise ServerRun obj
-	// ServerRun runningServer(server);
+	ServerRun runningServer(server);
 	// Run server loop
-	// runningServer.serverRunLoop();
+	runningServer.serverRunLoop();
 	return 0;
 }

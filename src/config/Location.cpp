@@ -1,13 +1,8 @@
 #include<Location.hpp>
 
 Location::Location(std::list<std::string> &body){
-	// _body = body;
 	for (std::string s : body)
 		_body.push_back(s);
-	// std::cout << "TEST\n" << std::endl;
-	// for (std::string i : _body){
-	// 	std::cout << i << std::endl;
-	// }
 }
 
 Location::~Location(){}
@@ -24,6 +19,7 @@ Location &Location::operator=(const Location &obj){
 	this->_autoIndex = obj.getAutoIndex();
 	this->_index = obj.getIndex();
 	this->_cgi = obj.getCGI();
+	this->_path = obj.getPath();
 	return *this;
 }
 
@@ -99,7 +95,6 @@ static std::string	extractName(std::string const &src){
 	std::string name = src;
 	name.erase(0, 9);
 	name.erase(name.length() - 2, 2);
-	// std::cout << "<" << name << ">" << std::endl;
 	if (name.length() < 2)
 		throw syntaxError();
 	return name;
@@ -176,6 +171,7 @@ void	confAutoIndex(std::string value, Server &serv, Location &loc){
 }
 
 void	confIndex(std::string value, Server &serv, Location &loc){
+	(void)serv;
 	value.pop_back();
 	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
 		throw syntaxError();
@@ -192,6 +188,7 @@ void	confCGI(std::string value, Server &serv, Location &loc){
 }
 
 void	confPath(std::string value, Server &serv, Location &loc){
+	(void)serv;
 	value.pop_back();
 	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
 		throw syntaxError();
@@ -207,7 +204,6 @@ static std::string findKey(std::string str){
 }
 
 void	Location::autoConfig(Server &serv){
-	// std::cout << "why" << std::endl;
 	std::list<std::string>::iterator it = _body.begin();
 	_name = extractName(*it);
 	_methods = serv.getMethods();
@@ -231,10 +227,8 @@ void	Location::autoConfig(Server &serv){
 			continue ;
 		}
 		if (str.back() != ';'){
-			// std::cout << "here1" << std::endl;
 			throw syntaxError();}
 		std::string key = findKey(str);
-		// std::cout << "key\t" << key << std::endl;
 		str.erase(0, key.length());
 		while (str.find_first_of("\t\n\v\f\r ") == 0)
 			str.erase(0, 1);
@@ -244,31 +238,29 @@ void	Location::autoConfig(Server &serv){
 				break;
 			}
 			if (i == 6){
-			// std::cout << "here2" << std::endl;
 				throw syntaxError();}
 		}
 		it++;
 	}
-	// std::cout << *this << std::endl;
 }
 
 std::ostream & operator<< (std::ostream &out, const Location& src){
 
-	out << "LOCATION\t";
-	out << "name\t" << src.getName() << std::endl;
-	out << "root\t" << src.getRoot() << std::endl;
-	out << "methods\t";
+	out << "LOCATION\n";
+	out << "\tname\t" << src.getName() << std::endl;
+	out << "\troot\t" << src.getRoot() << std::endl;
+	out << "\tmethods\t";
 	for (int i = GET; i <= TRACE; i++){
 		out << boolstring(src.getMethod(i)) << "\t";
 	}
 	out << std::endl;
-	out << "cgi\t" << boolstring(src.getCGI()) << std::endl;
-	out << "Index\t" << src.getIndex() << std::endl;
-	out << "auto Index\t" << boolstring(src.getAutoIndex()) << std::endl;
+	out << "\tcgi\t" << boolstring(src.getCGI()) << std::endl;
+	out << "\tIndex\t" << src.getIndex() << std::endl;
+	out << "\tauto Index\t" << boolstring(src.getAutoIndex()) << std::endl;
 	for (s_redirect redir : src.getRedirect()){
-		out << "Value\t" << redir.returnValue << "\tFROM " << redir.redirFrom 
+		out << "\tValue\t" << redir.returnValue << "\tFROM " << redir.redirFrom 
 			<< "\tTO " << redir.redirTo << std::endl;
 	}
-	out << "PATH\t" << src.getPath() << std::endl;
+	out << "\tPATH\t" << src.getPath() << std::endl;
 	return out;
 }
