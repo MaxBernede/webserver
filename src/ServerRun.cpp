@@ -187,14 +187,14 @@ void ServerRun::readRequest(int clientFd)
 			<< _requests[clientFd]->getConfig().getRoot() << std::endl;
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 		// TODO check if _requests[clientFd]->getFileName() is defined in the configs redirect
-		// if (_requests[clientFd]->isRedirect()){
-
-		// }
-		// else {
+		if (_requests[clientFd]->isRedirect()){
+			std::cout << "I don't know how any of this works, man" << std::endl;
+		}
+		else {
 			if (_requests[clientFd]->isCgi()) {
 				if (!config.getCGI())
 				{
-					std::cout << "CGI is not allowed for this server\n";
+					std::cout << "CGI is not allowed for this server\n"; // TODO: send some sort of error
 					return ;
 				}
 				std::cout << "It is a CGI Request!\n";
@@ -217,9 +217,9 @@ void ServerRun::readRequest(int clientFd)
 				_requests[fileFd] = _requests[clientFd]; // TODO: We need to add the request header reading in here too
 				addQueue(FILE_READ_READING, fileFd);
 			}
-		// }
+		}
 		std::string body = _requests[clientFd]->getValues("Body");
-		std::cout << _requests[clientFd]->getConfig() << std::endl;
+		// std::cout << _requests[clientFd]->getConfig() << std::endl;
 		if (!body.empty()){
 			printColor(RED, "BODY CREATE");
 			create_file(body, _requests[clientFd]->getConfig().getRoot());

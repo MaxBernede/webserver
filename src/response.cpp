@@ -17,8 +17,7 @@ Response::~Response() {}
 //Try to read an html file and return it as a string with a specific text for response
 //if the file doesnt end with .html or is not found/open, this func will call 
 //itself again with error.html
-std::string Response::makeResponse(std::ifstream &file)
-{
+std::string Response::makeResponse(std::ifstream &file){
 	std::ostringstream oss;
 	oss << "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
 	oss << file.rdbuf();
@@ -27,8 +26,7 @@ std::string Response::makeResponse(std::ifstream &file)
 	return oss.str();
 }
 
-std::string Response::makeStrResponse(void)
-{
+std::string Response::makeStrResponse(void){
 	std::ostringstream oss;
 	std::string httpStatus = _request->getMethod(2);
 
@@ -39,6 +37,30 @@ std::string Response::makeStrResponse(void)
 	oss << "Content-Type: " << contentType.at(getExtension(file)) << "\r\n";
 	oss << "\r\n";
 	oss << response_text;
+
+	return oss.str();
+}
+
+// don't know if this works yet, have to figure out how to test this properly
+std::string Response::makeRedirectResponse(void){
+	std::string from = _request->getFileNameProtected();
+	std::string to;
+	std::string val;
+	std::list<s_redirect> redirs = (_request->getConfig()).getRedirect();
+	for (s_redirect r : redirs){
+		if (r.redirFrom == from){
+			to = r.redirTo;
+			val = std::to_string(r.returnValue);
+			break ;
+		}
+	}
+	if (to == "")
+		throw Exception("unexpected redirect error", 300);
+	std::ostringstream oss;
+	oss << _request->getMethod(2) << " ";
+	oss << val << "MOVED\r\n";
+	oss << "Location: ";
+	oss << to;
 
 	return oss.str();
 }

@@ -189,7 +189,7 @@ static std::list<s_ePage> defaultErrorPages(){
 }
 
 static std::string defaultIndex(){
-	return "";
+	return "index.html";
 }
 
 static std::list<s_redirect> defaultRedirect(){
