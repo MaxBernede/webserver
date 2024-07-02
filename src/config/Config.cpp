@@ -158,6 +158,15 @@ void confRedirect(std::string value, Server &serv){
 	serv.setRedirect(redir);
 }
 
+void	confPath(std::string value, Server &serv){
+	value.pop_back();
+	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
+		throw syntaxError();
+	if (value[0] != '/')
+		value = '/' + value;
+	serv.setPath(value);
+}
+
 void addLocation(std::list<std::string> &body, Server &serv){
 	Location loc(body);
 	serv.setLocation(loc);

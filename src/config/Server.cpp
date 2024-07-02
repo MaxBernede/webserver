@@ -24,12 +24,12 @@ static std::string findKey(std::string str){
 
 Server	pushBlock(std::list<std::string> block, char **env){
 	Server serv(env);
-	void (*ptr[10])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
-		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex, &confRedirect};
-	std::string const keys[10] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed",
-			"clientMaxBodySize", "errorPage", "index", "autoIndex", "return"};
-	bool clear[10] = {false, false, false, false, false,
-		false, false, false, false, false};
+	void (*ptr[11])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
+		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex, &confRedirect, &confPath};
+	std::string const keys[11] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed",
+			"clientMaxBodySize", "errorPage", "index", "autoIndex", "return", "path"};
+	bool clear[11] = {false, false, false, false, false,
+		false, false, false, false, false, false};
 	std::list<std::string>::iterator it = block.begin();
 	while (it != block.end()){
 		std::string str = *it;
@@ -63,7 +63,7 @@ Server	pushBlock(std::list<std::string> block, char **env){
 				str.erase(0, key.length());
 				while (str.find_first_of("\t\n\v\f\r ") == 0)
 					str.erase(0, 1);
-				for (int i = 0; i < 10; i++){
+				for (int i = 0; i < 11; i++){
 					if (key == keys[i]){
 						if (clear[i] == false){
 							serv.clearData(i);
@@ -72,7 +72,7 @@ Server	pushBlock(std::list<std::string> block, char **env){
 						(*ptr[i])(str, serv);
 						break;
 					}
-					if (i == 9)
+					if (i == 10)
 						throw syntaxError();
 				}
 			}
@@ -83,6 +83,7 @@ Server	pushBlock(std::list<std::string> block, char **env){
 		}
 		it++;
 	}
+	serv.setPath(serv.getRoot() + serv.getPath());
 	serv.configLocation();
 	return serv;
 }
@@ -185,7 +186,7 @@ Server::Server(char **env):
 	_root(defaultRoot(env)),
 	_maxBody(1048576),
 	_errorPages(defaultErrorPages()){
-	_path = _root;
+	_path = "/";
 }
 
 Server::Server():
@@ -194,7 +195,7 @@ Server::Server():
 	_root(defaultRoot(nullptr)),
 	_maxBody(1048576),
 	_errorPages(defaultErrorPages()){
-	_path = _root;
+	_path = "/";
 }
 
 Server::~Server() {
@@ -303,10 +304,13 @@ void Server::clearAutoIndex(){
 void Server::clearRedirect(){
 }
 
+void Server::clearPath(){
+}
+
 void Server::clearData(int index){
-	void (Server::*ptr[10])(void) = 
-		{&Server::clearPort, &Server::clearName, &Server::clearRoot, &Server::clearMethods, &Server::clearCGI,
-		&Server::clearMaxBody, &Server::clearEPage, &Server::clearIndex, &Server::clearAutoIndex, &Server::clearRedirect};
+	void (Server::*ptr[11])(void) = 
+		{&Server::clearPort, &Server::clearName, &Server::clearRoot, &Server::clearMethods, &Server::clearCGI, &Server::clearMaxBody,
+			&Server::clearEPage, &Server::clearIndex, &Server::clearAutoIndex, &Server::clearRedirect, &Server::clearPath};
 	(this->*ptr[index])();
 }
 

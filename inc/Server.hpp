@@ -6,7 +6,7 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/07/02 13:28:12 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/07/02 14:23:14 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/07/02 15:43:00 by kposthum      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,7 @@ class Server : public Config{
 		void	clearIndex();
 		void	clearAutoIndex();
 		void	clearRedirect();
+		void	clearPath();
 
 		void	clearData(int index);
 };

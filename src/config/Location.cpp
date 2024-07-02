@@ -141,8 +141,9 @@ void	confPath(std::string value, Location &loc){
 	value.pop_back();
 	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
 		throw syntaxError();
+	if (value[0] != '/')
+		value = '/' + value;
 	loc.setPath(value);
-
 }
 
 static std::string findKey(std::string str){
@@ -154,13 +155,14 @@ static std::string findKey(std::string str){
 
 void	Location::autoConfig(Server &serv){
 	std::list<std::string>::iterator it = _body.begin();
+	std::string temp = serv.getRoot();
 	_name = extractName(*it);
 	_methods = serv.getMethods();
-	_root = serv.getRoot();
+	_root = "";
 	_autoIndex = serv.getAutoIndex();
 	_index = serv.getIndex();
 	_cgi = serv.getCGI();
-	_path = _root;
+	_path = "";
 	it++;
 	_body.pop_back();
 	void (*ptr[7])(std::string, Location&) = {&confMethods, &confRedirect,
@@ -191,6 +193,8 @@ void	Location::autoConfig(Server &serv){
 		}
 		it++;
 	}
+	_root = temp + _root;
+	_path = _root + _path;
 }
 
 std::ostream & operator<< (std::ostream &out, const Location& src){
