@@ -1,4 +1,5 @@
 #include<Location.hpp>
+#include<Config.hpp>
 
 Location::Location(std::list<std::string> &body){
 	for (std::string s : body)
@@ -27,36 +28,8 @@ std::string	Location::getName() const{
 	return _name;
 }
 
-std::vector<bool>	Location::getMethods() const{
-	return _methods;
-}
-
-bool	Location::getMethod(int i) const{
-	return _methods[i];
-}
-
-std::list<s_redirect>	Location::getRedirect() const{
-	return _redirect;
-}
-
 std::string	Location::getRoot() const{
 	return _root;
-}
-
-bool	Location::getAutoIndex() const{
-	return _autoIndex;
-}
-
-std::string	Location::getIndex() const{
-	return _index;
-}
-
-bool	Location::getCGI() const{
-	return _cgi;
-}
-
-std::string	Location::getPath() const{
-	return _path;
 }
 
 void	Location::setName(std::string name){
@@ -67,28 +40,8 @@ void	Location::setMethod(int method, bool value){
 	_methods[method] = value;
 }
 
-void	Location::setRedirect(s_redirect redir){
-	_redirect.push_back(redir);
-}
-
 void	Location::setRoot(std::string root){
 	_root = root;
-}
-
-void	Location::setAutoIndex(bool autoIndex){
-	_autoIndex = autoIndex;
-}
-
-void	Location::setIndex(std::string index){
-	_index = index;
-}
-
-void	Location::setCGI(bool CGI){
-	_cgi = CGI;
-}
-
-void	Location::setPath(std::string path){
-	_path = path;
 }
 
 static std::string	extractName(std::string const &src){
@@ -100,7 +53,7 @@ static std::string	extractName(std::string const &src){
 	return name;
 }
 
-void	confMethods(std::string value, Server &serv, Location &loc){
+void	confMethods(std::string value, Location &loc){
 	std::string const meth[8] = {"GET", "POST", "DELETE", "PUT",
 		"PATCH", "CONNECT", "OPTIONS", "TRACE"};
 	for (int i = 0; i < 8; i++){
@@ -110,7 +63,7 @@ void	confMethods(std::string value, Server &serv, Location &loc){
 		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
 		for (int i = 0; i < 8; i++)
 		{
-			if (tmp == meth[i] && serv.getMethod(i) == true){
+			if (tmp == meth[i]){
 				loc.setMethod(i, true);
 				break;
 			}
@@ -123,8 +76,7 @@ void	confMethods(std::string value, Server &serv, Location &loc){
 	}
 }
 
-void	confRedirect(std::string value, Server &serv, Location &loc){
-	(void)serv;
+void	confRedirect(std::string value, Location &loc){
 	std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
 	if (num.length() != 3 || num.find_first_not_of("1234567890") != std::string::npos){
 		throw syntaxError();}
@@ -152,43 +104,40 @@ void	confRedirect(std::string value, Server &serv, Location &loc){
 	loc.setRedirect(redir);
 }
 
-void	confRoot(std::string value, Server &serv, Location &loc){
-	(void)serv;
+void	confRoot(std::string value, Location &loc){
 	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		throw syntaxError();
 	value.pop_back();
 	loc.setRoot(value);
 }
 
-void	confAutoIndex(std::string value, Server &serv, Location &loc){
-	if (value == "on;" && serv.getAutoIndex() == true)
+void	confAutoIndex(std::string value, Location &loc){
+	if (value == "on;")
 		loc.setAutoIndex(true);
-	else if (value == "off;" || serv.getAutoIndex() == false)
+	else if (value == "off;")
 		loc.setAutoIndex(false);
 	else
 		throw syntaxError();
 
 }
 
-void	confIndex(std::string value, Server &serv, Location &loc){
-	(void)serv;
+void	confIndex(std::string value, Location &loc){
 	value.pop_back();
 	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
 		throw syntaxError();
 	loc.setIndex(value);
 }
 
-void	confCGI(std::string value, Server &serv, Location &loc){
-	if ((value == "yes;" || value == "y;") && serv.getCGI() == true)
+void	confCGI(std::string value, Location &loc){
+	if ((value == "yes;" || value == "y;"))
 		loc.setCGI(true);
-	else if (value == "no;" || value == "n;" || serv.getCGI() == false)
+	else if (value == "no;" || value == "n;")
 		loc.setCGI(false);
 	else
 		throw syntaxError();
 }
 
-void	confPath(std::string value, Server &serv, Location &loc){
-	(void)serv;
+void	confPath(std::string value, Location &loc){
 	value.pop_back();
 	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
 		throw syntaxError();
@@ -214,7 +163,7 @@ void	Location::autoConfig(Server &serv){
 	_path = _root;
 	it++;
 	_body.pop_back();
-	void (*ptr[7])(std::string, Server&, Location&) = {&confMethods, &confRedirect,
+	void (*ptr[7])(std::string, Location&) = {&confMethods, &confRedirect,
 		&confRoot, &confAutoIndex, &confIndex, &confCGI, &confPath};
 	std::string const keys[7] = {"allowedMethods", "return",
 		"root", "autoIndex", "index", "cgiAllowed", "path"};
@@ -234,7 +183,7 @@ void	Location::autoConfig(Server &serv){
 			str.erase(0, 1);
 		for (int i = 0; i < 7; i++){
 			if (key == keys[i]){
-				(*ptr[i])(str, serv, *this);
+				(*ptr[i])(str, *this);
 				break;
 			}
 			if (i == 6){

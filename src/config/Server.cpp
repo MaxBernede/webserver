@@ -164,17 +164,6 @@ static std::string defaultRoot(char **env){
 	return test + '/';
 }
 
-static std::vector<bool> defaultMethods(){
-	std::vector<bool> methods;
-	for (int i = GET; i <= TRACE; i++){
-		if (i == GET || i == POST || i == DELETE)
-			methods.push_back(true);
-		else
-			methods.push_back(false);
-	}
-	return methods;
-}
-
 static std::list<s_ePage> defaultErrorPages(){
 	std::list<s_ePage> erorPages;
 	s_ePage fofo;
@@ -188,41 +177,24 @@ static std::list<s_ePage> defaultErrorPages(){
 	return erorPages;
 }
 
-static std::string defaultIndex(){
-	return "index.html";
-}
-
-static std::list<s_redirect> defaultRedirect(){
-	std::list<s_redirect> redirect;
-	redirect.clear();
-	return redirect;
-}
-
 //default constructor
 Server::Server(char **env):
+	Config(),
 	_ports(defaultPorts()),
 	_name(defaultName()),
 	_root(defaultRoot(env)),
-	_methods(defaultMethods()),
-	_cgi(true),
 	_maxBody(1048576),
-	_errorPages(defaultErrorPages()),
-	_index(defaultIndex()),
-	_autoIndex(true),
-	_redirect(defaultRedirect()){
+	_errorPages(defaultErrorPages()){
+	_path = _root;
 }
 
 Server::Server():
 	_ports(defaultPorts()),
 	_name(defaultName()),
 	_root(defaultRoot(nullptr)),
-	_methods(defaultMethods()),
-	_cgi(true),
 	_maxBody(1048576),
-	_errorPages(defaultErrorPages()),
-	_index(defaultIndex()),
-	_autoIndex(true),
-	_redirect(defaultRedirect()){
+	_errorPages(defaultErrorPages()){
+	_path = _root;
 }
 
 Server::~Server() {
@@ -240,6 +212,7 @@ Server &Server::operator=(const Server &obj) {
 	this->_autoIndex = obj.getAutoIndex();
 	this->_redirect = obj.getRedirect();
 	this->_location = obj.getLocation();
+	this->_path = obj.getPath();
 	return *this;
 }
 
@@ -412,6 +385,7 @@ std::ostream & operator<< (std::ostream &out, const Server& src){
 		out << "Value\t" << redir.returnValue << "\tFROM " << redir.redirFrom 
 			<< "\tTO " << redir.redirTo << std::endl;
 	}
+	out << "Path\t" << src.getPath() << std::endl;
 	for (Location l : src.getLocation()){
 		out << l << std::endl;
 	}
