@@ -124,6 +124,7 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 			catch(std::exception &e){
 				std::cout << e.what() << std::endl;
 				Server def(env);
+				def.setPath(def.getRoot());
 				server.push_front(def);
 			}
 		}
