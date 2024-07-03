@@ -182,6 +182,7 @@ void ServerRun::readRequest(int clientFd)
 		Server config = getConfig(port);
 		//TODO if server == not found, error should be thrown, please catch
 		_requests[clientFd]->setConfig(config);
+		_requests[clientFd]->configConfig();
 		//TODO check if request is requesting a location within the server, 
 		//	use the locations config in stead of the server's own
 		_requests[clientFd]->checkRequest();

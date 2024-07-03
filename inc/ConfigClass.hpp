@@ -6,7 +6,7 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/07/02 13:12:13 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/07/02 14:00:00 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/07/03 14:27:09 by kposthum      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ class Config{
 
 		void	setMethod(int method, bool value);
 		void	setRedirect(s_redirect redir);
+		void	setRedirect(std::list<s_redirect> redir);
 		void	setAutoIndex(bool autoIndex);
 		void	setIndex(std::string index);
 		void	setCGI(bool CGI);

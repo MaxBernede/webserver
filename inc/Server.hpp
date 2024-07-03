@@ -6,7 +6,7 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/07/02 13:28:12 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/07/02 15:43:00 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/07/03 14:31:10 by kposthum      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,26 +50,15 @@ class Server : public Config{
 		std::list<s_port>		getPorts()	const;
 		std::string				getName()	const;
 		std::string				getRoot()	const;
-		bool					getMethod(int i)	const;
-		std::vector<bool>		getMethods()	const;
-		bool					getCGI()	const;
 		uint64_t				getMaxBody()	const;
 		std::list<s_ePage>		getErrorPages()	const;
-		std::string				getIndex()	const;
-		bool					getAutoIndex()	const;
-		std::list<s_redirect>	getRedirect() const;
 		std::list<Location>		getLocation() const;
 
 		void	setPort(s_port port);
 		void	setName(std::string name);
 		void	setRoot(std::string root);
-		void	setMethod(int method, bool value);
-		void	setCGI(bool CGI);
 		void	setMaxBody(uint64_t body);
 		void	setErrorPages(s_ePage ePage);
-		void	setIndex(std::string index);
-		void	setAutoIndex(bool autoIndex);
-		void	setRedirect(s_redirect redir);
 		void	setLocation(Location &locaiton);
 
 		void	configLocation();

@@ -6,10 +6,10 @@
 Response::Response(Request *req, int clientFd) : _request(req), _clientFd(clientFd), ready(false)
 {
 	_html_file = this->_request->getFileName();
-	std::cout << "Default constructor Response" << std::endl;
-	for (const auto& pair : _request->getContent()) {
-		std::cout << pair.first << ": " << pair.second << std::endl;
-	}
+	// std::cout << "Default constructor Response" << std::endl;
+	// for (const auto& pair : _request->getContent()) {
+	// 	std::cout << pair.first << ": " << pair.second << std::endl;
+	// }
 }
 
 Response::~Response() {}

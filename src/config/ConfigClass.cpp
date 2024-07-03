@@ -6,7 +6,7 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/07/02 13:12:16 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/07/02 14:14:48 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/07/03 14:27:41 by kposthum      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,11 @@ void	Config::setMethod(int method, bool value){
 
 void	Config::setRedirect(s_redirect redir){
 	_redirect.push_back(redir);
+}
+
+void	Config::setRedirect(std::list<s_redirect> redir){
+	// _redirect.push_back(redir);
+	_redirect = redir;
 }
 
 void	Config::setAutoIndex(bool autoIndex){

@@ -49,6 +49,9 @@ class Request
 		bool		isDoneReading();
 		bool		isBoundary(const std::string &line);
 
+		// reconfigs the config object to location specifics, if necessary
+		void		configConfig();
+
 		void		printAllData();
 
 	private:

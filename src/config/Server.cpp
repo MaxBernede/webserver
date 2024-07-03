@@ -234,36 +234,12 @@ std::string Server::getRoot()	const{
 	return _root;
 }
 
-bool Server::getMethod(int i)	const{
-	return _methods[i];
-}
-
-std::vector<bool> Server::getMethods()	const{
-	return _methods;
-}
-
-bool Server::getCGI()	const{
-	return _cgi;
-}
-
 uint64_t Server::getMaxBody()	const{
 	return _maxBody;
 }
 
 std::list<s_ePage> Server::getErrorPages()	const{
 	return _errorPages;
-}
-
-std::string Server::getIndex()	const{
-	return _index;
-}
-
-bool Server::getAutoIndex()	const{
-	return _autoIndex;
-}
-
-std::list<s_redirect> Server::getRedirect() const{
-	return _redirect;
 }
 
 std::list<Location> Server::getLocation() const{
@@ -327,32 +303,12 @@ void Server::setRoot(std::string root){
 	_root = root;
 }
 
-void Server::setMethod(int method, bool value){
-	_methods[method] = value;
-}
-
-void Server::setCGI(bool CGI){
-	_cgi = CGI;
-}
-
 void Server::setMaxBody(uint64_t body){
 	_maxBody = body;
 }
 
 void Server::setErrorPages(s_ePage ePage){
 	_errorPages.push_back(ePage);	
-}
-
-void Server::setIndex(std::string index){
-	_index = index;
-}
-
-void Server::setAutoIndex(bool autoIndex){
-	_autoIndex = autoIndex;
-}
-
-void Server::setRedirect(s_redirect redir){
-	_redirect.push_back(redir);
 }
 
 void Server::setLocation(Location &location){

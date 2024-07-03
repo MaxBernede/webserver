@@ -60,14 +60,15 @@ bool Request::isBoundary(const std::string &line){
 
 
 void Request::printAllData(){
-	// printColor(YELLOW, "All the datas on the Request Class :");
-	// std::cout << "Boundary: " << _boundary << std::endl;
-	// std::cout << "Method: ";
-	// for (const auto &method : _method)
-	// 	std::cout << method << " ";
-	// std::cout << std::endl;
+	printColor(YELLOW, "All the datas on the Request Class :");
+	std::cout << "\tBoundary: " << _boundary << std::endl;
+	std::cout << "\tMethod: ";
+	for (const auto &method : _method)
+		std::cout << method << "\n";
+	std::cout << std::endl << std::endl;
 	// for (const auto& pair : _request)
 	// 	printColor(RESET, pair.first, ": ", pair.second);
+	std::cout << std::endl << std::endl;
 }
 
 void Request::checkRequest()
@@ -97,4 +98,28 @@ void Request::checkRequest()
 			
 		//throw(Exception("Method not allowed", 1));
 	}
+}
+
+void	Request::configConfig(){
+	std::string temp = _method[1];
+	// std::cout << "TEMP\t" << temp << std::endl;
+	if (temp.find('/', 1) != std::string::npos)
+		temp.erase(temp.find('/', 1));
+	// std::cout << "TEMP\t" << temp << std::endl;
+	std::list<Location> locs = _config.getLocation();
+	for (Location loc : locs){
+		// std::cout << "locname\t" << loc.getName() << std::endl;
+		if (temp == loc.getName()){
+			_config.setRoot(loc.getRoot());
+			for (int i = GET; i <= TRACE; i++)
+				_config.setMethod(loc.getMethod(i), i);
+			_config.setRedirect(loc.getRedirect());
+			_config.setAutoIndex(loc.getAutoIndex());
+			_config.setIndex(loc.getIndex());
+			_config.setCGI(loc.getCGI());
+			_config.setPath(loc.getPath());
+			break ;
+		}
+	}
+	// std::cout << "new?:\t" << _config.getRoot() << std::endl;
 }
