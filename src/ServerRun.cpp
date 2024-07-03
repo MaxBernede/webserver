@@ -146,6 +146,7 @@ Server ServerRun::getConfig(int port)
 			}
 		}
 	}
+	throw (Exception("Server not found", 404));
 	return (nullptr);
 }
 
@@ -176,6 +177,7 @@ void ServerRun::readRequest(int clientFd)
 	}
 	if (_requests[clientFd]->isDoneReading() == true)
 	{
+		// TODO look for both host(ip) AND port 
 		int port = _requests[clientFd]->getRequestPort();
 		if (port < 0)
 			throw Exception("Port not found", errno);
