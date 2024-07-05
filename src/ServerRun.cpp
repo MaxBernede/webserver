@@ -180,13 +180,12 @@ void ServerRun::readRequest(int clientFd)
 	}
 	if (_requests[clientFd]->isDoneReading() == true)
 	{
-		// TODO look for both host(ip) AND port 
-		int port = _requests[clientFd]->getRequestPort();
-		// s_port hostPort = _requests[clientFd]->getRequestHostPort();
-		if (port < 0)
-			throw Exception("Port not found", errno);
-		// Server config = getConfig(hostPort);
-		Server config = getConfig(port);
+		// int port = _requests[clientFd]->getRequestPort();
+		s_port hostPort = _requests[clientFd]->getRequestHostPort();
+		// if (port < 0)
+		// 	throw Exception("Port not found", errno);
+		Server config = getConfig(hostPort);
+		// Server config = getConfig(port);
 		//TODO if server == not found, error should be thrown, please catch
 		_requests[clientFd]->setConfig(config);
 		_requests[clientFd]->configConfig();

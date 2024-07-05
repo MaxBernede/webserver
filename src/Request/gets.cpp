@@ -39,7 +39,8 @@ s_port Request::getRequestHostPort(){
 	{
 		std::string port = host.substr(colonIndex + 1);
 		hostport.port = std::stoi(port);
-		std::string ip = host.substr(0, colonIndex - 1);
+		std::string ip = host.substr(0, colonIndex);
+		// std::cout << "HOST\t"  << ip << "\tPORT\t" << port << std::endl;
 		if (ip == "localhost")
 			ip = "127.0.0.1";
 		hostport.host = configIP(ip);
