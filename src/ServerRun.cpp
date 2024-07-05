@@ -192,8 +192,8 @@ void ServerRun::readRequest(int clientFd)
 		std::cout << "ROOT directory:\t"
 			<< _requests[clientFd]->getConfig().getRoot() << std::endl;
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-		// TODO redirect sends a code 30X response
 		if (_requests[clientFd]->isRedirect()){
+			// TODO redirect sends a code 30X response
 			std::cout << "I don't know how any of this works, man" << std::endl;
 		}
 		else {

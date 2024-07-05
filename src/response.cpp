@@ -85,6 +85,8 @@ void Response::addToBuffer(std::string buffer)
 	response_text += buffer;
 }
 
+// TODO: in stead of sending everything at once, responses should also be chunked,
+// just like requests are, I think
 void Response::rSend( void ){
 	std::string response = makeStrResponse();
 	// std::cout << "_______________________________________________\n";
