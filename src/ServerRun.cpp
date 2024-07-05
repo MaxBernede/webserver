@@ -180,20 +180,19 @@ void ServerRun::readRequest(int clientFd)
 	}
 	if (_requests[clientFd]->isDoneReading() == true)
 	{
+		// TODO if host/port/server are not found, exception is thrown,
+		// should be caught and 404 should be sent
 		// int port = _requests[clientFd]->getRequestPort();
 		s_port hostPort = _requests[clientFd]->getRequestHostPort();
-		// if (port < 0)
-		// 	throw Exception("Port not found", errno);
 		Server config = getConfig(hostPort);
 		// Server config = getConfig(port);
-		//TODO if server == not found, error should be thrown, please catch
 		_requests[clientFd]->setConfig(config);
 		_requests[clientFd]->configConfig();
 		_requests[clientFd]->checkRequest();
 		std::cout << "ROOT directory:\t"
 			<< _requests[clientFd]->getConfig().getRoot() << std::endl;
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-		// TODO check if _requests[clientFd]->getFileName() is defined in the configs redirect
+		// TODO redirect sends a code 30X response
 		if (_requests[clientFd]->isRedirect()){
 			std::cout << "I don't know how any of this works, man" << std::endl;
 		}
