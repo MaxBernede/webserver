@@ -134,13 +134,13 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	addQueue(CLIENT_CONNECTION_READY, connFd);
 }
 
-Server ServerRun::getConfig(int port)
+Server ServerRun::getConfig(s_port port)
 {
 	for (auto server : _servers)
 	{
 		for (auto p : server.getPorts())
 		{
-			if (p.port == port)
+			if (p.port == port.port && p.host == port.host)
 			{
 				return (server);
 			}
@@ -150,13 +150,16 @@ Server ServerRun::getConfig(int port)
 	return (nullptr);
 }
 
-Server ServerRun::getConfig(std::string host)
+Server ServerRun::getConfig(int port)
 {
-	for (auto server : _servers)
+		for (auto server : _servers)
 	{
-		if (server.getName() == host)
+		for (auto p : server.getPorts())
 		{
-			return (server);
+			if (p.port == port)
+			{
+				return (server);
+			}
 		}
 	}
 	throw Exception("Server not found", 404);
@@ -179,8 +182,10 @@ void ServerRun::readRequest(int clientFd)
 	{
 		// TODO look for both host(ip) AND port 
 		int port = _requests[clientFd]->getRequestPort();
+		// s_port hostPort = _requests[clientFd]->getRequestHostPort();
 		if (port < 0)
 			throw Exception("Port not found", errno);
+		// Server config = getConfig(hostPort);
 		Server config = getConfig(port);
 		//TODO if server == not found, error should be thrown, please catch
 		_requests[clientFd]->setConfig(config);

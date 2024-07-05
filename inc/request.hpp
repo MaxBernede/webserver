@@ -32,7 +32,8 @@ class Request
 		std::string	getFileName();
 		int			getClientFd();
 		int			getRequestPort();
-		std::string	getRequestHost();
+		s_port		getRequestHostPort();
+		// std::string	getRequestHost();
 		std::string	getRequestStr();
 		std::string	getMethod(int index);
 		std::vector<std::pair<std::string, std::string>>	getContent();

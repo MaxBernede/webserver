@@ -8,7 +8,7 @@ Location::Location(std::list<std::string> &body){
 
 Location::~Location(){}
 
-Location::Location(const Location &obj) : _body(obj._body){
+Location::Location(const Location &obj) :Config(obj), _body(obj._body){
 	*this = obj;
 }
 

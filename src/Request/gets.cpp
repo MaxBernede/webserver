@@ -30,18 +30,36 @@ int	Request::getRequestPort()
 	return (-1);
 }
 
-std::string	Request::getRequestHost()
-{
+s_port Request::getRequestHostPort(){
+	s_port hostport;
 	std::string host = this->getValues("Host");
-	std::string port;
+	
 	size_t colonIndex = host.find_last_of(":");
 	if (colonIndex != std::string::npos)
 	{
-		port = host.substr(colonIndex + 1);
-		return (port);
+		std::string port = host.substr(colonIndex + 1);
+		hostport.port = std::stoi(port);
+		std::string ip = host.substr(0, colonIndex - 1);
+		if (ip == "localhost")
+			ip = "127.0.0.1";
+		hostport.host = configIP(ip);
+		return (hostport);
 	}
-	return ("");
+	throw (Exception("Port not found", 404));	
 }
+
+// std::string	Request::getRequestHost()
+// {
+// 	std::string host = this->getValues("Host");
+// 	std::string port;
+// 	size_t colonIndex = host.find_last_of(":");
+// 	if (colonIndex != std::string::npos)
+// 	{
+// 		port = host.substr(colonIndex + 1);
+// 		return (port);
+// 	}
+// 	return ("");
+// }
 
 std::string Request::getFileNameProtected( void ){
 	if (_file != "/")

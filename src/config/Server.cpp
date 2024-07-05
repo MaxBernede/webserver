@@ -218,7 +218,7 @@ Server &Server::operator=(const Server &obj) {
 	return *this;
 }
 
-Server::Server(const Server &obj) {
+Server::Server(const Server &obj) : Config(obj){
 	*this = obj;
 }
 

@@ -86,8 +86,10 @@ void confMaxBody(std::string value, Server &serv){
 	switch (value.back()){
 		case 'M':
 			val *= (1 << 10);
+			[[fallthrough]];
 		case 'K':
 			val *= (1 << 10);
+		break ;
 	}
 	serv.setMaxBody(val);
 }

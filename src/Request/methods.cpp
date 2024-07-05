@@ -85,13 +85,13 @@ void Request::checkRequest()
 		index = DELETE;
 	if (!_config.getMethod(index))
 	{
-		int found = false;
+		// int found = false;
 		std::cout << "Method: " << method << " ";
 		for (auto item : _config.getErrorPages())
 		{
 			if (item.err == 405)
 			{
-				found = true;
+				// found = true;
 				_file = item.url;
 			}
 		}
