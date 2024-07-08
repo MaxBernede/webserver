@@ -195,6 +195,7 @@ void ServerRun::readRequest(int clientFd)
 		if (_requests[clientFd]->isRedirect()){
 			// VV this works, but should ge through poll first, which i doesn't do now
 			std::cout << "I don't know how any of this works, man" << std::endl;
+			// addQueue(HTTP_REDIRECT, clientFd);
 			Response r(_requests[clientFd], clientFd);
 			r.makeRedirectResponse();
 		}

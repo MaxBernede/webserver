@@ -18,7 +18,8 @@ enum pollType
 	FILE_READ_DONE,
 	CGI_READ_WAITING,
 	CGI_READ_READING,
-	CGI_READ_DONE
+	CGI_READ_DONE,
+	// HTTP_REDIRECT
 };
 
 typedef struct t_poll_data
