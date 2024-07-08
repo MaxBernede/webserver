@@ -193,8 +193,10 @@ void ServerRun::readRequest(int clientFd)
 			<< _requests[clientFd]->getConfig().getRoot() << std::endl;
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 		if (_requests[clientFd]->isRedirect()){
-			// TODO redirect sends a code 30X response
+			// VV this works, but should ge through poll first, which i doesn't do now
 			std::cout << "I don't know how any of this works, man" << std::endl;
+			Response r(_requests[clientFd], clientFd);
+			r.makeRedirectResponse();
 		}
 		else {
 			if (_requests[clientFd]->isCgi()) {

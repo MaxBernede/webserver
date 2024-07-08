@@ -56,12 +56,17 @@ std::string Response::makeRedirectResponse(void){
 	}
 	if (to == "")
 		throw Exception("unexpected redirect error", 300);
+	std::cout << "do a thing" << std::endl << std::endl;
 	std::ostringstream oss;
-	oss << _request->getMethod(2) << " ";
-	oss << val << "MOVED\r\n";
+	oss << "HTTP/1.1 ";
+	oss << val;
+	oss << " MOVED\r\n";
 	oss << "Location: ";
 	oss << to;
-
+	if (send(_clientFd, oss.str().c_str(), oss.str().length(), 0) == -1)
+	{
+		throw(Exception("Error sending response", errno));
+	}
 	return oss.str();
 }
 
@@ -96,7 +101,6 @@ void Response::rSend( void ){
 	{
 		throw(Exception("Error sending response", errno));
 	}
-
 }
 
 void Response::setReady( void )
