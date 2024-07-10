@@ -107,7 +107,8 @@ void ServerRun::serverRunLoop( void )
 					//Read from client
 					dataIn(_pollData[fd], _pollFds[i]);
 				}
-				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollType == CGI_READ_DONE)
+				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollType == CGI_READ_DONE
+					|| _pollData[fd]._pollType == HTTP_REDIRECT)
 				{
 					// Write to client
 					dataOut(_pollData[fd], _pollFds[i]);
@@ -193,12 +194,8 @@ void ServerRun::readRequest(int clientFd)
 			<< _requests[clientFd]->getConfig().getRoot() << std::endl;
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 		if (_requests[clientFd]->isRedirect()){
-			// VV this works, but should ge through poll first, which i doesn't do now
-			std::cout << "I don't know how any of this works, man" << std::endl;
-			// addQueue(HTTP_REDIRECT, clientFd);
-			Response r(_requests[clientFd], clientFd);
-			r.makeRedirectResponse();
-		}
+			printColor(RED, "HTTP REDIRECT\n");
+			addQueue(HTTP_REDIRECT, 0);}
 		else {
 			if (_requests[clientFd]->isCgi()) {
 				if (!config.getCGI())
@@ -383,6 +380,28 @@ void ServerRun::sendCgiResponse(int fd)
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
 
+void ServerRun::sendRedirect(int fd){
+	std::cout << "SENDING HTTP REDIRECT" << std::endl;
+	int clientFd = _cgi[fd]->getClientFd();
+	Response *r = _responses[clientFd];
+	r->makeRedirectResponse();
+	close(clientFd);
+	removeConnection(fd);
+	if (_cgi.count(fd)){
+		delete _cgi[fd];
+		_cgi.erase(fd);
+	}
+	if (_responses.count(clientFd)){
+		delete _responses[clientFd];
+		_responses.erase(clientFd);
+	}
+	if (_requests.count(fd)){
+		delete _requests[fd];
+		_requests.erase(fd);
+	}
+	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
+}
+
 void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 {
 	switch (pollData._pollType)
@@ -393,6 +412,8 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 		case FILE_READ_DONE:
 			sendResponse(pollFd.fd);
 			break ;
+		case HTTP_REDIRECT:
+			sendRedirect(pollFd.fd);
 		default:
 			break ;
 	}

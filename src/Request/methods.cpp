@@ -27,10 +27,9 @@ void Request::readRequest()
 bool Request::isRedirect(){
 	std::list<s_redirect> redirs = _config.getRedirect();
 	for (s_redirect r : redirs){
-		std::cout << getFileName() << std::endl;
-		std::cout << r.redirFrom << std::endl;
+		std::cout << getFileName() << "\t\t" << r.redirFrom << std::endl;
 		if (getFileName() == r.redirFrom){
-			std::cout << "is resirect" << std::endl;
+			std::cout << "is redirect" << std::endl;
 			return true;}
 	}
 	return false;
@@ -60,14 +59,14 @@ bool Request::isBoundary(const std::string &line){
 
 
 void Request::printAllData(){
-	printColor(YELLOW, "All the datas on the Request Class :");
+	printColor(YELLOW, "All the data on the Request Class :");
 	std::cout << "\tBoundary: " << _boundary << std::endl;
 	std::cout << "\tMethod: ";
 	for (const auto &method : _method)
 		std::cout << method << "\n";
 	std::cout << std::endl << std::endl;
-	// for (const auto& pair : _request)
-	// 	printColor(RESET, pair.first, ": ", pair.second);
+	for (const auto& pair : _request)
+		printColor(RESET, pair.first, ": ", pair.second);
 	std::cout << std::endl << std::endl;
 }
 
