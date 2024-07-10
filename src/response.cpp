@@ -42,7 +42,7 @@ std::string Response::makeStrResponse(void){
 }
 
 // don't know if this works yet, have to figure out how to test this properly
-std::string Response::makeRedirectResponse(void){
+std::string Response::redirectResponse(void){
 	std::string from = _request->getFileNameProtected();
 	std::string to;
 	std::string val;
@@ -60,13 +60,13 @@ std::string Response::makeRedirectResponse(void){
 	std::ostringstream oss;
 	oss << "HTTP/1.1 ";
 	oss << val;
-	oss << " MOVED\r\n";
-	oss << "Location: ";
+	oss << " Permanent Redirect \r\nLocation: ";
 	oss << to;
 	if (send(_clientFd, oss.str().c_str(), oss.str().length(), 0) == -1)
 	{
 		throw(Exception("Error sending response", errno));
 	}
+	std::cout << oss.str() << std::endl;
 	return oss.str();
 }
 
