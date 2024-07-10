@@ -40,6 +40,7 @@ void ServerRun::readRequest(int clientFd){
 			<< _requests[clientFd]->getConfig().getRoot() << std::endl;
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 		if (_requests[clientFd]->isRedirect()){
+			// not working yet, apparently, it doesn't send properly :/
 			printColor(RED, "HTTP REDIRECT\n");
 			Response r(_requests[clientFd], clientFd);
 			r.redirectResponse();

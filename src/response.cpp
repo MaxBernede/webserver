@@ -60,8 +60,9 @@ std::string Response::redirectResponse(void){
 	std::ostringstream oss;
 	oss << "HTTP/1.1 ";
 	oss << val;
-	oss << " Permanent Redirect \r\nLocation: ";
-	oss << to;
+	oss << " Redirect Response\r\n\r\n";
+	oss << "Location: ";
+	oss << to << "\r\n\r\n";
 	if (send(_clientFd, oss.str().c_str(), oss.str().length(), 0) == -1)
 	{
 		throw(Exception("Error sending response", errno));
@@ -94,9 +95,9 @@ void Response::addToBuffer(std::string buffer)
 // just like requests are, I think
 void Response::rSend( void ){
 	std::string response = makeStrResponse();
-	// std::cout << "_______________________________________________\n";
-	// std::cout << "Message to send =>\n " << response << std::endl;
-	// std::cout << "_______________________________________________\n";
+	std::cout << "_______________________________________________\n";
+	std::cout << "Message to send =>\n " << response << std::endl;
+	std::cout << "_______________________________________________\n";
 	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
 	{
 		throw(Exception("Error sending response", errno));
