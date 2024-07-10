@@ -55,6 +55,7 @@ void ServerRun::sendResponse(int fd){
 void ServerRun::sendRedirect(int fd){
 	std::cout << "SENDING HTTP REDIRECT" << std::endl;
 	int clientFd = _requests[fd]->getClientFd();
+	// std::cout << "not working?\t" << clientFd << std::endl;
 	Response *r = _responses[clientFd];
 	r->redirectResponse();
 	close(clientFd);
@@ -71,7 +72,7 @@ void ServerRun::sendRedirect(int fd){
 	}
 	if (!_responses.count(clientFd) and !_requests.count(fd)){
 		std::cout << "3\n";
-		close(clientFd); // only loads in the browser one the fd is closed...should we keep the connection?
+		close(clientFd);
 		removeConnection(clientFd);
 	}
 	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;

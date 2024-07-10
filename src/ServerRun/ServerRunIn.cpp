@@ -42,10 +42,8 @@ void ServerRun::readRequest(int clientFd){
 		if (_requests[clientFd]->isRedirect()){
 			// not working yet, apparently, it doesn't send properly :/
 			printColor(RED, "HTTP REDIRECT\n");
-			int temp;
-			for (temp = 0; fcntl(temp, F_GETFD) == 0; temp++){
-				std::cout << "test\t" << temp << std::endl;
-			}
+			int temp = fcntl(0, F_DUPFD);
+			// std::cout << "test\t" << temp << "\t client?\t" << clientFd << std::endl;
 			_requests[temp] = _requests[clientFd];
 			// Response r(_requests[clientFd], clientFd);
 			// r.redirectResponse();
