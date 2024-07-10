@@ -6,7 +6,7 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/07/02 13:28:12 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/07/03 14:31:10 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/07/10 16:53:55 by kposthum      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class Server : public Config{
 
 	private:
 		// what host::port this config should be listening to
-		std::list<s_port>		_ports;
+		std::list<s_domain>		_ports;
 		// name of the server, I don't think this does anything unless actually connected to the internet
 		std::string 			_name;
 		// root directory in which its files are stored
@@ -47,14 +47,14 @@ class Server : public Config{
 		Server(const Server &obj);
 		Server &operator=(const Server &obj);
 
-		std::list<s_port>		getPorts()	const;
+		std::list<s_domain>		getPorts()	const;
 		std::string				getName()	const;
 		std::string				getRoot()	const;
 		uint64_t				getMaxBody()	const;
 		std::list<s_ePage>		getErrorPages()	const;
 		std::list<Location>		getLocation() const;
 
-		void	setPort(s_port port);
+		void	setPort(s_domain port);
 		void	setName(std::string name);
 		void	setRoot(std::string root);
 		void	setMaxBody(uint64_t body);

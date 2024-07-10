@@ -132,12 +132,12 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 	return server;
 }
 
-static std::list<s_port> defaultPorts(){
-	std::list<s_port> ports;
-	s_port def;
+static std::list<s_domain> defaultPorts(){
+	std::list<s_domain> ports;
+	s_domain def;
 	def.port = 8080;
 	def.host = configIP("127.0.0.1");
-	s_port ssl;
+	s_domain ssl;
 	ssl.port = 8000;
 	ssl.host = configIP("127.0.0.1");
 	ports.push_back(def);
@@ -222,7 +222,7 @@ Server::Server(const Server &obj) : Config(obj){
 	*this = obj;
 }
 
-std::list<s_port> Server::getPorts()	const{
+std::list<s_domain> Server::getPorts()	const{
 	return _ports;
 }
 
@@ -291,7 +291,7 @@ void Server::clearData(int index){
 	(this->*ptr[index])();
 }
 
-void Server::setPort(s_port port){
+void Server::setPort(s_domain port){
 	_ports.push_back(port);
 }
 
@@ -325,7 +325,7 @@ void Server::configLocation(){
 
 std::ostream & operator<< (std::ostream &out, const Server& src){
 
-	for (s_port port : src.getPorts()){
+	for (s_domain port : src.getPorts()){
 		out << "port\t" << port.host << "\t" << port.port << std::endl;
 	}
 	out << "name\t" << src.getName() << std::endl;

@@ -32,10 +32,10 @@ enum methods{
 	TRACE
 };
 
-typedef struct t_port{
+typedef struct t_domain{
 	uint32_t	host;
 	uint16_t	port;
-}	s_port;
+}	s_domain;
 
 typedef struct t_ePage{
 	uint16_t	err;

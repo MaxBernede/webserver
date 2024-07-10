@@ -30,21 +30,21 @@ int	Request::getRequestPort()
 	return (-1);
 }
 
-s_port Request::getRequestHostPort(){
-	s_port hostport;
+s_domain Request::getRequestDomain(){
+	s_domain Domain;
 	std::string host = this->getValues("Host");
 	
 	size_t colonIndex = host.find_last_of(":");
 	if (colonIndex != std::string::npos)
 	{
 		std::string port = host.substr(colonIndex + 1);
-		hostport.port = std::stoi(port);
+		Domain.port = std::stoi(port);
 		std::string ip = host.substr(0, colonIndex);
 		// std::cout << "HOST\t"  << ip << "\tPORT\t" << port << std::endl;
 		if (ip == "localhost")
 			ip = "127.0.0.1";
-		hostport.host = configIP(ip);
-		return (hostport);
+		Domain.host = configIP(ip);
+		return (Domain);
 	}
 	throw (Exception("Port not found", 404));	
 }

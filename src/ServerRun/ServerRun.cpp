@@ -101,7 +101,7 @@ void ServerRun::serverRunLoop( void ){
 }
 
 
-Server ServerRun::getConfig(s_port port){
+Server ServerRun::getConfig(s_domain port){
 	for (auto server : _servers){
 		for (auto p : server.getPorts()){
 			if (p.port == port.port && p.host == port.host){

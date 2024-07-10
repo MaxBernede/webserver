@@ -30,8 +30,8 @@ void ServerRun::readRequest(int clientFd){
 		// TODO if host/port/server are not found, exception is thrown,
 		// should be caught and 404 should be sent
 		// int port = _requests[clientFd]->getRequestPort();
-		s_port hostPort = _requests[clientFd]->getRequestHostPort();
-		Server config = getConfig(hostPort);
+		s_domain Domain = _requests[clientFd]->getRequestDomain();
+		Server config = getConfig(Domain);
 		// Server config = getConfig(port);
 		_requests[clientFd]->setConfig(config);
 		_requests[clientFd]->configConfig();
@@ -42,9 +42,14 @@ void ServerRun::readRequest(int clientFd){
 		if (_requests[clientFd]->isRedirect()){
 			// not working yet, apparently, it doesn't send properly :/
 			printColor(RED, "HTTP REDIRECT\n");
-			Response r(_requests[clientFd], clientFd);
-			r.redirectResponse();
-			// addQueue(HTTP_REDIRECT, clientFd);
+			int temp;
+			for (temp = 0; fcntl(temp, F_GETFD) == 0; temp++){
+				std::cout << "test\t" << temp << std::endl;
+			}
+			_requests[temp] = _requests[clientFd];
+			// Response r(_requests[clientFd], clientFd);
+			// r.redirectResponse();
+			addQueue(HTTP_REDIRECT, temp);
 		}
 		else {
 			if (_requests[clientFd]->isCgi()) {

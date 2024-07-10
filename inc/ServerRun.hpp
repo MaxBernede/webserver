@@ -60,6 +60,6 @@ class ServerRun
 	void sendCgiResponse(int fd);
 	void sendRedirect(int fd);
 
-	Server getConfig(s_port port);
+	Server getConfig(s_domain port);
 	Server getConfig(int port);
 };

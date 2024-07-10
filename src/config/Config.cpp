@@ -3,7 +3,7 @@
 #include<utils.hpp>
 
 void confPort(std::string value, Server &serv){
-	s_port port;
+	s_domain port;
 
 	std::string ip = value.substr(0, value.find_first_of(":"));
 	std::string num = value.substr((value.find_first_of(":") + 1), (value.length() - ip.length() - 1));
