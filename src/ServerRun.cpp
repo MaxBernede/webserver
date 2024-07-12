@@ -172,7 +172,7 @@ void ServerRun::handleCGIRequest(int clientFd)
 void ServerRun::handleStaticFileRequest(int clientFd)
 {
 	// TODO check if _requests[clientFd]->getFileName() is defined in the configs redirect
-	std::string filePath = _requests[clientFd]->getConfig().getRoot() + _requests[clientFd]->getFileName(); // TODO root path based on config
+	std::string filePath = _requests[clientFd]->getConfig().getRoot() + "html/" + _requests[clientFd]->getFileName(); // TODO root path based on config
 	std::cout << "Opening static file: " << filePath << std::endl;
 	int fileFd = open(filePath.c_str(), O_RDONLY);
 	if (fileFd < 0)

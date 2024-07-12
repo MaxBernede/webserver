@@ -93,6 +93,9 @@ bool Request::redirRequest405() // If Method not Allowed, redirects to Server 40
 bool Request::redirRequest404()
 {
 	std::string root = _config.getRoot();
+	if (_file == "/")
+		_file = "index.html";
+	root = root + "html/";
 	std::string filepath = root + _file;
 	std::cout << "checking file: " << filepath << std::endl;
 	std::cout << "FILE: " << _file << std::endl;
