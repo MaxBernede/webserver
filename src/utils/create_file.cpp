@@ -13,18 +13,20 @@ std::string getFileName(std::string const &content){
 
 //Need to split this function. It's doing way too many things : search extension, append path etcc
 void create_file(std::string const &content, std::string const &location){
-	size_t i				= 0;
+	size_t i				= 1;
 	std::string fileName	= getFileName(content);   				//	ft_strrchr.c for exemple
 	std::string extension	= getExtension(fileName); 				//	c, html or anything after the '.'
 	std::string name		= fileName.substr(0, fileName.find("." + extension)); // ft_strrchr
 	std::string path		= location + "/" + fileName;
+	std::string temp		= content;
 	//printColor(MAGENTA, name, " ", path, " ",extension, " ",fileName);
 
-	while (exists(path) == true){
-		path = name + std::to_string(i) + extension;
+	while (exists(path) == true) {
+		path = location + "/" + name + std::to_string(i) + "." + extension; // -> ../path/name1.c
 		i++;
 	}
-	std::string temp = content;
+
+	// Remove everything until the empty line then we have all the content
 	while (temp[0] != '\n')
 		temp.erase(0, (temp.find('\n') + 1));
 	temp.erase(0, 1);
