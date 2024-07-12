@@ -118,6 +118,7 @@ void Request::constructRequest(){
 	std::string body = getValues("Body");
 	if (!body.empty()){
 		printColor(RED, "BODY CREATE", RESET);
-		create_file(body, "/home/posthum/Desktop/saved_files");
+		//! TAKE CARE HARDCODED PATH
+		create_file(body, "/home/mbernede/Desktop/web/saved_files");
 	}
 }
