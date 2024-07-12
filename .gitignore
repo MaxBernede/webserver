@@ -4,3 +4,4 @@ obj/
 *.o
 exe
 ubuntu_*
+saved_files/*

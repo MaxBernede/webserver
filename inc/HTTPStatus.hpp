@@ -1,8 +1,6 @@
 #include "webserver.hpp"
 #include <map>
 
-
-
 std::map<int, const char*> httpStatus =
 	{
 		// Information responses
