@@ -1,6 +1,6 @@
 #include "../inc/webserver.hpp"
 #include "../inc/response.hpp"
-
+#include <Redirect.hpp>
 
 //!Constructors
 Response::Response(Request *req, int clientFd) : _request(req), _clientFd(clientFd), ready(false)
@@ -41,7 +41,7 @@ std::string Response::makeStrResponse(void){
 	return oss.str();
 }
 
-// don't know if this works yet, have to figure out how to test this properly
+// somehow _request points to zero page, trying to fix this
 std::string Response::redirectResponse(void){
 	std::string from = _request->getFileNameProtected();
 	std::string to;
@@ -60,9 +60,11 @@ std::string Response::redirectResponse(void){
 	std::ostringstream oss;
 	oss << "HTTP/1.1 ";
 	oss << val;
-	oss << " Redirect Response\r\n\r\n";
+	oss << " Redirection\r\n";
+	oss << "Content-Type: text; charset=utf-8\r\n";
 	oss << "Location: ";
 	oss << to << "\r\n\r\n";
+	oss << REDIR_START << to << REDIR_END;
 	if (send(_clientFd, oss.str().c_str(), oss.str().length(), 0) == -1)
 	{
 		throw(Exception("Error sending response", errno));

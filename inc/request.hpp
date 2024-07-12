@@ -16,6 +16,8 @@ class Request
 		//constructors
 		Request(int clientFd);
 		~Request();
+		Request(const Request &src);
+		Request &operator=(const Request &src);
 		void	constructRequest();
 
 		void		fillBoundary(std::string text);

@@ -42,11 +42,12 @@ void ServerRun::readRequest(int clientFd){
 		if (_requests[clientFd]->isRedirect()){
 			// not working yet, apparently, it doesn't send properly :/
 			printColor(RED, "HTTP REDIRECT\n");
-			int temp = fcntl(0, F_DUPFD);
-			// std::cout << "test\t" << temp << "\t client?\t" << clientFd << std::endl;
+			int temp = dup(clientFd);
 			_requests[temp] = _requests[clientFd];
-			// Response r(_requests[clientFd], clientFd);
-			// r.redirectResponse();
+			if (_responses.find(clientFd) == _responses.end()) {
+				Response *response = new Response(_requests[temp], clientFd);
+				_responses[clientFd] = response;
+			}
 			addQueue(HTTP_REDIRECT, temp);
 		}
 		else {

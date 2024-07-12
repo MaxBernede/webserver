@@ -93,6 +93,23 @@ Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false) {}
 
 Request::~Request() {}
 
+Request::Request(const Request &src){
+	*this = src;
+}
+
+Request &Request::operator=(const Request &src){
+	this->_method = src._method;
+	this->_request = src._request;
+	this->_request_str = src._request_str;
+	this->_boundary = src._boundary;
+	this->_clientFd = src._clientFd;
+	this->_request_text = src._request_text;
+	this->_read_bytes = src._read_bytes;
+	this->_config = src._config;
+	
+	return *this;
+}
+
 void Request::constructRequest(){
 	printColor(BLUE, "Constructor request call");
 	fillBoundary(_request_text);
