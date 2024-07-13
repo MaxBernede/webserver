@@ -107,11 +107,10 @@ Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false) {}
 Request::~Request() {}
 
 void Request::constructRequest(){
-	printColor(BLUE, "Constructor request call");
+	Logger::log("Constructor request call", INFO);
 	std::cout << _request_text << std::endl;
-	//!below is important work on in case of empty connexion fron nc -z
 	if (_request_text.empty()){
-		std::cout << "EMPTY request" << std::endl;
+		Logger::log("EMPTY request", WARNING);
 		return ;
 	}
 	fillBoundary(_request_text);
@@ -120,9 +119,10 @@ void Request::constructRequest(){
 	//printAllData();
 	//Below is the equivalent of execution of the POST
 	std::string body = getValues("Body");
-	if (!body.empty()){
-		printColor(RED, "BODY CREATE", RESET);
-		//! TAKE CARE HARDCODED PATH
-		create_file(body, "/home/mbernede/Desktop/web/saved_files");
+	if (body.empty()){
+		Logger::log("Body is empty, no file creation", ERROR);
+		return;
 	}
+	Logger::log("Creating the file", INFO);
+	createFile(body, getPath() + "/saved_files");
 }

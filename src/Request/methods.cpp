@@ -49,7 +49,8 @@ bool Request::isBoundary(const std::string &line){
 
 
 void Request::printAllData(){
-	printColor(YELLOW, "All the datas on the Request Class :");
+	Logger::log("Application started", INFO);
+	//printColor(YELLOW, "All the datas on the Request Class :");
 	std::cout << "Boudary: " << _boundary << std::endl;
 	std::cout << "Method: ";
 	for (const auto &method : _method)

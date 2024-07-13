@@ -12,7 +12,7 @@ std::string getFileName(std::string const &content){
 }
 
 //Need to split this function. It's doing way too many things : search extension, append path etcc
-void create_file(std::string const &content, std::string const &location){
+void createFile(std::string const &content, std::string const &location){
 	size_t i				= 1;
 	std::string fileName	= getFileName(content);   				//	ft_strrchr.c for exemple
 	std::string extension	= getExtension(fileName); 				//	c, html or anything after the '.'
