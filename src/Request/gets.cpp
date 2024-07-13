@@ -105,3 +105,35 @@ void	Request::setConfig(Server config)
 {
 	_config = config;
 }
+
+std::string Request::getDeleteFilename(const std::string& httpRequest) {
+    // Find the start of the JSON body
+    std::size_t jsonStart = httpRequest.find("\r\n\r\n");
+    if (jsonStart == std::string::npos) {
+        return ""; // Invalid request, no body found
+    }
+    jsonStart += 4; // Move past the "\r\n\r\n"
+
+    // Extract the JSON body
+    std::string jsonBody = httpRequest.substr(jsonStart);
+
+    // Find the position of the filename in the JSON body
+    std::size_t filenamePos = jsonBody.find("\"filename\":\"");
+    if (filenamePos == std::string::npos) {
+        return ""; // No filename found
+    }
+
+    // Move the position to the start of the actual filename
+    filenamePos += 12; // Move past "\"filename\":\""
+
+    // Find the closing quote of the filename
+    std::size_t endQuotePos = jsonBody.find("\"", filenamePos);
+    if (endQuotePos == std::string::npos) {
+        return ""; // No closing quote found for the filename
+    }
+
+    // Extract the filename
+    std::string filename = jsonBody.substr(filenamePos, endQuotePos - filenamePos);
+
+    return filename;
+}

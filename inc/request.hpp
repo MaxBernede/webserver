@@ -1,5 +1,6 @@
 #pragma once
 #include "webserver.hpp"
+#include <cstdio>
 
 enum reqType
 {
@@ -38,6 +39,7 @@ class Request
 		std::string getResponse(void);
 		std::string getFileNameProtected( void );
 		Server		getConfig();
+		std::string	getDeleteFilename(const std::string& httpRequest);
 		// SET
 		void		setFile();
 		void		setConfig(Server config);	
@@ -48,6 +50,7 @@ class Request
 		bool		isBoundary(const std::string &line);
 		bool		redirRequest405();
 		bool		redirRequest404();
+		void		handleDelete();
 
 		void		printAllData();
 

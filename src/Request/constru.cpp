@@ -116,11 +116,16 @@ void Request::constructRequest(){
 	fillBoundary(_request_text);
 	parseResponse(_request_text);	
 	setFile();
+	if (getMethod(0) == "DELETE"){
+		Logger::log("Method is DELETE", INFO);
+		handleDelete();
+		return;
+	}
 	//printAllData();
 	//Below is the equivalent of execution of the POST
 	std::string body = getValues("Body");
 	if (body.empty()){
-		Logger::log("Body is empty, no file creation", ERROR);
+		Logger::log("Body is empty", ERROR);
 		return;
 	}
 	Logger::log("Creating the file", INFO);

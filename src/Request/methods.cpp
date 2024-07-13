@@ -137,3 +137,26 @@ int Request::checkRequest() // Checking for 404 and 405 Errors
 	std::cout << "0!\n";
 	return (0);
 }
+
+void Request::handleDelete(){
+	std::string file = getDeleteFilename(_request_text);
+	std::string path = getPath() + "/saved_files/" + file;
+
+	if (file == ""){
+		Logger::log("File is empty, nothing will be deleted", WARNING);
+		return;
+	}
+
+	Logger::log("File to delete is : " + file + " Path: " + path, INFO);
+	if (!exists(path)){
+		Logger::log("File doesn't exist", WARNING);
+		return;
+	}
+
+	Logger::log("File exist and will be deleted", INFO);
+	if (std::remove(path.c_str()) == 0)
+		Logger::log("File deleted successfully", INFO);
+	else
+		Logger::log("Failed to delete the file", ERROR);
+	return;
+}
