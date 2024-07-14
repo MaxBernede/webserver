@@ -1,5 +1,6 @@
 #include "webserver.hpp"
 #include <utils.hpp>
+#include <filesystem>
 
 void Request::readRequest()
 {
@@ -138,6 +139,37 @@ int Request::checkRequest() // Checking for 404 and 405 Errors
 	return (0);
 }
 
+void Request::remove(std::string &path){
+	if (std::remove(path.c_str()) == 0)
+		Logger::log("File deleted successfully", INFO);
+	else
+		Logger::log("Failed to delete the file", ERROR);
+}
+
+void Request::removeDir(std::string &path){
+    try {
+        std::size_t num = std::__fs::filesystem::remove_all(path);
+        Logger::log("Removed: " + std::to_string(num) + " total files", INFO);
+		Logger::log("204: Should return Success", INFO);
+    } catch (const std::__fs::filesystem::filesystem_error& e) {
+        std::cerr << "Error removing directory: " << e.what() << "\n";
+		Logger::log("500: Error while deleting the dir", WARNING);
+    }
+}
+
+
+void Request::handleDirDelete(std::string &path){
+	if (path.back() != '/'){
+		Logger::log("409: Path to delete doesn't end with '/'", ERROR);
+		return;
+	}
+	if (access(path.c_str(), W_OK) != 0){
+		Logger::log("403: Path to delete have no write access", ERROR);
+		return;
+	}
+	removeDir(path);
+}
+
 void Request::handleDelete(){
 	std::string file = getDeleteFilename(_request_text);
 	std::string path = getPath() + "/saved_files/" + file;
@@ -154,9 +186,11 @@ void Request::handleDelete(){
 	}
 
 	Logger::log("File exist and will be deleted", INFO);
-	if (std::remove(path.c_str()) == 0)
-		Logger::log("File deleted successfully", INFO);
-	else
-		Logger::log("Failed to delete the file", ERROR);
+
+	if (std::__fs::filesystem::is_regular_file(path))
+    	return (remove(path));
+    else if (std::__fs::filesystem::is_directory(path))
+        return (handleDirDelete(path));
+	Logger::log("Path is not a file and not a dir", ERROR);
 	return;
 }

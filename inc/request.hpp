@@ -51,6 +51,9 @@ class Request
 		bool		redirRequest405();
 		bool		redirRequest404();
 		void		handleDelete();
+		void		handleDirDelete(std::string & path);
+		void		remove(std::string & path);
+		void		removeDir(std::string & path);
 
 		void		printAllData();
 
