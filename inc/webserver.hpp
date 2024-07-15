@@ -27,6 +27,7 @@
 #define MAX_PORT 8100
 
 #include "Colors.hpp"
+#include "HTTPStatus.hpp"
 #include "response.hpp"
 #include "utils.hpp"
 #include "server.hpp"

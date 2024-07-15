@@ -88,13 +88,6 @@ std::string Request::getMethod(int index){
 	return _method[index];
 }
 
-std::string Request::getResponse(void){
-	std::string response_header;
-	response_header = getMethod(2) + " 200 OK\r\nContent-Type: " + getMethod(1) + "\r\n\r\n";
-	std::cout << "getmethod for the Response" << response_header;
-	return response_header;
-}
-
 Server	Request::getConfig(){
 	return _config;
 }
@@ -136,4 +129,16 @@ std::string Request::getDeleteFilename(const std::string& httpRequest) {
     std::string filename = jsonBody.substr(filenamePos, endQuotePos - filenamePos);
 
     return filename;
+}
+
+ErrorCode Request::getErrorCode(){
+	return _errorCode;
+}
+
+std::string Request::getErrorString(){
+	auto it = httpStatus.find(_errorCode);
+	if (it != httpStatus.end()) {
+		return it->second;
+	}
+	return "Unknown Error";
 }

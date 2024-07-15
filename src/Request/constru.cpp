@@ -2,9 +2,9 @@
 #include "request.hpp"
 
 
-
+// Max : is it maintanable ?
 void Request::setFile() {
-	std::string val		= getValues("GET");
+	std::string val	= getValues("GET");
 
 	if (val.empty())
 		val = getValues("POST");
@@ -102,32 +102,33 @@ void Request::fillBoundary(std::string text){
 }
 
 //Constructor that parses everything
-Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false) {}
+Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false), _errorCode(OK) {}
 
 Request::~Request() {}
 
 void Request::constructRequest(){
 	Logger::log("Constructor request call", INFO);
 	std::cout << _request_text << std::endl;
-	if (_request_text.empty()){
-		Logger::log("EMPTY request", WARNING);
-		return ;
-	}
+
+	if (_request_text.empty())
+		return (Logger::log("EMPTY request", WARNING));
+
 	fillBoundary(_request_text);
 	parseResponse(_request_text);	
 	setFile();
-	if (getMethod(0) == "DELETE"){
-		Logger::log("Method is DELETE", INFO);
+
+	std::string method = getMethod(0);
+	
+	Logger::log("Method is :" + method, INFO);
+	if (method == "GET"){
+		;
+	}
+	else if (method == "DELETE"){
 		handleDelete();
 		return;
 	}
-	//printAllData();
-	//Below is the equivalent of execution of the POST
-	std::string body = getValues("Body");
-	if (body.empty()){
-		Logger::log("Body is empty", ERROR);
+	else if (method == "POST"){
+		handlePost();
 		return;
 	}
-	Logger::log("Creating the file", INFO);
-	createFile(body, getPath() + "/saved_files");
 }

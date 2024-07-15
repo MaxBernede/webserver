@@ -150,9 +150,11 @@ void Request::removeDir(std::string &path){
     try {
         std::size_t num = std::__fs::filesystem::remove_all(path);
         Logger::log("Removed: " + std::to_string(num) + " total files", INFO);
+		_errorCode = NO_CONTENT;
 		Logger::log("204: Should return Success", INFO);
     } catch (const std::__fs::filesystem::filesystem_error& e) {
         std::cerr << "Error removing directory: " << e.what() << "\n";
+		_errorCode = INTERNAL_SRV_ERR;
 		Logger::log("500: Error while deleting the dir", WARNING);
     }
 }
@@ -160,14 +162,26 @@ void Request::removeDir(std::string &path){
 
 void Request::handleDirDelete(std::string &path){
 	if (path.back() != '/'){
+		_errorCode = CONFLICT;
 		Logger::log("409: Path to delete doesn't end with '/'", ERROR);
 		return;
 	}
 	if (access(path.c_str(), W_OK) != 0){
+		_errorCode = FORBIDDEN;
 		Logger::log("403: Path to delete have no write access", ERROR);
 		return;
 	}
 	removeDir(path);
+}
+
+void Request::handlePost(){
+	std::string body = getValues("Body");
+
+	if (body.empty())
+		return (Logger::log("Body is empty", ERROR));
+
+	Logger::log("Creating the file", INFO);
+	createFile(body, getPath() + "/saved_files");
 }
 
 void Request::handleDelete(){

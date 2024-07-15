@@ -6,7 +6,7 @@
 Response::Response(Request *req, int clientFd, bool def_error) : _request(req), _clientFd(clientFd), _ready(false), _default_error(def_error)
 {
 	_html_file = this->_request->getFileName();
-	std::cout << "Default constructor Response" << std::endl;
+	Logger::log("Constructor response call", INFO);
 	for (const auto& pair : _request->getContent()) {
 		std::cout << pair.first << ": " << pair.second << std::endl;
 	}
