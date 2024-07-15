@@ -36,7 +36,7 @@ Socket::Socket(int port)
 	freeaddrinfo(res);
 	if (!bound)
 	{
-		std::cout << "binding socket " << port << " failed" << std::endl;
+		std::cout << "Port " << port << ": ";
 		throw(Exception("Socket failed to bind", errno));
 	}
 	if (listen(_fd, SOMAXCONN))
@@ -44,7 +44,7 @@ Socket::Socket(int port)
 		close(_fd);
 		std::cout << "listening failed on socketfd " << _fd << " on port " << port << std::endl; 
 	}
-	std::cout << "Sockets created: " << _fd << std::endl;
+	std::cout << "Sockets created with fd " << _fd << " on: " << port << std::endl;
 }
 	
 Socket::~Socket()

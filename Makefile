@@ -5,31 +5,29 @@ CXXFLAGS := -std=c++11 -Wall -Wextra -g -fsanitize=address
 # CXXFLAGS := -Werror
 RM := rm -rf
 
-SRC := $(shell find src -type f -name '*.cpp')
+SRC_DIR := src
+SRCS := $(shell find $(SRC_DIR) -type f -name '*.cpp') 
 
 INC := $(wildcard inc/*.hpp)
 
 RUN_CMD := ./$(NAME) template.conf
 
-OBJ_DIR := ./obj
-OBJ := $(patsubst src/%.cpp,$(OBJ_DIR)/%.o,$(SRC))
-
-OBJ_DIRS := $(sort $(dir $(OBJ)))
+OBJ_DIR := obj
+OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
+OBJ_DIRS := $(sort $(dir $(OBJS))) 
 
 all: $(NAME)
 
-$(NAME): $(OBJ)
+$(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) -Iinc $^ -o $(NAME)
 
-$(OBJ_DIR)/%.o: src/%.cpp | $(OBJ_DIRS)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(OBJ_DIRS)
 	$(CXX) $(CXXFLAGS) -Iinc -c $< -o $@
-
-$(OBJ_DIRS):
-	mkdir -p $@
 
 clean:
 	$(RM) saved_files/*
-	$(RM) $(OBJ)
+	$(RM) $(OBJS)
 
 fclean: clean
 	$(RM) $(OBJ_DIR)
@@ -38,6 +36,7 @@ fclean: clean
 re: fclean all
 
 run: all
-	$(RUN_CMD)	
+	$(RUN_CMD)
 
 .PHONY: clean all fclean re run
+	

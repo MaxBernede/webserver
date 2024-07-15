@@ -13,7 +13,7 @@ const std::string RESET = "\033[0m";
 
 template<typename T>
 void printColor(const std::string& color, T&& arg) {
-    std::cout << color << std::forward<T>(arg) << std::endl << RESET;
+    std::cout << color << std::forward<T>(arg) << RESET << std::endl;
 }
 
 template<typename T, typename... Args>
