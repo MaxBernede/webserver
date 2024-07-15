@@ -186,6 +186,7 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 
 void ServerRun::redirectToError(int ErrCode, Request *request, int clientFd)
 {
+	//check this code to implement the no reply 204 case of successfull delete or stuff like that
 	if (_responses.find(clientFd) == _responses.end()) 
 	{
 		Response *response = new Response(request, clientFd, true);
@@ -193,6 +194,8 @@ void ServerRun::redirectToError(int ErrCode, Request *request, int clientFd)
 			response->setResponseString(NOT_FOUND);
 		if (ErrCode == 405)
 			response->setResponseString(NOT_ALLOWED);
+		if (ErrCode == NO_CONTENT)
+			response->setResponseString("HTTP/1.1 204 No Content");
 		_responses[clientFd] = response;
 		_pollData[clientFd]._pollType = SEND_REDIR;
 	}
@@ -221,8 +224,9 @@ void ServerRun::readRequest(int clientFd)
 		Server config = getConfig(port);
 		//TODO if server == not found, error should be thrown, please catch
 		_requests[clientFd]->setConfig(config);
-		int ErrCode = _requests[clientFd]->checkRequest();
-		if (ErrCode != 0)
+		int ErrCode = _requests[clientFd]->checkRequest(); // Max code : this is a request.getErrorCode();
+		//if (ErrCode != 0) //Yesim code
+		if (ErrCode != 200)
 		{
 			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 			redirectToError(ErrCode, _requests[clientFd], clientFd);

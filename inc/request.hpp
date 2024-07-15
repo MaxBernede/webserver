@@ -34,7 +34,7 @@ class Request
 		void		parseFirstLine(std::istringstream &iss);
 		void		parseBody(std::istringstream &iss, std::string &line);
 		void 		parseResponse(const std::string& headers);
-		int		checkRequest();
+		int			checkRequest();
 
 		//GET
 		std::string	getFile();

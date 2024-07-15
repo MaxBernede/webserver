@@ -124,6 +124,7 @@ bool Request::redirRequest404()
 
 int Request::checkRequest() // Checking for 404 and 405 Errors
 {
+	//Temp check for Max code:
 	std::cout << "CHECKING REQUEST!!\n";
 	if (!redirRequest405())
 	{
@@ -135,13 +136,17 @@ int Request::checkRequest() // Checking for 404 and 405 Errors
 		std::cout << "404!\n";
 		return (404);
 	}
-	std::cout << "0!\n";
-	return (0);
+	return getErrorCode();
+	// std::cout << "0!\n";
+	// return (0);
 }
 
 void Request::remove(std::string &path){
-	if (std::remove(path.c_str()) == 0)
+	if (std::remove(path.c_str()) == 0){
 		Logger::log("File deleted successfully", INFO);
+		_errorCode = NO_CONTENT;
+		Logger::log("204: Should return Success", INFO);
+	}
 	else
 		Logger::log("Failed to delete the file", ERROR);
 }
