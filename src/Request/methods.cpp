@@ -51,14 +51,13 @@ bool Request::isBoundary(const std::string &line){
 
 void Request::printAllData(){
 	Logger::log("Application started", INFO);
-	//printColor(YELLOW, "All the datas on the Request Class :");
 	std::cout << "Boudary: " << _boundary << std::endl;
 	std::cout << "Method: ";
 	for (const auto &method : _method)
 		std::cout << method << " ";
 	std::cout << std::endl;
 	for (const auto& pair : _request)
-		printColor(RESET, pair.first, ": ", pair.second);
+		Logger::log(pair.first + ": " + pair.second, DEBUG);
 }
 
 bool Request::redirRequest405() // If Method not Allowed, redirects to Server 405
@@ -72,6 +71,7 @@ bool Request::redirRequest405() // If Method not Allowed, redirects to Server 40
 		index = POST;
 	else if (method == "DELETE")
 		index = DELETE;
+		
 	if (!_config.getMethod(index))
 	{
 		int found = false;
@@ -153,11 +153,11 @@ void Request::remove(std::string &path){
 
 void Request::removeDir(std::string &path){
     try {
-        std::size_t num = std::__fs::filesystem::remove_all(path);
+        std::size_t num = std::filesystem::remove_all(path);
         Logger::log("Removed: " + std::to_string(num) + " total files", INFO);
 		_errorCode = NO_CONTENT;
 		Logger::log("204: Should return Success", INFO);
-    } catch (const std::__fs::filesystem::filesystem_error& e) {
+    } catch (const std::filesystem::filesystem_error& e) {
         std::cerr << "Error removing directory: " << e.what() << "\n";
 		_errorCode = INTERNAL_SRV_ERR;
 		Logger::log("500: Error while deleting the dir", WARNING);
@@ -206,9 +206,9 @@ void Request::handleDelete(){
 
 	Logger::log("File exist and will be deleted", INFO);
 
-	if (std::__fs::filesystem::is_regular_file(path))
+	if (std::filesystem::is_regular_file(path))
     	return (remove(path));
-    else if (std::__fs::filesystem::is_directory(path))
+    else if (std::filesystem::is_directory(path))
         return (handleDirDelete(path));
 	Logger::log("Path is not a file and not a dir", ERROR);
 	return;

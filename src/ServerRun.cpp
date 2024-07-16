@@ -78,7 +78,7 @@ void ServerRun::addQueue(pollType type, int fd)
 void ServerRun::serverRunLoop( void )
 {
 	int nCon = -1;
-	printColor(GREEN, "Server running...");
+	Logger::log("Server running... ", INFO);
 	while (true)
 	{
 		nCon = poll(_pollFds.data(), _pollFds.size(), 0);

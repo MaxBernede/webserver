@@ -19,7 +19,7 @@ void createFile(std::string const &content, std::string const &location){
 	std::string name		= fileName.substr(0, fileName.find("." + extension)); // ft_strrchr
 	std::string path		= location + "/" + fileName;
 	std::string temp		= content;
-	//printColor(MAGENTA, name, " ", path, " ",extension, " ",fileName);
+	//Logger::log(name + " " + path + " " + extension + " " + fileName, INFO);
 
 	while (exists(path) == true) {
 		path = location + "/" + name + std::to_string(i) + "." + extension; // -> ../path/name1.c

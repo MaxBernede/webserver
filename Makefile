@@ -1,7 +1,7 @@
 NAME := exe
 CXX := c++
 
-CXXFLAGS := -std=c++11 -Wall -Wextra -g -fsanitize=address
+CXXFLAGS := -std=c++17 -Wall -Wextra -g -fsanitize=address
 # CXXFLAGS := -Werror
 RM := rm -rf
 

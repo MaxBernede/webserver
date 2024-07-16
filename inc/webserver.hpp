@@ -36,6 +36,5 @@
 #include "ServerRun.hpp"
 #include "request.hpp"
 #include "Logger.hpp"
-#include "print_colors.hpp"
 #include "CGI.hpp"
 #include "error.hpp"
