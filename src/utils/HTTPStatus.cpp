@@ -71,3 +71,4 @@ std::map<int, const char*> httpStatus =
 		{510, "Not Extended"},						// Further extensions to the request are required for the server to fulfill it.
 		{511, "Network Authentication Required"},	// Indicates that the client needs to authenticate to gain network access.
 	};
+

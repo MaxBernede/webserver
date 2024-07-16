@@ -7,9 +7,9 @@ Response::Response(Request *req, int clientFd, bool def_error) : _request(req), 
 {
 	_html_file = this->_request->getFileName();
 	Logger::log("Constructor response call", INFO);
-	for (const auto& pair : _request->getContent()) {
-		std::cout << pair.first << ": " << pair.second << std::endl;
-	}
+	// for (const auto& pair : _request->getContent()) {
+	// 	std::cout << pair.first << ": " << pair.second << std::endl;
+	// }
 }
 
 Response::~Response() {}
@@ -38,7 +38,7 @@ void Response::rSend( void )
 	if (!_default_error)
 		response = makeStrResponse();
 	std::cout << "_______________________________________________\n";
-	std::cout << "Message to send =>\n " << response << std::endl;
+	std::cout << "Message to send =>\n" << response << std::endl;
 	std::cout << "_______________________________________________\n";
 	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
 	{

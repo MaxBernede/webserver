@@ -12,7 +12,7 @@ enum ErrorCode {
     OK = 200,
 	NO_CONTENT = 204,
     FORBIDDEN = 403,
-    NOT_FOUND = 404,
+    CODE_NOT_FOUND = 404,
     CONFLICT = 409,
 	INTERNAL_SRV_ERR = 500
 };

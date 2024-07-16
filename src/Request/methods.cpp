@@ -142,6 +142,11 @@ int Request::checkRequest() // Checking for 404 and 405 Errors
 }
 
 void Request::remove(std::string &path){
+	if (access(path.c_str(), W_OK) != 0){
+		_errorCode = FORBIDDEN;
+		Logger::log("403: Path to delete have no write access", ERROR);
+		return;
+	}
 	if (std::remove(path.c_str()) == 0){
 		Logger::log("File deleted successfully", INFO);
 		_errorCode = NO_CONTENT;
@@ -157,7 +162,8 @@ void Request::removeDir(std::string &path){
         Logger::log("Removed: " + std::to_string(num) + " total files", INFO);
 		_errorCode = NO_CONTENT;
 		Logger::log("204: Should return Success", INFO);
-    } catch (const std::filesystem::filesystem_error& e) {
+    } 
+	catch (const std::filesystem::filesystem_error& e) {
         std::cerr << "Error removing directory: " << e.what() << "\n";
 		_errorCode = INTERNAL_SRV_ERR;
 		Logger::log("500: Error while deleting the dir", WARNING);
@@ -200,6 +206,7 @@ void Request::handleDelete(){
 
 	Logger::log("File to delete is : " + file + " Path: " + path, INFO);
 	if (!exists(path)){
+		_errorCode = ErrorCode::CODE_NOT_FOUND;
 		Logger::log("File doesn't exist", WARNING);
 		return;
 	}

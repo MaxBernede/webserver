@@ -5,6 +5,26 @@
 #include <sys/socket.h>
 #include "CGI.hpp"
 
+const std::string HTTP_CONFLICT_RESPONSE = R"(
+HTTP/1.1 409 Conflict
+Content-Type: application/json
+
+{
+    "error": "Conflict",
+    "message": "The request could not be completed due to a conflict with the current state of the target resource."
+}
+)";
+
+const std::string HTTP_FORBIDDEN_RESPONSE = R"(
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+
+{
+    "error": "Forbidden",
+    "message": "You do not have permission to access this resource."
+}
+)";
+
 ServerRun::ServerRun(const std::list<Server> config)
 {
 	std::vector<int> listens;
@@ -196,6 +216,10 @@ void ServerRun::redirectToError(int ErrCode, Request *request, int clientFd)
 			response->setResponseString(NOT_ALLOWED);
 		if (ErrCode == NO_CONTENT)
 			response->setResponseString("HTTP/1.1 204 No Content");
+		if (ErrCode == ErrorCode::CONFLICT)
+			response->setResponseString(HTTP_CONFLICT_RESPONSE);
+		if (ErrCode == ErrorCode::FORBIDDEN)
+			response->setResponseString(HTTP_FORBIDDEN_RESPONSE);
 		_responses[clientFd] = response;
 		_pollData[clientFd]._pollType = SEND_REDIR;
 	}
@@ -391,7 +415,8 @@ void ServerRun::sendCgiResponse(int fd)
 
 void ServerRun::sendRedir(int clientFd)
 {
-	std::cout << "SENDING REDIR ERROR" << std::endl;
+	Logger::log("Sending Redir msg", INFO);
+	//std::cout << "SENDING REDIR ERROR" << std::endl;
 	Response *r = _responses[clientFd];
 	r->rSend();
 	close(clientFd);
