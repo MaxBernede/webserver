@@ -26,9 +26,10 @@ void Request::readRequest()
 
 bool Request::isRedirect(){
 	std::list<s_redirect> redirs = _config.getRedirect();
+	std::string fileName = getFileNameProtected();
 	for (s_redirect r : redirs){
-		std::cout << getFileName() << "\t\t" << r.redirFrom << std::endl;
-		if (getFileName() == r.redirFrom){
+		std::cout << fileName << "\t\t" << r.redirFrom << std::endl;
+		if (fileName == r.redirFrom){
 			std::cout << "is redirect" << std::endl;
 			return true;}
 	}
@@ -131,13 +132,15 @@ bool Request::redirRequest404()
 int Request::checkRequest() // Checking for 404 and 405 Errors
 {
 	std::cout << "CHECKING REQUEST!!\n";
-	if (!redirRequest405())
-	{
+	if (!redirRequest405())	{
 		std::cout << "405!\n";
 		return (405);
 	}
-	if (!redirRequest404())
-	{
+	if (isRedirect()){
+		std::cout << "redirect, not 404!\n";
+		return (0);
+	}
+	if (!redirRequest404())	{
 		std::cout << "404!\n";
 		return (404);
 	}
@@ -145,44 +148,12 @@ int Request::checkRequest() // Checking for 404 and 405 Errors
 	return (0);
 }
 
-// void Request::checkRequest()
-// {
-// 	std::string method = getMethod(0);
-// 	int index = -1;
-// 	std::cout << "CHECKING    Method: " << method << std::endl;
-	
-// 	if (method == "GET")
-// 		index = GET;
-// 	else if (method == "POST")
-// 		index = POST;
-// 	else if (method == "DELETE")
-// 		index = DELETE;
-// 	if (!_config.getMethod(index))
-// 	{
-// 		// int found = false;
-// 		std::cout << "Method: " << method << " ";
-// 		for (auto item : _config.getErrorPages())
-// 		{
-// 			if (item.err == 405)
-// 			{
-// 				// found = true;
-// 				_file = item.url;
-// 			}
-// 		}
-			
-// 		//throw(Exception("Method not allowed", 1));
-// 	}
-// }
-
 void	Request::configConfig(){
 	std::string temp = _method[1];
-	// std::cout << "TEMP\t" << temp << std::endl;
 	if (temp.find('/', 1) != std::string::npos)
 		temp.erase(temp.find('/', 1));
-	// std::cout << "TEMP\t" << temp << std::endl;
 	std::list<Location> locs = _config.getLocation();
 	for (Location loc : locs){
-		// std::cout << "locname\t" << loc.getName() << std::endl;
 		if (temp == loc.getName()){
 			_config.setRoot(loc.getRoot());
 			for (int i = GET; i <= TRACE; i++)
@@ -195,5 +166,4 @@ void	Request::configConfig(){
 			break ;
 		}
 	}
-	// std::cout << "new?:\t" << _config.getRoot() << std::endl;
 }

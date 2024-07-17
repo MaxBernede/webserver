@@ -70,8 +70,7 @@ void ServerRun::readRequest(int clientFd){
 		_requests[clientFd]->setConfig(config);
 		_requests[clientFd]->configConfig();
 		int ErrCode = _requests[clientFd]->checkRequest();
-		if (ErrCode != 0)
-		{
+		if (ErrCode != 0){
 			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 			redirectToError(ErrCode, _requests[clientFd], clientFd);
 			return ;

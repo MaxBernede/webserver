@@ -8,8 +8,10 @@ void Request::setFile() {
 	if (val.empty())
 		val = getValues("POST");
 	_file = val.empty() ? "" : firstWord(val);
+	_file.erase(0,1);
 	if (_file == "/")
 		_file = _config.getIndex();
+	std::cout << "FILE\t" << _file << std::endl;
 }
 
 //Create a pair out of the line and the int pos of the delimiter (: for every lines or space for the first line)

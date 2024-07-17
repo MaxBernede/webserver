@@ -48,7 +48,7 @@ void ServerRun::sendCgiResponse(int fd){
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
 
-void ServerRun::sendRedir(int clientFd){
+void ServerRun::sendError(int clientFd){
 	std::cout << "SENDING REDIR ERROR" << std::endl;
 	Response *r = _responses[clientFd];
 	r->rSend();
@@ -101,7 +101,7 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd){
 			sendResponse(pollFd.fd);
 			break ;
 		case SEND_REDIR:
-			sendRedir(pollFd.fd);
+			sendError(pollFd.fd);
 			break ;
 		case HTTP_REDIRECT:
 			sendRedirect(pollFd.fd);

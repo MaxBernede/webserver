@@ -65,7 +65,7 @@ class ServerRun
 	void sendResponse(int fd);
 	void sendCgiResponse(int fd);
 	void sendRedirect(int fd);
-	void sendRedir(int fd);
+	void sendError(int fd);
 
 	Server getConfig(s_domain port);
 	Server getConfig(int port);

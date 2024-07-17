@@ -80,7 +80,7 @@ std::string Request::getFileName( void )
 	}
 	std::string html_file = firstWord(val);
 	if (html_file == "/")
-		return (_config.getIndex()); //TODO: make it modular according to config
+		return (_config.getIndex());
 	return html_file;
 }
 
