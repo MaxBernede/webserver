@@ -22,14 +22,18 @@ enum ErrorCode {
 class RequestException : public std::exception {
 private:
     std::string _message;
+	LogLevel _lvl;
 
 public:
     // Constructor that takes a message
-    explicit RequestException(const std::string& message) : _message(message) {}
+	explicit RequestException(const std::string& message) : _message(message){
+		_lvl = LogLevel::INFO;
+	}
+    explicit RequestException(const std::string& message, LogLevel lvl) : _message(message), _lvl(lvl){}
 
     // Override the what() method to provide the error message
     const char* what() const noexcept override {
-		Logger::log("Exception occurred: " + _message, WARNING);
+		Logger::log("[EXCEP] " + _message, _lvl);
         return _message.c_str();
     }
 };

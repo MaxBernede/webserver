@@ -23,10 +23,8 @@ void Request::readRequest()
         	constructRequest();
     	}
 		catch (const RequestException& e) {
-			;
-        	//std::cerr << "Exception caught while constructing request: " << e.what() << std::endl;
+        	e.what();
     	}
-		Logger::log("Continue", INFO);
 	}
 }
 
@@ -151,16 +149,14 @@ int Request::checkRequest() // Checking for 404 and 405 Errors
 void Request::remove(std::string &path){
 	if (access(path.c_str(), W_OK) != 0){
 		_errorCode = FORBIDDEN;
-		Logger::log("403: Path to delete have no write access", ERROR);
-		return;
+		throw RequestException("403: Path to delete have no write access", LogLevel::ERROR);
 	}
 	if (std::remove(path.c_str()) == 0){
 		Logger::log("File deleted successfully", INFO);
 		_errorCode = NO_CONTENT;
-		Logger::log("204: Should return Success", INFO);
+		throw RequestException("204: Should return Success");
 	}
-	else
-		Logger::log("Failed to delete the file", ERROR);
+	throw RequestException("Failed to delete the file", LogLevel::ERROR);
 }
 
 void Request::removeDir(std::string &path){
@@ -168,26 +164,24 @@ void Request::removeDir(std::string &path){
         std::size_t num = std::filesystem::remove_all(path);
         Logger::log("Removed: " + std::to_string(num) + " total files", INFO);
 		_errorCode = NO_CONTENT;
-		Logger::log("204: Should return Success", INFO);
-    } 
+    }
 	catch (const std::filesystem::filesystem_error& e) {
         std::cerr << "Error removing directory: " << e.what() << "\n";
 		_errorCode = INTERNAL_SRV_ERR;
-		Logger::log("500: Error while deleting the dir", WARNING);
+		throw RequestException("500: Error while deleting the dir", LogLevel::WARNING);
     }
+	throw RequestException("204: Should return Success");
 }
 
 
 void Request::handleDirDelete(std::string &path){
 	if (path.back() != '/'){
 		_errorCode = CONFLICT;
-		Logger::log("409: Path to delete doesn't end with '/'", ERROR);
-		return;
+		throw RequestException("409: Path to delete doesn't end with '/'", ERROR);
 	}
 	if (access(path.c_str(), W_OK) != 0){
 		_errorCode = FORBIDDEN;
-		Logger::log("403: Path to delete have no write access", ERROR);
-		return;
+		throw RequestException("403: Path to delete have no write access", ERROR);
 	}
 	removeDir(path);
 }
@@ -196,7 +190,7 @@ void Request::handlePost(){
 	std::string body = getValues("Body");
 
 	if (body.empty())
-		return (Logger::log("Body is empty", ERROR));
+		throw RequestException("Body is empty", ERROR);
 
 	Logger::log("Creating the file", INFO);
 	createFile(body, getPath() + "/saved_files");
@@ -206,24 +200,19 @@ void Request::handleDelete(){
 	std::string file = getDeleteFilename(_request_text);
 	std::string path = getPath() + "/saved_files/" + file;
 
-	if (file == ""){
-		Logger::log("File is empty, nothing will be deleted", WARNING);
-		return;
-	}
+	if (file == "")
+		throw RequestException("File name is empty, nothing will be deleted", LogLevel::WARNING);
 
 	Logger::log("File to delete is : " + file + " Path: " + path, INFO);
 	if (!exists(path)){
 		_errorCode = ErrorCode::CODE_NOT_FOUND;
-		Logger::log("File doesn't exist", WARNING);
-		throw RequestException("File not deleted: doesn't exist");
-		//return;
+		throw RequestException("File not deleted: doesn't exist", LogLevel::WARNING);
 	}
 
 	if (!verifyPath(path)){
 		//Not sure of error code
 		_errorCode = ErrorCode::CODE_NOT_FOUND;
-		Logger::log("Path requiered not found, file tried to delete ../", ERROR);
-		return;
+		throw RequestException("Path requiered not found, file tried to delete ../", LogLevel::ERROR);
 	}
 	Logger::log("File exist and will be deleted", INFO);
 
@@ -232,6 +221,6 @@ void Request::handleDelete(){
     else if (std::filesystem::is_directory(path))
         return (handleDirDelete(path));
 	else
-		Logger::log("Path is not a file and not a dir", ERROR);
+		throw RequestException("Path is not a file and not a dir", LogLevel::ERROR);
 	return;
 }

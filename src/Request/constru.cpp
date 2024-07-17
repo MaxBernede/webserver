@@ -110,11 +110,8 @@ void Request::constructRequest(){
 	Logger::log("Constructor request call", INFO);
 	std::cout << _request_text << std::endl;
 
-	if (_request_text.empty()){
-		Logger::log("EMPTY request", WARNING);
+	if (_request_text.empty())
 		throw RequestException("Empty request");
-		//return;
-	}
 
 	fillBoundary(_request_text);
 	parseResponse(_request_text);	
