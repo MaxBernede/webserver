@@ -26,16 +26,14 @@ class Request
 		void		parseFirstLine(std::istringstream &iss);
 		void		parseBody(std::istringstream &iss, std::string &line);
 		void 		parseResponse(const std::string& headers);
-		void		checkRequest();
+		int			checkRequest();
 
 		//GET
 		std::string	getFile();
-		// std::string	getExtension(std::string fileName);
 		std::string	getFileName();
 		int			getClientFd();
 		int			getRequestPort();
-		s_domain		getRequestDomain();
-		// std::string	getRequestHost();
+		s_domain	getRequestDomain();
 		std::string	getRequestStr();
 		std::string	getMethod(int index);
 		std::vector<std::pair<std::string, std::string>>	getContent();
@@ -51,6 +49,8 @@ class Request
 		bool		isCgi(); // boolean to tell if request is Cgi
 		bool		isDoneReading();
 		bool		isBoundary(const std::string &line);
+		bool		redirRequest405();
+		bool		redirRequest404();
 
 		// reconfigs the config object to location specifics, if necessary
 		void		configConfig();

@@ -19,7 +19,8 @@ enum pollType
 	CGI_READ_WAITING,
 	CGI_READ_READING,
 	CGI_READ_DONE,
-	HTTP_REDIRECT
+	SEND_REDIR,
+	HTTP_REDIRECT,
 };
 
 typedef struct t_poll_data
@@ -31,13 +32,13 @@ typedef struct t_poll_data
 class ServerRun
 {
 	private:
-		std::list<Server> _servers; // Server blocks from config file
-		std::vector<Socket *> _listenSockets; // Listener sockets 
-		std::unordered_map<int, Request *> _requests; // Request (not cgi)
-		std::unordered_map<int, CGI *> _cgi; // Cgi requests, int: pollFd (clientFd) -> create response
-		std::unordered_map<int, Response *> _responses; // Responses to be sent, int: pollFd to write to
-		std::unordered_map<int, s_poll_data> _pollData; // int: polFd
-		std::vector<struct pollfd> _pollFds; // vector to pass to poll
+		std::list<Server>						_servers; // Server blocks from config file
+		std::vector<Socket *>					_listenSockets; // Listener sockets 
+		std::unordered_map<int, Request *>		_requests; // Request (not cgi)
+		std::unordered_map<int, CGI *>			_cgi; // Cgi requests, int: pollFd (clientFd) -> create response
+		std::unordered_map<int, Response *>		_responses; // Responses to be sent, int: pollFd to write to
+		std::unordered_map<int, s_poll_data>	_pollData; // int: polFd
+		std::vector<struct pollfd>				_pollFds; // vector to pass to poll
 
 	public:
 		ServerRun(const std::list<Server> config);
@@ -54,11 +55,17 @@ class ServerRun
 	void dataIn(s_poll_data pollData, struct pollfd pollFd); // read from client
 	void dataOut(s_poll_data pollData, struct pollfd pollFd); // write to client
 
+	void handleCGIRequest(int clientFd);
+	void handleStaticFileRequest(int clientFd);
+
+	void redirectToError(int ErrCode, Request *request, int clientFd); // Redirect to 404, 405
+
 	void readFile(int fd);
 	void readPipe(int fd);
 	void sendResponse(int fd);
 	void sendCgiResponse(int fd);
 	void sendRedirect(int fd);
+	void sendRedir(int fd);
 
 	Server getConfig(s_domain port);
 	Server getConfig(int port);

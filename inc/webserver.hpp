@@ -28,7 +28,6 @@
 
 // #include<response.hpp>
 #include<utils.hpp>
-#include<signal.hpp>
 #include<Server.hpp>
 #include<Config.hpp>
 #include<Location.hpp>

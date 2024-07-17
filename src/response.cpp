@@ -3,13 +3,13 @@
 #include <Redirect.hpp>
 
 //!Constructors
-Response::Response(Request *req, int clientFd) : _request(req), _clientFd(clientFd), ready(false)
+Response::Response(Request *req, int clientFd, bool def_error) : _request(req), _clientFd(clientFd), _ready(false), _default_error(def_error)
 {
 	_html_file = this->_request->getFileName();
-	// std::cout << "Default constructor Response" << std::endl;
-	// for (const auto& pair : _request->getContent()) {
-	// 	std::cout << pair.first << ": " << pair.second << std::endl;
-	// }
+	std::cout << "Default constructor Response" << std::endl;
+	for (const auto& pair : _request->getContent()) {
+		std::cout << pair.first << ": " << pair.second << std::endl;
+	}
 }
 
 Response::~Response() {}
@@ -19,7 +19,7 @@ Response::~Response() {}
 //itself again with error.html
 std::string Response::makeResponse(std::ifstream &file){
 	std::ostringstream oss;
-	oss << "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+	oss << "HTTP/1.1 200 OK\r\n\r\n";
 	oss << file.rdbuf();
 	file.close();
 
@@ -30,13 +30,9 @@ std::string Response::makeStrResponse(void){
 	std::ostringstream oss;
 	std::string httpStatus = _request->getMethod(2);
 
-	//Below is to get the content type
 	std::string file = _request->getFileNameProtected();
-	oss << httpStatus << " ";
-	oss << "200 OK\r\n";
-	oss << "Content-Type: " << contentType.at(getExtension(file)) << "\r\n";
-	oss << "\r\n";
-	oss << response_text;
+	oss << httpStatus << " 200 OK\r\n\r\n";
+	oss << _response_text;
 
 	return oss.str();
 }
@@ -76,7 +72,7 @@ std::string Response::redirectResponse(void){
 // TODO: 'html/' should be replaced with the root defined in the config file
 std::string Response::readHtmlFile(void)
 {
-	std::string file_path = "html/" + _html_file;
+	std::string file_path = (_request->getConfig()).getRoot() + _html_file;
 	std::ifstream file(file_path);
 
 	if (!file.is_open()){
@@ -90,13 +86,15 @@ std::string Response::readHtmlFile(void)
 //read the HTML and return it as a string
 void Response::addToBuffer(std::string buffer)
 {
-	response_text += buffer;
+	_response_text += buffer;
 }
 
 // TODO: in stead of sending everything at once, responses should also be chunked,
 // just like requests are, I think
 void Response::rSend( void ){
-	std::string response = makeStrResponse();
+	std::string response = _response_text;
+	if (!_default_error)
+		response = makeStrResponse();
 	std::cout << "_______________________________________________" << std::endl;
 	std::cout << "Message to send =>\n " << response << std::endl;
 	std::cout << "_______________________________________________" << std::endl;
@@ -106,7 +104,10 @@ void Response::rSend( void ){
 	}
 }
 
-void Response::setReady( void )
-{
-	ready = true;
+void Response::setReady( void ){
+	_ready = true;
+}
+
+void Response::setResponseString(std::string response){
+	_response_text = response;
 }

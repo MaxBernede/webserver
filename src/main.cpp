@@ -27,9 +27,9 @@ int main(int argc, char** argv, char** env) {
 		server.push_front(def);
 	}
 	// V See if config file has been correctly parsed V
-	for (Server i : server){
-		std::cout << i << std::endl;
-	}
+	// for (Server i : server){
+	// 	std::cout << i << std::endl;
+	// }
 	// initialise ServerRun obj
 	ServerRun runningServer(server);
 	// Run server loop

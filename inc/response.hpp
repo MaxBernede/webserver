@@ -12,8 +12,7 @@ class CGI;
 
 class Response {
 	public:
-		Response(Request *req, int clientFd);
-		Response(CGI *cgi, int clientFd);
+		Response(Request *req, int clientFd, bool def_error);
 		~Response();
 
 		//Members functions
@@ -23,22 +22,23 @@ class Response {
 		std::string readHtmlFile( void );
 		std::string readFromPipe( void );
 		void addToBuffer(std::string buffer);
+		void setResponseString(std::string response);
 		void setReady( void );
 		void rSend( void );
 	
 	private:
-		std::string file;
-		std::string response_text;
+		std::string _file;
+		std::string _response_text;
 		std::string	_html_file;
-		Request	*_request;
-		CGI *_cgi;
-		int	_clientFd;
-		int	_readFd;
-		bool ready;
+		Request*	_request;
+		CGI*		_cgi;
+		int			_clientFd;
+		int			_readFd;
+		bool		_ready;
+		bool		_default_error;
 		const std::unordered_map<std::string,std::string> contentType = {
 			{"html","text/html"},
 			{"ico","image/x-icon"},
 			{"cgi","text/html"}
-
 		};
 };
