@@ -51,6 +51,7 @@ static std::string	extractName(std::string const &src){
 	if (name.length() < 2)
 		throw syntaxError();
 	return name;
+	// std::cout << "NAME LOCATION OK" << std::endl;
 }
 
 void	confMethods(std::string value, Location &loc){
@@ -74,6 +75,7 @@ void	confMethods(std::string value, Location &loc){
 		while (value.find_first_of("\t\n\v\f\r ") == 0)
 			value.erase(0, 1);
 	}
+	// std::cout << "METHODS LOCATION OK" << std::endl;
 }
 
 void	confRedirect(std::string value, Location &loc){
@@ -101,6 +103,7 @@ void	confRedirect(std::string value, Location &loc){
 	redir.returnValue = std::stoi(num);
 	redir.redirFrom = from;
 	redir.redirTo = to;
+	// std::cout << "REDIR LOCATION OK" << std::endl;
 	loc.setRedirect(redir);
 }
 
@@ -108,6 +111,7 @@ void	confRoot(std::string value, Location &loc){
 	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		throw syntaxError();
 	value.pop_back();
+	// std::cout << "ROOT LOCATION OK" << std::endl;
 	loc.setRoot(value);
 }
 
@@ -118,13 +122,14 @@ void	confAutoIndex(std::string value, Location &loc){
 		loc.setAutoIndex(false);
 	else
 		throw syntaxError();
-
+	// std::cout << "AUTOINDEX LOCATION OK" << std::endl;
 }
 
 void	confIndex(std::string value, Location &loc){
 	value.pop_back();
 	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
 		throw syntaxError();
+	// std::cout << "INDEX LOCATION OK" << std::endl;
 	loc.setIndex(value);
 }
 
@@ -135,6 +140,7 @@ void	confCGI(std::string value, Location &loc){
 		loc.setCGI(false);
 	else
 		throw syntaxError();
+	// std::cout << "CGI LOCATION OK" << std::endl;
 }
 
 void	confPath(std::string value, Location &loc){
@@ -143,6 +149,7 @@ void	confPath(std::string value, Location &loc){
 		throw syntaxError();
 	if (value[0] != '/')
 		value = '/' + value;
+	// std::cout << "PATH LOCATION OK" << std::endl;
 	loc.setPath(value);
 }
 
@@ -195,6 +202,7 @@ void	Location::autoConfig(Server &serv){
 	}
 	_root = temp + _root;
 	_path = _root + _path;
+	// std::cout << "LOCATION OK" << std::endl;
 }
 
 std::ostream & operator<< (std::ostream &out, const Location& src){

@@ -13,6 +13,7 @@ uint32_t configIP(std::string ip){
 	}
 	if (host == 0)
 		throw syntaxError();
+	// std::cout << "IP OK" << std::endl;
 	return host;
 }
 

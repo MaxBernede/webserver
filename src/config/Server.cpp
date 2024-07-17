@@ -39,7 +39,7 @@ Server	pushBlock(std::list<std::string> block, char **env){
 			it++;
 			continue;
 		}
-		if (str.find("location /") == 0 && str.back() == '{'){
+		if (str.find("location ") == 0 && str.back() == '{'){
 			std::list<std::string> body;
 			while (true){
 				str = *it;
@@ -85,6 +85,7 @@ Server	pushBlock(std::list<std::string> block, char **env){
 	}
 	serv.setPath(serv.getRoot() + serv.getPath());
 	serv.configLocation();
+	// std::cout << "SERVER LOCATION OK" << std::endl;
 	return serv;
 }
 
@@ -102,7 +103,7 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 					std::getline(conf, buf);
 					if (buf.empty())
 						continue ;
-					if (buf.find("location /") == 0 && buf.back() == '{'){
+					if (buf.find("location ") == 0 && buf.back() == '{'){
 						if (location == false)
 							location = true;
 						else
@@ -129,6 +130,7 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 			}
 		}
 	}
+	// std::cout << "SERVER LIST OK" << std::endl;
 	return server;
 }
 
@@ -187,7 +189,7 @@ Server::Server(char **env):
 	_root(defaultRoot(env)),
 	_maxBody(1048576),
 	_errorPages(defaultErrorPages()){
-	_path = "/";
+	_path = "";
 }
 
 Server::Server():
@@ -196,7 +198,7 @@ Server::Server():
 	_root(defaultRoot(nullptr)),
 	_maxBody(1048576),
 	_errorPages(defaultErrorPages()){
-	_path = "/";
+	_path = "";
 }
 
 Server::~Server() {
