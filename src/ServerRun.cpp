@@ -200,6 +200,7 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 		std::cout << "Failed opening file: " << filePath << std::endl; // TODO 404 error
 		throw(Exception("Opening static file failed", errno));
 	}
+	Logger::log("File correctly opened", INFO);
 	_requests[fileFd] = _requests[clientFd]; // TODO: We need to add the request header reading in here too
 	addQueue(FILE_READ_READING, fileFd);
 }
@@ -248,7 +249,9 @@ void ServerRun::readRequest(int clientFd)
 		Server config = getConfig(port);
 		//TODO if server == not found, error should be thrown, please catch
 		_requests[clientFd]->setConfig(config);
-		int ErrCode = _requests[clientFd]->checkRequest(); // Max code : this is a request.getErrorCode();
+		int ErrCode = _requests[clientFd]->getErrorCode();
+		if (ErrCode != 200)
+			ErrCode = _requests[clientFd]->checkRequest(); // Max code : this is a request.getErrorCode();
 		//if (ErrCode != 0) //Yesim code
 		if (ErrCode != 200)
 		{
@@ -268,6 +271,9 @@ void ServerRun::readRequest(int clientFd)
 		}
 		else // Static file
 		{
+			// if (_requests[clientFd]->getMethod(0) == "HEAD")
+			// 	Logger::log("Method doesn't read because HEAD", INFO);
+			// else
 			handleStaticFileRequest(clientFd);
 		}
 		_requests.erase(clientFd);
