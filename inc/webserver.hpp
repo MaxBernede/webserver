@@ -13,6 +13,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <unordered_map>
+#include <filesystem>
 
 // for containers
 #include <vector>
@@ -26,7 +27,7 @@
 #define MIN_PORT 8000
 #define MAX_PORT 8100
 
-#include <filesystem>
+#include "Logger.hpp"
 #include "Colors.hpp"
 #include "HTTPStatus.hpp"
 #include "response.hpp"
@@ -36,7 +37,6 @@
 #include "Socket.hpp"
 #include "ServerRun.hpp"
 #include "request.hpp"
-#include "Logger.hpp"
 #include "CGI.hpp"
 #include "error.hpp"
 #include "fileHandling.hpp"

@@ -19,6 +19,21 @@ enum ErrorCode {
 
 #define METHODS {"GET",	"POST",	"DELETE", "PUT", "PATCH", "CONNECT", "OPTIONS", "TRACE"}
 
+class RequestException : public std::exception {
+private:
+    std::string _message;
+
+public:
+    // Constructor that takes a message
+    explicit RequestException(const std::string& message) : _message(message) {}
+
+    // Override the what() method to provide the error message
+    const char* what() const noexcept override {
+		Logger::log("Exception occurred: " + _message, WARNING);
+        return _message.c_str();
+    }
+};
+
 //TODO getter for port and host
 class Request
 {

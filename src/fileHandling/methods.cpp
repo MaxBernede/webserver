@@ -1,8 +1,8 @@
 #include "webserver.hpp"
 
 bool containsSubstring(const std::string& subStr, const std::string& mainStr) {
-	Logger::log(mainStr, INFO);
-	Logger::log(subStr, INFO);
+	// Logger::log(mainStr, INFO);
+	// Logger::log(subStr, INFO);
     return mainStr.find(subStr) != std::string::npos;
 }
 
@@ -10,7 +10,7 @@ bool verifyPath(std::string &inputPath) {
     try {
         std::filesystem::path pathObj(inputPath);
         std::filesystem::path absolute_path = std::filesystem::weakly_canonical(pathObj);
-        inputPath = absolute_path.string();  // Update inputPath with resolved absolute path
+        inputPath = absolute_path.string();
 		if (!containsSubstring(getPath() + "/saved_files/", inputPath))
 			return false;
 		return true;

@@ -16,6 +16,7 @@ OBJ := $(patsubst src/%.cpp,$(OBJ_DIR)/%.o,$(SRC))
 
 OBJ_DIRS := $(sort $(dir $(OBJ)))
 
+# mkdir saved_files
 all: $(NAME)
 
 $(NAME): $(OBJ)

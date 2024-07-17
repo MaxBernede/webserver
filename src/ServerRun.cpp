@@ -132,7 +132,9 @@ void ServerRun::serverRunLoop( void )
 			}
 			catch(const Exception& e)
 			{
-				std::cerr << e.what() << '\n';
+				//Cath of the "Throw Port not found" in the readRequest;
+				//std::cerr << e.what() << '\n';
+				;
 			}
 		}
 	}
@@ -441,6 +443,7 @@ void ServerRun::sendRedir(int clientFd)
 
 void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 {
+	//Logger::log(std::to_string(pollData._pollType), INFO);
 	switch (pollData._pollType)
 	{
 		case CGI_READ_DONE:

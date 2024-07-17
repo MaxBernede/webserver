@@ -19,7 +19,14 @@ void Request::readRequest()
 	if (rb < BUFFER_SIZE - 1)
 	{
 		_doneReading = true;
-		constructRequest();
+		try {
+        	constructRequest();
+    	}
+		catch (const RequestException& e) {
+			;
+        	//std::cerr << "Exception caught while constructing request: " << e.what() << std::endl;
+    	}
+		Logger::log("Continue", INFO);
 	}
 }
 
@@ -36,6 +43,7 @@ bool Request::isCgi()
 
 bool Request::isDoneReading()
 {
+	//Logger::log("Is done reading " + std::to_string(_doneReading), INFO);
 	return (_doneReading);
 }
 
@@ -207,7 +215,8 @@ void Request::handleDelete(){
 	if (!exists(path)){
 		_errorCode = ErrorCode::CODE_NOT_FOUND;
 		Logger::log("File doesn't exist", WARNING);
-		return;
+		throw RequestException("File not deleted: doesn't exist");
+		//return;
 	}
 
 	if (!verifyPath(path)){
@@ -222,6 +231,7 @@ void Request::handleDelete(){
     	return (remove(path));
     else if (std::filesystem::is_directory(path))
         return (handleDirDelete(path));
-	Logger::log("Path is not a file and not a dir", ERROR);
+	else
+		Logger::log("Path is not a file and not a dir", ERROR);
 	return;
 }
