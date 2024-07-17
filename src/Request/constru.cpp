@@ -2,13 +2,13 @@
 #include "request.hpp"
 
 
+void Request::setFileName(std::string newName){
+	_file = newName;
+}
+
 // Max : is it maintanable ?
 void Request::setFile() {
-	std::string val	= getValues("GET");
-
-	if (val.empty())
-		val = getValues("POST");
-	_file = val.empty() ? "" : firstWord(val);
+	_file = getMethod(1);
 	if (_file == "/")
 	{
 		for (auto item : _config.getIndex())
@@ -57,6 +57,9 @@ void Request::parseFirstLine(std::istringstream &iss){
     while (std::getline(line_stream, arg, ' ')){
         _method.push_back(arg);
 	}
+
+	// setFileName(_method[1]);
+
 	_method[2].erase(std::remove(_method[2].begin(), _method[2].end(), '\r'), _method[2].end());
 	size_t pos = line.find(' ');
 	if (pos != std::string::npos)

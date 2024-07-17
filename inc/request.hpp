@@ -71,6 +71,7 @@ class Request
 		std::string	getErrorString();
 
 		// SET
+		void		setFileName(std::string newName);
 		void		setFile();
 		void		setConfig(Server config);	
 

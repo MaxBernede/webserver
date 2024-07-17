@@ -45,6 +45,7 @@ std::string	Request::getRequestHost()
 }
 
 std::string Request::getFileNameProtected( void ){
+	Logger::log("GetFileNameProtected is: " + _file, INFO);
 	if (_file != "/")
 		return _file;
 	for (auto item : _config.getIndex())
@@ -56,20 +57,22 @@ std::string Request::getFileNameProtected( void ){
 	return "";
 }
 
+
 //WTF ? Why the hell am ireturning the file name only if it's a post or get
 //Return the first word after GET (usually the html) otherwise empty
 std::string Request::getFileName( void )
 {
-	std::string val = getValues("GET");
-	if (val.empty()){
-		val = getValues("POST");
-		if (val.empty())
-			return "";
-	}
-	std::string html_file = firstWord(val);
-	if (html_file == "/")
-		return *(_config.getIndex()).begin(); //TODO: make it modular according to config
-	return html_file;
+	return _file;
+	// std::string val = getValues("GET");
+	// if (val.empty()){
+	// 	val = getValues("POST");
+	// 	if (val.empty())
+	// 		return "";
+	// }
+	// std::string html_file = firstWord(val);
+	// if (html_file == "/")
+	// 	return *(_config.getIndex()).begin(); //TODO: make it modular according to config
+	// return html_file;
 }
 
 
