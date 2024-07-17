@@ -19,8 +19,8 @@ void CGI::runCgi()
 		// redirect I/O
 		close(_sendPipe[0]); // close read-end of response
 		dup2(_sendPipe[1], STDOUT_FILENO); // write to response pipe
-		std::string cgiFilePath = "html";
-		std::string cgiFilename = cgiFilePath + _request->getFileName();
+		std::string cgiFilePath = _request->getConfig().getRoot();
+		std::string cgiFilename = cgiFilePath + _request->getFileNameProtected();
 		char *argv[2] = {(char *)cgiFilename.c_str(), NULL};
 		execve(cgiFilename.c_str(), argv, _cgiEnv);
 		// if execve fails

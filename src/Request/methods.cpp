@@ -28,7 +28,7 @@ bool Request::isRedirect(){
 	std::list<s_redirect> redirs = _config.getRedirect();
 	std::string fileName = getFileNameProtected();
 	for (s_redirect r : redirs){
-		std::cout << fileName << "\t\t" << r.redirFrom << std::endl;
+		// std::cout << fileName << "\t\t" << r.redirFrom << std::endl;
 		if (fileName == r.redirFrom){
 			std::cout << "is redirect" << std::endl;
 			return true;}
@@ -149,12 +149,14 @@ int Request::checkRequest() // Checking for 404 and 405 Errors
 }
 
 void	Request::configConfig(){
-	std::string temp = _method[1];
+	std::string temp = getFileNameProtected();
 	if (temp.find('/', 1) != std::string::npos)
-		temp.erase(temp.find('/', 1));
+		temp.erase(temp.find('/', 1) + 1);
 	std::list<Location> locs = _config.getLocation();
 	for (Location loc : locs){
+		std::cout << "TEMP\t" << temp << "\tLOC\t" << loc.getName() << std::endl;
 		if (temp == loc.getName()){
+			std::cout << "IS LOCATION" << std::endl;
 			_config.setRoot(loc.getRoot());
 			for (int i = GET; i <= TRACE; i++)
 				_config.setMethod(loc.getMethod(i), i);
@@ -163,6 +165,10 @@ void	Request::configConfig(){
 			_config.setIndex(loc.getIndex());
 			_config.setCGI(loc.getCGI());
 			_config.setPath(loc.getPath());
+			std::string newName = getFileNameProtected();
+			newName.erase(0, temp.length());
+			std::cout << newName << std::endl;
+			_file = newName;
 			break ;
 		}
 	}
