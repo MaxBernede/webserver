@@ -1,6 +1,5 @@
 #include "webserver.hpp"
-#include <utils.hpp>
-#include <filesystem>
+#include <iostream>
 
 void Request::readRequest()
 {
@@ -211,6 +210,12 @@ void Request::handleDelete(){
 		return;
 	}
 
+	if (!verifyPath(path)){
+		//Not sure of error code
+		_errorCode = ErrorCode::CODE_NOT_FOUND;
+		Logger::log("Path requiered not found, file tried to delete ../", ERROR);
+		return;
+	}
 	Logger::log("File exist and will be deleted", INFO);
 
 	if (std::filesystem::is_regular_file(path))

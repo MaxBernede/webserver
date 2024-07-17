@@ -26,6 +26,7 @@
 #define MIN_PORT 8000
 #define MAX_PORT 8100
 
+#include <filesystem>
 #include "Colors.hpp"
 #include "HTTPStatus.hpp"
 #include "response.hpp"
@@ -38,3 +39,4 @@
 #include "Logger.hpp"
 #include "CGI.hpp"
 #include "error.hpp"
+#include "fileHandling.hpp"
