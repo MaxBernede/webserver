@@ -41,8 +41,7 @@ ServerRun::ServerRun(const std::list<Server> config)
 				listens.push_back(port.nmb);
 			else
 			{
-				std::cout << "port: " << port.nmb << std::endl;
-				std::cout << "Servers have the same port in config" << std::endl;
+				Logger::log("Servers have the same port in config: " + port.nmb, LogLevel::WARNING);
 			}
 		}
 	}
@@ -129,7 +128,9 @@ void ServerRun::serverRunLoop( void )
 				{
 					// Write to client
 					dataOut(_pollData[fd], _pollFds[i]);
+					Logger::log("data out finished", ERROR);
 				}
+
 			}
 			catch(const Exception& e)
 			{
