@@ -84,8 +84,8 @@ static std::string defaultRoot(char **env){
 
 static std::vector<bool> defaultMethods(){
 	std::vector<bool> methods;
-	for (int i = GET; i <= TRACE; i++){
-		if (i == GET || i == POST || i == DELETE)
+	for (int i = GET; i < ENUM_SIZE; i++){
+		if (i == GET || i == POST || i == DELETE || i == HEAD)
 			methods.push_back(true);
 		else
 			methods.push_back(false);
@@ -221,7 +221,7 @@ void Server::clearRoot(){
 }
 
 void Server::clearMethods(){
-	for (int i = GET; i <= TRACE; i++)
+	for (int i = GET; i < ENUM_SIZE; i++)
 		_methods[i] = false;
 }
 
@@ -307,7 +307,7 @@ std::ostream & operator<< (std::ostream &out, const Server& src){
 	out << "name\t" << src.getName() << std::endl;
 	out << "root\t" << src.getRoot() << std::endl;
 	out << "methods\t";
-	for (int i = GET; i <= TRACE; i++){
+	for (int i = GET; i < ENUM_SIZE; i++){
 		out << boolstring(src.getMethod(i)) << "\t";
 	}
 	out << std::endl;

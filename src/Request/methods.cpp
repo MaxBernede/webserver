@@ -76,6 +76,8 @@ bool Request::redirRequest405() // If Method not Allowed, redirects to Server 40
 		index = POST;
 	else if (method == "DELETE")
 		index = DELETE;
+	else if (method == "HEAD")
+		index = HEAD;
 		
 	if (!_config.getMethod(index))
 	{

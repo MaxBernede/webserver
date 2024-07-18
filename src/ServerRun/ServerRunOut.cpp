@@ -3,6 +3,7 @@
 void ServerRun::sendResponse(int fd)
 {
 		std::cout << "SENDING RESPONSE" << std::endl;
+		Logger::log("fd: " + std::to_string(fd), WARNING);
 		int clientFd = _requests[fd]->getClientFd();
 		Response *r = _responses[clientFd];
 		r->rSend();
@@ -80,6 +81,7 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 			sendCgiResponse(pollFd.fd);
 			break ;
 		case FILE_READ_DONE:
+			Logger::log("in switch: " + std::to_string(_requests[pollFd.fd]->getClientFd()), WARNING);
 			sendResponse(pollFd.fd);
 			break ;
 		case SEND_REDIR:

@@ -5,6 +5,7 @@
 //!Constructors
 Response::Response(Request *req, int clientFd, bool def_error) : _request(req), _clientFd(clientFd), _ready(false), _default_error(def_error)
 {
+	_response_text = "";
 	_html_file = this->_request->getFileName();
 	Logger::log("Constructor response call", INFO);
 	// for (const auto& pair : _request->getContent()) {
@@ -34,6 +35,9 @@ void Response::addToBuffer(std::string buffer)
 
 void Response::rSend( void )
 {
+	// if (_response_text.empty())
+	// 	std::cout << "Hey riends" << std::endl;
+	// Logger::log(_response_text, WARNING);
 	std::string response = _response_text;
 	if (!_default_error)
 		response = makeStrResponse();

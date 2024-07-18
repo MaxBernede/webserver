@@ -27,7 +27,9 @@ enum methods{
 	PATCH,
 	CONNECT,
 	OPTIONS,
-	TRACE
+	TRACE,
+	HEAD,
+	ENUM_SIZE
 };
 
 typedef struct t_port{
