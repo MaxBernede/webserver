@@ -50,7 +50,6 @@ void ServerRun::sendCgiResponse(int fd)
 		}
 		if (_requests.count(clientFd))
 		{
-			delete _requests[clientFd];
 			_requests.erase(clientFd);
 		}
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
