@@ -88,8 +88,13 @@ void ServerRun::redirectToError(int ErrCode, Request *request, int clientFd)
 // Only continue after reading the whole request
 void ServerRun::readRequest(int clientFd)
 {	
+	//Logger::log("In read : " + std::to_string(clientFd) + " and " + std::to_string(_requests.find(clientFd) == _requests.end()), WARNING);
+	if(_requests.find(clientFd) != _requests.end() )
+		;
+	//Logger::log("Test, : " + std::to_string(_requests[clientFd]->getErrorCode()), WARNING);
 	if (_requests.find(clientFd) == _requests.end())
 	{
+		Logger::log("Enter : " + std::to_string(clientFd), WARNING);
 		Request *newRequest = new Request(clientFd);
 		_requests[clientFd] = newRequest;
 	}
@@ -142,6 +147,7 @@ void ServerRun::readRequest(int clientFd)
 			handleStaticFileRequest(clientFd);
 		}
 	}
+	//_requests.erase(clientFd);
 }
 
 void ServerRun::readFile(int fd) // Static file fd

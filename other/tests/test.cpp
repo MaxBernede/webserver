@@ -1,24 +1,25 @@
 #include <iostream>
 #include <csignal>
 
-sig_atomic_t sigflag = 0;
-
-void sighandler(int s)
-{
-  std::cerr << "Caught signal " << s << ".\n"; // this is undefined behaviour
-  sigflag = 1; // something like that
-}
-
-int main()
-{
-  std::signal(SIGINT, sighandler);
-
-  // ... your program here ...
-
-  // example: baby's first loop (Ctrl-D to end)
-  char c;
-  while (std::cin >> c)
-  {
-    if (sigflag != 0) { std::cerr << "Signal!\n"; sigflag = 0; }
-  }
+#include <algorithm> 
+#include <iostream> 
+#include <vector> 
+using namespace std; 
+ 
+int main(){ 
+    vector<int> v; 
+    v.push_back(3);           //Insert element 3 
+    v.push_back(5);           //Insert element 5 
+    v.push_back(7);           //Insert element 7 
+    v.push_back(8);
+    v.push_back(9);
+    //vector(v) has 3 elements with size 3 
+ 
+    v.erase(v.begin() + 1);
+ 
+    for(int i=0;i<v.size();i++){ 
+        cout << v[i] << " "; 
+    } 
+     
+    return 0; 
 }

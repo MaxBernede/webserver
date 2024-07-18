@@ -8,17 +8,21 @@ void ServerRun::sendResponse(int fd)
 		Response *r = _responses[clientFd];
 		r->rSend();
 		removeConnection(fd);
-		if (_responses.count(clientFd) == 1)
+		if (_responses.count(clientFd))
 		{
 			delete _responses[clientFd];
 			_responses.erase(clientFd);
 		}
-		if (_requests.count(fd) == 1)
+		if (_requests.count(fd))
 		{
 			delete _requests[fd];
 			_requests.erase(fd);
 		}
-		if (!_responses.count(clientFd) and !_requests.count(fd))
+		if (_requests.count(clientFd))
+		{
+			_requests.erase(clientFd);
+		}
+		if (!_responses.count(clientFd) && !_requests.count(fd))
 		{
 			close(clientFd); // only loads in the browser one the fd is closed...should we keep the connection?
 			removeConnection(clientFd);
@@ -44,7 +48,7 @@ void ServerRun::sendCgiResponse(int fd)
 			delete _responses[clientFd];
 			_responses.erase(clientFd);
 		}
-		if (_requests.count(clientFd) == 1)
+		if (_requests.count(clientFd))
 		{
 			delete _requests[clientFd];
 			_requests.erase(clientFd);
@@ -81,7 +85,6 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 			sendCgiResponse(pollFd.fd);
 			break ;
 		case FILE_READ_DONE:
-			Logger::log("in switch: " + std::to_string(_requests[pollFd.fd]->getClientFd()), WARNING);
 			sendResponse(pollFd.fd);
 			break ;
 		case SEND_REDIR:
