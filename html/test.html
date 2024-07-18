@@ -13,15 +13,29 @@
 </form>
 
 <!-- DELETE method -->
-<form action="/delete" method="post">
-  <input type="hidden" name="_method" value="DELETE">
-  <button type="submit">Delete (DELETE)</button>
+<form id="deleteForm">
+  <button type="button" onclick="sendDeleteRequest()">Delete (DELETE)</button>
 </form>
 
 <!-- GET method -->
 <form action="/fetch" method="get">
   <button type="submit">Fetch (GET)</button>
 </form>
+
+<script>
+  function sendDeleteRequest() {
+    fetch('/delete', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({/* your data here */}),
+    })
+    .then(response => response.json())
+    .then(data => console.log('Success:', data))
+    .catch((error) => console.error('Error:', error));
+  }
+</script>
 
 </body>
 </html>

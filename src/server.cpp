@@ -108,7 +108,7 @@ static std::list<s_ePage> defaultErrorPages(std::string root){
 
 static std::list<std::string> defaultIndex(){
 	std::list<std::string> index = 
-		{"index.php", "index.html", "index.htm"};
+		{"index.html", "index.php", "index.htm"};
 	return index;
 }
 

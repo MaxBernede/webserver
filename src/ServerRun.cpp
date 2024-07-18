@@ -5,6 +5,26 @@
 #include <sys/socket.h>
 #include "CGI.hpp"
 
+const std::string HTTP_CONFLICT_RESPONSE = R"(
+HTTP/1.1 409 Conflict
+Content-Type: application/json
+
+{
+    "error": "Conflict",
+    "message": "The request could not be completed due to a conflict with the current state of the target resource."
+}
+)";
+
+const std::string HTTP_FORBIDDEN_RESPONSE = R"(
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+
+{
+    "error": "Forbidden",
+    "message": "You do not have permission to access this resource."
+}
+)";
+
 ServerRun::ServerRun(const std::list<Server> config)
 {
 	std::vector<int> listens;
@@ -21,8 +41,7 @@ ServerRun::ServerRun(const std::list<Server> config)
 				listens.push_back(port.nmb);
 			else
 			{
-				std::cout << "port: " << port.nmb << std::endl;
-				std::cout << "Servers have the same port in config" << std::endl;
+				Logger::log("Servers have the same port in config: " + std::to_string(port.nmb), LogLevel::WARNING);
 			}
 		}
 	}
@@ -70,6 +89,7 @@ void ServerRun::addQueue(pollType type, int fd)
 	s_poll_data newPollItem;
 	struct pollfd newPollFd;
 
+	//Logger::log("Type" + std::to_string(type) + std::to_string(fd), WARNING);
 	newPollFd = {fd, POLLIN | POLLOUT, 0};
 	newPollItem._pollType = type;
 	_pollFds.push_back(newPollFd);
@@ -79,7 +99,7 @@ void ServerRun::addQueue(pollType type, int fd)
 void ServerRun::serverRunLoop( void )
 {
 	int nCon = -1;
-	printColor(GREEN, "Server running...");
+	Logger::log("Server running... ", INFO);
 	while (true)
 	{
 		nCon = poll(_pollFds.data(), _pollFds.size(), 0);
@@ -109,11 +129,15 @@ void ServerRun::serverRunLoop( void )
 				{
 					// Write to client
 					dataOut(_pollData[fd], _pollFds[i]);
+					//Logger::log("data out finished", ERROR);
 				}
+
 			}
 			catch(const Exception& e)
 			{
-				std::cerr << e.what() << '\n';
+				//Cath of the "Throw Port not found" in the readRequest;
+				//std::cerr << e.what() << '\n';
+				;
 			}
 		}
 	}
@@ -170,10 +194,22 @@ void ServerRun::handleCGIRequest(int clientFd)
 	cgiRequest->runCgi();
 }
 
+
+
+
+
+
+
+
+
+
 void ServerRun::handleStaticFileRequest(int clientFd)
 {
 	// TODO check if _requests[clientFd]->getFileName() is defined in the configs redirect
-	std::string filePath = _requests[clientFd]->getConfig().getRoot() + "/" + _requests[clientFd]->getFileName(); // TODO root path based on config
+	std::string fileName = _requests[clientFd]->getFileName(); //! WARNING FILENAME CHANGED
+	if (fileName.empty() || fileName == "/") // this fix have been added because no possible skip for this function
+		fileName = "index.html"; // This needs to be changed, temporary here for the HEAD request
+	std::string filePath = _requests[clientFd]->getConfig().getRoot() + "html/" + fileName; // TODO root path based on config
 	std::cout << "Opening static file: " << filePath << std::endl;
 	int fileFd = open(filePath.c_str(), O_RDONLY);
 	if (fileFd < 0)
@@ -181,13 +217,24 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 		std::cout << "Failed opening file: " << filePath << std::endl; // TODO 404 error
 		throw(Exception("Opening static file failed", errno));
 	}
+	Logger::log("File correctly opened", INFO);
 	_requests[fileFd] = _requests[clientFd]; // TODO: We need to add the request header reading in here too
 	addQueue(FILE_READ_READING, fileFd);
 }
 
+
+
+
+
+
+
+
+
+
 // Only handles 404 and 405
 void ServerRun::redirectToError(int ErrCode, Request *request, int clientFd)
 {
+	//check this code to implement the no reply 204 case of successfull delete or stuff like that
 	if (_responses.find(clientFd) == _responses.end()) 
 	{
 		Response *response = new Response(request, clientFd, true);
@@ -195,6 +242,12 @@ void ServerRun::redirectToError(int ErrCode, Request *request, int clientFd)
 			response->setResponseString(NOT_FOUND);
 		if (ErrCode == 405)
 			response->setResponseString(NOT_ALLOWED);
+		if (ErrCode == NO_CONTENT)
+			response->setResponseString("HTTP/1.1 204 No Content");
+		if (ErrCode == ErrorCode::CONFLICT)
+			response->setResponseString(HTTP_CONFLICT_RESPONSE);
+		if (ErrCode == ErrorCode::FORBIDDEN)
+			response->setResponseString(HTTP_FORBIDDEN_RESPONSE);
 		_responses[clientFd] = response;
 		_pollData[clientFd]._pollType = SEND_REDIR;
 	}
@@ -223,8 +276,10 @@ void ServerRun::readRequest(int clientFd)
 		Server config = getConfig(port);
 		//TODO if server == not found, error should be thrown, please catch
 		_requests[clientFd]->setConfig(config);
-		int ErrCode = _requests[clientFd]->checkRequest();
-		if (ErrCode != 0)
+		int ErrCode = _requests[clientFd]->checkRequest(); // Max code : this is a request.getErrorCode();
+		Logger::log("ErrorCode: " + std::to_string(ErrCode), LogLevel::INFO);
+		//if (ErrCode != 0) //Yesim code
+		if (ErrCode != 200)
 		{
 			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 			redirectToError(ErrCode, _requests[clientFd], clientFd);
@@ -242,8 +297,13 @@ void ServerRun::readRequest(int clientFd)
 		}
 		else // Static file
 		{
+			// if (_requests[clientFd]->getMethod(0) == "HEAD")
+			// 	Logger::log("Method doesn't read because HEAD", INFO);
+			// else
 			handleStaticFileRequest(clientFd);
 		}
+		// else if (_requests[clientFd]->getMethod(0) == "HEAD") // or anything that doesnt need READ file
+		// 	Logger::log("Method doesn't read because HEAD", INFO);
 		_requests.erase(clientFd);
 	}
 }
@@ -389,7 +449,8 @@ void ServerRun::sendCgiResponse(int fd)
 
 void ServerRun::sendRedir(int clientFd)
 {
-	std::cout << "SENDING REDIR ERROR" << std::endl;
+	Logger::log("Sending Redir msg", INFO);
+	//std::cout << "SENDING REDIR ERROR" << std::endl;
 	Response *r = _responses[clientFd];
 	r->rSend();
 	close(clientFd);
@@ -408,6 +469,7 @@ void ServerRun::sendRedir(int clientFd)
 
 void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 {
+	//Logger::log(std::to_string(pollData._pollType), INFO);
 	switch (pollData._pollType)
 	{
 		case CGI_READ_DONE:

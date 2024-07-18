@@ -14,10 +14,7 @@ class Response {
 		~Response();
 
 		//Members functions
-		std::string makeResponse(std::ifstream &file);
 		std::string makeStrResponse( void );
-		std::string readHtmlFile( void );
-		std::string readFromPipe( void );
 		void addToBuffer(std::string buffer);
 		void setResponseString(std::string response);
 		void setReady( void );

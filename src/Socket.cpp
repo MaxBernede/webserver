@@ -25,6 +25,17 @@ Socket::Socket(int port)
 		_fd = socket(tmp->ai_family, tmp->ai_socktype, tmp->ai_protocol);
 		if (_fd == -1)
 			continue ;
+
+		//Check the code below for opti. It makes socket reusable so no waits
+		int opt = 1;
+		if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+		{
+			std::cerr << "Failed to set socket options" << std::endl;
+			close(_fd);
+			freeaddrinfo(res);
+			throw(Exception("Failed to set socket options", errno));
+		}
+
 		fcntl(_fd, F_SETFL, O_NONBLOCK);
 		if (bind(_fd, res->ai_addr, res->ai_addrlen) == 0)
 		{

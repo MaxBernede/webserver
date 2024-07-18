@@ -1,7 +1,7 @@
 NAME := exe
 CXX := c++
 
-CXXFLAGS := -std=c++11 -Wall -Wextra -g -fsanitize=address
+CXXFLAGS := -std=c++20 -Wall -Wextra -g -fsanitize=address
 # CXXFLAGS := -Werror
 RM := rm -rf
 
@@ -16,6 +16,7 @@ OBJ_DIR := obj
 OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 OBJ_DIRS := $(sort $(dir $(OBJS))) 
 
+# mkdir saved_files
 all: $(NAME)
 
 $(NAME): $(OBJS)

@@ -1,5 +1,6 @@
 #pragma once
 #include "webserver.hpp"
+#include <cstdio>
 
 enum reqType
 {
@@ -7,7 +8,35 @@ enum reqType
 	IMG
 };
 
+enum ErrorCode {
+    OK = 200,
+	NO_CONTENT = 204,
+    FORBIDDEN = 403,
+    CODE_NOT_FOUND = 404,
+    CONFLICT = 409,
+	INTERNAL_SRV_ERR = 500
+};
+
 #define METHODS {"GET",	"POST",	"DELETE", "PUT", "PATCH", "CONNECT", "OPTIONS", "TRACE"}
+
+class RequestException : public std::exception {
+private:
+    std::string _message;
+	LogLevel _lvl;
+
+public:
+    // Constructor that takes a message
+	explicit RequestException(const std::string& message) : _message(message){
+		_lvl = LogLevel::INFO;
+	}
+    explicit RequestException(const std::string& message, LogLevel lvl) : _message(message), _lvl(lvl){}
+
+    // Override the what() method to provide the error message
+    const char* what() const noexcept override {
+		Logger::log("[EXCEP] " + _message, _lvl);
+        return _message.c_str();
+    }
+};
 
 //TODO getter for port and host
 class Request
@@ -24,7 +53,7 @@ class Request
 		void		parseFirstLine(std::istringstream &iss);
 		void		parseBody(std::istringstream &iss, std::string &line);
 		void 		parseResponse(const std::string& headers);
-		int		checkRequest();
+		int			checkRequest();
 
 		//GET
 		std::string	getFile();
@@ -35,10 +64,14 @@ class Request
 		std::string	getRequestStr();
 		std::string	getMethod(int index);
 		std::vector<std::pair<std::string, std::string>>	getContent();
-		std::string getResponse(void);
 		std::string getFileNameProtected( void );
 		Server		getConfig();
+		std::string	getDeleteFilename(const std::string& httpRequest);
+		ErrorCode	getErrorCode();
+		std::string	getErrorString();
+
 		// SET
+		void		setFileName(std::string newName);
 		void		setFile();
 		void		setConfig(Server config);	
 
@@ -48,6 +81,11 @@ class Request
 		bool		isBoundary(const std::string &line);
 		bool		redirRequest405();
 		bool		redirRequest404();
+		void		handleDelete();
+		void		handlePost();
+		void		handleDirDelete(std::string & path);
+		void		remove(std::string & path);
+		void		removeDir(std::string & path);
 
 		void		printAllData();
 
@@ -62,5 +100,5 @@ class Request
 		std::string	_file;
 		uint32_t	_recv_bytes;
 		Server		_config;
-
+		ErrorCode	_errorCode;
 };
