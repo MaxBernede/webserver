@@ -3,3 +3,5 @@ obj/
 .vscode
 *.o
 exe
+ubuntu_*
+saved_files/*
