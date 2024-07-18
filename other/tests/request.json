@@ -1,0 +1,35 @@
+await fetch("https://nginx.org/en/docs/http/request_processing.html", {
+    "credentials": "omit",
+    "headers": {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "cross-site",
+        "If-Modified-Since": "Fri, 05 Aug 2022 14:40:41 GMT",
+        "If-None-Match": "\"62ed2be9-f98\""
+    },
+    "method": "GET",
+    "mode": "cors"
+});
+
+await fetch("http://localhost:8080/page2.html", {
+    "credentials": "omit",
+    "headers": {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Content-Type": "multipart/form-data; boundary=---------------------------96995742615023086552200650177",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "same-origin",
+        "Sec-Fetch-User": "?1"
+    },
+    "referrer": "http://localhost:8080/page2.html",
+    "body": "-----------------------------96995742615023086552200650177\r\nContent-Disposition: form-data; name=\"i\"; filename=\"main.cpp\"\r\nContent-Type: text/x-c++src\r\n\r\n#include <iostream>\n#include <Array.hpp>\n\n#define MAX_VAL 750\nint main(int, char**)\n{\n    Array<int> numbers(MAX_VAL);\n    int* mirror = new int[MAX_VAL];\n    srand(time(NULL));\n    for (int i = 0; i < MAX_VAL; i++)\n    {\n        const int value = rand();\n        numbers[i] = value;\n        mirror[i] = value;\n    }\n    //SCOPE\n    {\n        Array<int> tmp = numbers;\n        Array<int> test(tmp);\n    }\n\n    for (int i = 0; i < MAX_VAL; i++)\n    {\n        if (mirror[i] != numbers[i])\n        {\n            std::cerr << \"didn't save the same value!!\" << std::endl;\n            return 1;\n        }\n    }\n    try\n    {\n        numbers[-2] = 0;\n    }\n    catch(const std::exception& e)\n    {\n        std::cerr << e.what() << '\\n';\n    }\n    try\n    {\n        numbers[MAX_VAL] = 0;\n    }\n    catch(const std::exception& e)\n    {\n        std::cerr << e.what() << '\\n';\n    }\n\n    for (int i = 0; i < MAX_VAL; i++)\n    {\n        numbers[i] = rand();\n    }\n    delete [] mirror;//\n    return 0;\n}\r\n-----------------------------96995742615023086552200650177--\r\n",
+    "method": "POST",
+    "mode": "cors"
+});

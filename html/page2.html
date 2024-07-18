@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Page 2</title>
+</head>
+<body>
+	<h1>Welcome to Page 2</h1>
+	<p>attempt to do post request.</p>
+	<form action="/page2.html" method="post" enctype="multipart/form-data">
+		<input type="file" id="file" name="i" placeholder="Enter your name">
+		<button type="submit">Create File</button>
+	</form>
+
+	<!-- DELETE method -->
+	<form id="deleteForm" onsubmit="sendDeleteRequest(event)">
+		<input type="text" id="filename" name="filename" placeholder="Enter filename to delete" required>
+		<button type="submit">Delete (DELETE)</button>
+	</form>
+
+	<script>
+		function sendDeleteRequest(event) {
+		  event.preventDefault(); // Prevent the form from submitting the traditional way
+		  const filename = document.getElementById('filename').value;
+	  
+		  fetch('/delete', {
+			method: 'DELETE',
+			headers: {
+			  'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ filename: filename }),
+		  })
+		  .then(response => response.json())
+		  .then(data => console.log('Success:', data))
+		  .catch((error) => console.error('Error:', error));
+		}
+	  </script>
+
+	<a href="index.html">Back to Home</a>
+</body>
+</html>
