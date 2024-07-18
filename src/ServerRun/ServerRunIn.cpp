@@ -129,9 +129,6 @@ void ServerRun::readRequest(int clientFd)
 		}
 		else if (_requests[clientFd]->getMethod(0) == "HEAD") // or anything that doesnt need READ file
 		{
-			Logger::log("Method atm polltype: " + std::to_string(_pollData[clientFd]._pollType), LogLevel::WARNING);
-			Logger::log("Method doesn't read because HEAD", ERROR);
-			Logger::log("client in readRequest: " + std::to_string(_requests[clientFd]->getClientFd()), WARNING);
 			Response *response = new Response(_requests[clientFd], clientFd, false);
 			_responses[clientFd] = response;
 			_pollData[clientFd]._pollType = FILE_READ_DONE;
@@ -144,7 +141,6 @@ void ServerRun::readRequest(int clientFd)
 			// else
 			handleStaticFileRequest(clientFd);
 		}
-		_requests.erase(clientFd);
 	}
 }
 

@@ -19,7 +19,8 @@ std::string Response::makeStrResponse(void)
 {
 	std::ostringstream oss;
 	std::string httpStatus = _request->getMethod(2);
-	oss << httpStatus << " 200 OK\r\n\r\n";
+	std::string code = std::to_string(_request->getErrorCode());
+	oss << httpStatus << " " << code << " OK\r\n\r\n";
 	oss << _response_text;
 
 	return oss.str();
