@@ -18,7 +18,7 @@ enum pollType
 	CGI_READ_WAITING,
 	CGI_READ_READING,
 	CGI_READ_DONE,
-	SEND_REDIR,
+	SEND_REDIR
 };
 
 typedef struct t_poll_data
@@ -61,7 +61,7 @@ class ServerRun
 	void readPipe(int fd);
 	void sendResponse(int fd);
 	void sendCgiResponse(int fd);
-	void sendRedir(int fd);
+	void sendError(int fd);
 
 	Server getConfig(int port);
 	Server getConfig(std::string host);

@@ -1,8 +1,9 @@
 NAME := exe
 CXX := c++
 
-CXXFLAGS := -std=c++20 -Wall -Wextra -g -fsanitize=address
-# CXXFLAGS := -Werror
+CXXFLAGS = -std=c++20 -Wall -Wextra -g 
+# CXXFLAGS += -fsanitize=address
+# CXXFLAGS += -Werror
 RM := rm -rf
 
 SRC_DIR := src
