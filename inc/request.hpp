@@ -69,6 +69,7 @@ class Request
 		std::string	getDeleteFilename(const std::string& httpRequest);
 		ErrorCode	getErrorCode();
 		std::string	getErrorString();
+		std::string	getFilePath();
 
 		// SET
 		void		setFileName(std::string newName);
@@ -92,13 +93,14 @@ class Request
 	private:
 		std::vector<std::string> _method;
 		std::vector<std::pair<std::string, std::string>>	_request;
-		std::string	_request_str; // parsed request string
+		std::string	_requestStr; // parsed request string
 		std::string	_boundary;
 		int			_clientFd;
-		std::string	_request_text;
+		std::string	_requestText;
 		bool		_doneReading;
 		std::string	_file;
-		uint32_t	_recv_bytes;
+		uint32_t	_recvBytes;
 		Server		_config;
 		ErrorCode	_errorCode;
+		std::string	_filePath;
 };

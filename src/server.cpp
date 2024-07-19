@@ -122,7 +122,7 @@ static std::list<s_redirect> defaultRedirect(){
 Server::Server(char **env):
 	_ports(defaultPorts()),
 	_name(defaultName()),
-	_root(defaultRoot(env)),
+	_root(defaultRoot(env) + "html/"),
 	_methods(defaultMethods()),
 	_cgi(true),
 	_maxBody(1048576),

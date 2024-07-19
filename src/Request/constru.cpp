@@ -111,13 +111,13 @@ Request::~Request() {}
 
 void Request::constructRequest(){
 	Logger::log("Constructor request call", INFO);
-	std::cout << _request_text << std::endl;
+	std::cout << _requestText << std::endl;
 
-	if (_request_text.empty())
+	if (_requestText.empty())
 		throw RequestException("Empty request");
 
-	fillBoundary(_request_text);
-	parseResponse(_request_text);	
+	fillBoundary(_requestText);
+	parseResponse(_requestText);	
 	setFile();
 
 	std::string method = getMethod(0);

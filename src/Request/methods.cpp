@@ -12,9 +12,9 @@ void Request::readRequest()
 		return;
 	}
 	buffer[rb] = '\0';
-	_recv_bytes += rb;
-	_request_text += std::string(buffer, rb);
-	if (_request_text.length() > _config.getMaxBody())
+	_recvBytes += rb;
+	_requestText += std::string(buffer, rb);
+	if (_requestText.length() > _config.getMaxBody())
 		throw Exception("Payload too large", 413);
 	if (rb < BUFFER_SIZE - 1)
 	{
@@ -101,14 +101,11 @@ bool Request::redirRequest405() // If Method not Allowed, redirects to Server 40
 
 bool Request::redirRequest404()
 {
-	std::string root = _config.getRoot();
 	if (_file == "/")
 		_file = "index.html";
-	root = root + "html/";
-	std::string filepath = root + _file;
-	std::cout << "checking file: " << filepath << std::endl;
-	std::cout << "FILE: " << _file << std::endl;
-	if (access(filepath.c_str(), F_OK) == -1) // If file does not exist
+	_filePath = _config.getRoot() + _file;
+	std::cout << "checking file: " << _filePath << std::endl;
+	if (access(_filePath.c_str(), F_OK) == -1) // If file does not exist
 	{
 		int found = false;
 		for (auto item : _config.getErrorPages())
@@ -120,8 +117,8 @@ bool Request::redirRequest404()
 			}
 		}
 		std::cout << "_file after looping errorpgs: " << _file << std::endl;
-		filepath = root + _file;
-		if (access(filepath.c_str(), F_OK) == -1 || !found)
+		_filePath = _config.getRoot() + _file;
+		if (access(_filePath.c_str(), F_OK) == -1 || !found)
 		{
 			return (false); // redirect to hardcoded 404 error
 		}
@@ -132,7 +129,7 @@ bool Request::redirRequest404()
 int Request::checkRequest() // Checking for 404 and 405 Errors
 {
 	//Temp check for Max code:
-	std::cout << "CHECKING REQUEST!!\n";
+	Logger::log("Checking request...", LogLevel::INFO);
 	if (!redirRequest405())
 	{
 		std::cout << "405!\n";
@@ -144,8 +141,6 @@ int Request::checkRequest() // Checking for 404 and 405 Errors
 		return (404);
 	}
 	return getErrorCode();
-	// std::cout << "0!\n";
-	// return (0);
 }
 
 void Request::remove(std::string &path){
@@ -199,7 +194,7 @@ void Request::handlePost(){
 }
 
 void Request::handleDelete(){
-	std::string file = getDeleteFilename(_request_text);
+	std::string file = getDeleteFilename(_requestText);
 	std::string path = getPath() + "/saved_files/" + file;
 
 	if (file == "")

@@ -9,7 +9,7 @@ std::vector<std::pair<std::string, std::string>> Request::getContent(){
 }
 
 std::string Request::getRequestStr(){
-	return (_request_str);
+	return (_requestStr);
 }
 
 std::string Request::getFile(){
@@ -144,4 +144,9 @@ std::string Request::getErrorString(){
 		return it->second;
 	}
 	return "Unknown Error";
+}
+
+std::string	Request::getFilePath()
+{
+	return (_filePath);
 }
