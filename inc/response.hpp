@@ -27,9 +27,7 @@ class Response {
 		std::string _response_text;
 		std::string	_html_file;
 		Request	*_request;
-		CGI *_cgi;
 		int	_clientFd;
-		int	_readFd;
 		bool _ready;
 		bool _default_error;
 		const std::unordered_map<std::string,std::string> contentType = {
