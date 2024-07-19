@@ -81,75 +81,70 @@ bool Request::redirRequest405() // If Method not Allowed, redirects to Server 40
 		
 	if (!_config.getMethod(index))
 	{
+		_errorCode = METHOD_NOT_ALLOWED;
 		int found = false;
 		for (auto item : _config.getErrorPages())
 		{
 			if (item.err == 405)
 			{
 				found = true;
+				_errorPageFound = true;
 				_file = item.url; // redir to error page on Server
 			}
 		}
 		std::string filepath = _config.getRoot() + _file;
 		if (access(filepath.c_str(), F_OK) == -1 || !found) // redirect to hardcoded 405 error
 		{
-			return (false);
+			_errorPageFound = false;
 		}
 	}
-	return (true);
+	return (_errorCode != 200);
 }
 
 bool Request::redirRequest404()
 {
-	std::string root = _config.getRoot();
 	if (_file == "/")
 		_file = "index.html";
-	root = root + "html/";
-	std::string filepath = root + _file;
-	std::cout << "checking file: " << filepath << std::endl;
-	std::cout << "FILE: " << _file << std::endl;
-	if (access(filepath.c_str(), F_OK) == -1) // If file does not exist
+	_filePath = _config.getRoot() + _file;
+	std::cout << "root: " << _config.getRoot() << std::endl;
+	std::cout << "file: " << _file << std::endl;
+	Logger::log("Checking file: " + _filePath, LogLevel::INFO);
+	if (access(_filePath.c_str(), F_OK) == -1) // If file does not exist
 	{
+		_errorCode = PAGE_NOT_FOUND;
 		int found = false;
 		for (auto item : _config.getErrorPages())
 		{
 			if (item.err == 404)
 			{
 				found = true;
+				_errorPageFound = true;
 				_file = item.url; // redir to error page on Server
 			}
 		}
-		std::cout << "_file after looping errorpgs: " << _file << std::endl;
-		filepath = root + _file;
-		if (access(filepath.c_str(), F_OK) == -1 || !found)
+		std::cout << "_File after looping errorpgs: " << _file << std::endl;
+		_filePath = _config.getRoot() + _file;
+		if (access(_filePath.c_str(), F_OK) == -1 || !found)
 		{
-			return (false); // redirect to hardcoded 404 error
+			_errorPageFound = false;
 		}
 	}
-	return (true);
+	return (_errorCode != 200);
 }
 
 int Request::checkRequest() // Checking for 404 and 405 Errors
 {
 	//Temp check for Max code:
-	std::cout << "CHECKING REQUEST!!\n";
-	if (!redirRequest405())
-	{
-		std::cout << "405!\n";
-		return (405);
-	}
+	Logger::log("Checking file...", LogLevel::INFO);
+	if (redirRequest405())
+		return (getErrorCode());
+	if (redirRequest404())
+		return (getErrorCode());
 	if (isRedirect()){
 		std::cout << "redirect, not 404!\n";
-		return (0);
-	}
-	if (!redirRequest404())
-	{
-		std::cout << "404!\n";
-		return (404);
+		return (200);
 	}
 	return getErrorCode();
-	// std::cout << "0!\n";
-	// return (0);
 }
 
 void Request::remove(std::string &path){
@@ -211,13 +206,13 @@ void Request::handleDelete(){
 
 	Logger::log("File to delete is : " + file + " Path: " + path, INFO);
 	if (!exists(path)){
-		_errorCode = ErrorCode::CODE_NOT_FOUND;
+		_errorCode = ErrorCode::PAGE_NOT_FOUND;
 		throw RequestException("File not deleted: doesn't exist", LogLevel::WARNING);
 	}
 
 	if (!verifyPath(path)){
 		//Not sure of error code
-		_errorCode = ErrorCode::CODE_NOT_FOUND;
+		_errorCode = ErrorCode::PAGE_NOT_FOUND;
 		throw RequestException("Path requiered not found, file tried to delete ../", LogLevel::ERROR);
 	}
 	Logger::log("File exist and will be deleted", INFO);

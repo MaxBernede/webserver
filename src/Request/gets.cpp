@@ -158,3 +158,12 @@ s_domain Request::getRequestDomain(){
 	throw (Exception("Port not found", 404));	
 }
 
+std::string	Request::getFilePath()
+{
+	return (_filePath);
+}
+
+bool Request::getErrorPageStatus()
+{
+	return (_errorPageFound);
+}

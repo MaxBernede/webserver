@@ -46,11 +46,12 @@ void ServerRun::handleCGIRequest(int clientFd)
 
 void ServerRun::handleStaticFileRequest(int clientFd)
 {
-	// TODO check if _requests[clientFd]->getFileName() is defined in the configs redirect
-	std::string fileName = _requests[clientFd]->getFileName(); //! WARNING FILENAME CHANGED
-	if (fileName.empty() || fileName == "/") // this fix have been added because no possible skip for this function
-		fileName = "index.html"; // This needs to be changed, temporary here for the HEAD request
-	std::string filePath = _requests[clientFd]->getConfig().getRoot() + "html/" + fileName; // TODO root path based on config
+	// // TODO check if _requests[clientFd]->getFileName() is defined in the configs redirect
+	// std::string fileName = _requests[clientFd]->getFileName(); //! WARNING FILENAME CHANGED
+	// if (fileName.empty() || fileName == "/") // this fix have been added because no possible skip for this function
+	// 	fileName = "index.html"; // This needs to be changed, temporary here for the HEAD request
+	// std::string filePath = _requests[clientFd]->getConfig().getRoot() + "html/" + fileName; // TODO root path based on config
+	std::string filePath = _requests[clientFd]->getFilePath();
 	std::cout << "Opening static file: " << filePath << std::endl;
 	int fileFd = open(filePath.c_str(), O_RDONLY);
 	if (fileFd < 0)
@@ -116,7 +117,7 @@ void ServerRun::readRequest(int clientFd)
 		int ErrCode = _requests[clientFd]->checkRequest(); // Max code : this is a request.getErrorCode();
 		Logger::log("ErrorCode: " + std::to_string(ErrCode), LogLevel::INFO);
 		//if (ErrCode != 0) //Yesim code
-		if (ErrCode != 200)
+		if (ErrCode != 200 && _requests[clientFd]->getErrorPageStatus() == false)
 		{
 			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 			redirectToError(ErrCode, _requests[clientFd], clientFd);

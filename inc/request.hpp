@@ -12,7 +12,8 @@ enum ErrorCode {
     OK = 200,
 	NO_CONTENT = 204,
     FORBIDDEN = 403,
-    CODE_NOT_FOUND = 404,
+    PAGE_NOT_FOUND = 404,
+	METHOD_NOT_ALLOWED = 405,
     CONFLICT = 409,
 	INTERNAL_SRV_ERR = 500
 };
@@ -70,6 +71,8 @@ class Request
 		std::string	getDeleteFilename(const std::string& httpRequest);
 		ErrorCode	getErrorCode();
 		std::string	getErrorString();
+		std::string	getFilePath();
+		bool		getErrorPageStatus();
 
 		// SET
 		void		setFileName(std::string newName);
@@ -105,4 +108,6 @@ class Request
 		uint32_t	_recv_bytes;
 		Server		_config;
 		ErrorCode	_errorCode;
+		std::string	_filePath;
+		bool		_errorPageFound;
 };
