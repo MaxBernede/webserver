@@ -273,7 +273,7 @@ void	Request::configConfig(){
 	std::list<Location> locs = _config.getLocation();
 	for (Location loc : locs){
 		std::cout << "TEMP\t" << temp << "\tLOC\t" << loc.getName() << std::endl;
-		if (temp == loc.getName()){
+		if (temp == loc.getName() || (temp == loc.getRoot() && loc.getRoot() != _config.getRoot())){
 			std::cout << "IS LOCATION" << std::endl;
 			_config.setRoot(loc.getRoot());
 			for (int i = GET; i <= TRACE; i++)
