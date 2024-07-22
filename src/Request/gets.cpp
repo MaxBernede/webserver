@@ -45,7 +45,7 @@ std::string	Request::getRequestHost()
 }
 
 std::string Request::getFileNameProtected( void ){
-	if (_file != "/")
+	if (_file != "")
 		return _file;
 	return (_config.getIndex());
 }
@@ -63,7 +63,7 @@ std::string Request::getFileName( void )
 	// 		return "";
 	// }
 	// std::string html_file = firstWord(val);
-	// if (html_file == "/")
+	// if (html_file == "")
 	// 	return *(_config.getIndex()).begin(); //TODO: make it modular according to config
 	// return html_file;
 }

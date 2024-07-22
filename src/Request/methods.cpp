@@ -65,6 +65,34 @@ void Request::printAllData(){
 		Logger::log(pair.first + ": " + pair.second, DEBUG);
 }
 
+bool Request::redirRequest501()
+{
+	std::string method = getMethod(0);
+	if (method == "GET" || method == "POST" || method == "DELETE")
+		_errorCode = OK;
+	else
+		_errorCode = METHOD_NOT_IMPLEMENTED;
+	if (_errorCode != OK)
+	{
+		int found = false;
+		for (auto item : _config.getErrorPages())
+		{
+			if (item.err == 501)
+			{
+				found = true;
+				_errorPageFound = true;
+				_file = item.url; // redir to error page on Server
+			}
+		}
+		std::string filepath = _config.getRoot() + _file;
+		if (access(filepath.c_str(), F_OK) == -1 || !found) // redirect to hardcoded 501 error?
+		{
+			_errorPageFound = false;
+		}
+	}
+	return (_errorCode != 200);
+}
+
 bool Request::redirRequest405() // If Method not Allowed, redirects to Server 405
 {
 	std::string method = getMethod(0);
@@ -103,8 +131,8 @@ bool Request::redirRequest405() // If Method not Allowed, redirects to Server 40
 
 bool Request::redirRequest404()
 {
-	if (_file == "/")
-		_file = "index.html";
+	if (_file == "")
+		_file = _config.getIndex();
 	_filePath = _config.getRoot() + _file;
 	std::cout << "root: " << _config.getRoot() << std::endl;
 	std::cout << "file: " << _file << std::endl;
@@ -138,11 +166,11 @@ int Request::checkRequest() // Checking for 404 and 405 Errors
 	Logger::log("Checking file...", LogLevel::INFO);
 	if (redirRequest405())
 		return (getErrorCode());
-	if (redirRequest404())
-		return (getErrorCode());
 	if (isRedirect()){
 		std::cout << "redirect, not 404!\n";
 		return (200);
+	if (redirRequest404())
+		return (getErrorCode());
 	}
 	return getErrorCode();
 }

@@ -51,7 +51,7 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 	// if (fileName.empty() || fileName == "/") // this fix have been added because no possible skip for this function
 	// 	fileName = "index.html"; // This needs to be changed, temporary here for the HEAD request
 	// std::string filePath = _requests[clientFd]->getConfig().getRoot() + "html/" + fileName; // TODO root path based on config
-	std::string filePath = _requests[clientFd]->getFilePath();
+	std::string filePath = _requests[clientFd]->getConfig().getRoot() + _requests[clientFd]->getFileName();
 	std::cout << "Opening static file: " << filePath << std::endl;
 	int fileFd = open(filePath.c_str(), O_RDONLY);
 	if (fileFd < 0)
@@ -105,15 +105,16 @@ void ServerRun::readRequest(int clientFd)
 	}
 	if (_requests[clientFd]->isDoneReading() == true)
 	{
-		int port = _requests[clientFd]->getRequestPort();
-		if (port < 0)
-		{
-			throw Exception("Port not found", errno);
-			exit(1);
-		}
-		Server config = getConfig(port);
-		//TODO if server == not found, error should be thrown, please catch
+		// int port = _requests[clientFd]->getRequestPort();
+		// if (port < 0)
+		// {
+		// 	throw Exception("Port not found", errno);
+		// 	exit(1);
+		// }
+		s_domain Domain = _requests[clientFd]->getRequestDomain();
+		Server config = getConfig(Domain);
 		_requests[clientFd]->setConfig(config);
+		_requests[clientFd]->configConfig();
 		int ErrCode = _requests[clientFd]->checkRequest(); // Max code : this is a request.getErrorCode();
 		Logger::log("ErrorCode: " + std::to_string(ErrCode), LogLevel::INFO);
 		//if (ErrCode != 0) //Yesim code
@@ -124,28 +125,40 @@ void ServerRun::readRequest(int clientFd)
 			return ;
 		}
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-		if (_requests[clientFd]->isCgi()) // What do we do when CGI is not allowed?
-		{
-			if (!config.getCGI())
+		if (_requests[clientFd]->isRedirect()){
+			// printColor(RED, "HTTP REDIRECT\n");
+			int temp = dup(clientFd);
+			_requests[temp] = _requests[clientFd];
+			if (_responses.find(clientFd) == _responses.end()) {
+				Response *response = new Response(_requests[temp], clientFd, false);
+				_responses[clientFd] = response;
+			}
+			addQueue(HTTP_REDIRECT, temp);
+		}
+		else {
+			if (_requests[clientFd]->isCgi()) // What do we do when CGI is not allowed?
 			{
-				std::cout << "CGI is not allowed for this server\n";
+				if (!config.getCGI())
+				{
+					std::cout << "CGI is not allowed for this server\n";
+					return ;
+				}
+				handleCGIRequest(clientFd);
+			}
+			else if (_requests[clientFd]->getMethod(0) == "HEAD") // or anything that doesnt need READ file
+			{
+				Response *response = new Response(_requests[clientFd], clientFd, false);
+				_responses[clientFd] = response;
+				_pollData[clientFd]._pollType = FILE_READ_DONE;
 				return ;
 			}
-			handleCGIRequest(clientFd);
-		}
-		else if (_requests[clientFd]->getMethod(0) == "HEAD") // or anything that doesnt need READ file
-		{
-			Response *response = new Response(_requests[clientFd], clientFd, false);
-			_responses[clientFd] = response;
-			_pollData[clientFd]._pollType = FILE_READ_DONE;
-			return ;
-		}
-		else // Static file
-		{
-			// if (_requests[clientFd]->getMethod(0) == "HEAD")
-			// 	Logger::log("Method doesn't read because HEAD", INFO);
-			// else
-			handleStaticFileRequest(clientFd);
+			else // Static file
+			{
+				// if (_requests[clientFd]->getMethod(0) == "HEAD")
+				// 	Logger::log("Method doesn't read because HEAD", INFO);
+				// else
+				handleStaticFileRequest(clientFd);
+			}
 		}
 	}
 	//_requests.erase(clientFd);

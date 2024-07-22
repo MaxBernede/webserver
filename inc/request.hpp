@@ -15,7 +15,8 @@ enum ErrorCode {
     PAGE_NOT_FOUND = 404,
 	METHOD_NOT_ALLOWED = 405,
     CONFLICT = 409,
-	INTERNAL_SRV_ERR = 500
+	INTERNAL_SRV_ERR = 500,
+	METHOD_NOT_IMPLEMENTED = 501
 };
 
 #define METHODS {"GET",	"POST",	"DELETE", "PUT", "PATCH", "CONNECT", "OPTIONS", "TRACE"}
@@ -84,6 +85,7 @@ class Request
 		bool		isCgi(); // boolean to tell if request is Cgi
 		bool		isDoneReading();
 		bool		isBoundary(const std::string &line);
+		bool		redirRequest501();
 		bool		redirRequest405();
 		bool		redirRequest404();
 		void		handleDelete();

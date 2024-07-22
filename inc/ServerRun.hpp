@@ -66,6 +66,7 @@ class ServerRun
 	void sendCgiResponse(int fd);
 	void sendError(int fd);
 
+	Server getConfig(s_domain port);
 	Server getConfig(int port);
-	Server getConfig(std::string host);
+	// Server getConfig(std::string host);
 };

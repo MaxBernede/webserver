@@ -9,7 +9,8 @@ void Request::setFileName(std::string newName){
 // Max : is it maintanable ?
 void Request::setFile() {
 	_file = getMethod(1);
-	if (_file == "/")
+	_file.erase(0, 1);
+	if (_file == "")
 	{
 		_file = _config.getIndex();
 	}
@@ -106,7 +107,7 @@ Request::~Request() {}
 
 void Request::constructRequest(){
 	Logger::log("Constructor request call", INFO);
-	std::cout << _request_text << std::endl;
+	// std::cout << _request_text << std::endl;
 
 	if (_request_text.empty())
 		throw RequestException("Empty request");

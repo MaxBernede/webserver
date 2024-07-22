@@ -139,16 +139,16 @@ Server ServerRun::getConfig(int port) // WILL ADD HOST
 	throw(Exception("Server not found", 1));
 }
 
-Server ServerRun::getConfig(std::string host)
-{
-	for (auto server : _servers)
-	{
-		if (server.getName() == host)
-		{
-			return (server);
+Server ServerRun::getConfig(s_domain port){
+	for (auto server : _servers){
+		for (auto p : server.getPorts()){
+			if (p.port == port.port && p.host == port.host){
+				return (server);
+			}
 		}
 	}
-	throw Exception("Server not found", 1);
+	throw (Exception("Server not found", 404));
+	return (nullptr);
 }
 
 void ServerRun::removeConnection(int fd)

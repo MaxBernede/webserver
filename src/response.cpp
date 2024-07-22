@@ -42,9 +42,9 @@ void Response::rSend( void )
 	std::string response = _response_text;
 	if (!_default_error)
 		response = makeStrResponse();
-	std::cout << "_______________________________________________\n";
-	std::cout << "Message to send =>\n" << response << std::endl;
-	std::cout << "_______________________________________________\n";
+	// std::cout << "_______________________________________________\n";
+	// std::cout << "Message to send =>\n" << response << std::endl;
+	// std::cout << "_______________________________________________\n";
 	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
 	{
 		std::cout << "ERROR with SEND " << _clientFd << std::endl;

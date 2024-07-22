@@ -57,7 +57,7 @@ void ServerRun::sendCgiResponse(int fd)
 
 void ServerRun::sendError(int clientFd)
 {
-	Logger::log("Sending Redir msg", INFO);
+	Logger::log("Sending Error Redir", INFO);
 	//std::cout << "SENDING REDIR ERROR" << std::endl;
 	Response *r = _responses[clientFd];
 	r->rSend();
@@ -73,6 +73,30 @@ void ServerRun::sendError(int clientFd)
 		_requests.erase(clientFd);
 	}
 	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY; // But did I not close this?
+}
+
+void ServerRun::sendRedirect(int fd)
+{
+	// Logger::log("Sending HTTP Redir", INFO);
+	std::cout << "SENDING HTTP REDIRECT" << std::endl;
+	int clientFd = _requests[fd]->getClientFd();
+	Response *r = _responses[clientFd];
+	r->redirectResponse();
+	close(clientFd);
+	removeConnection(fd);
+	if (_responses.count(clientFd) == 1){
+		delete _responses[clientFd];
+		_responses.erase(clientFd);
+	}
+	if (_requests.count(fd) == 1){
+		delete _requests[fd];
+		_requests.erase(fd);
+	}
+	if (!_responses.count(clientFd) and !_requests.count(fd)){
+		close(clientFd);
+		removeConnection(clientFd);
+	}
+	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
 
 void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
@@ -95,30 +119,4 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 		default:
 			break ;
 	}
-}
-
-void ServerRun::sendRedirect(int fd){
-	std::cout << "SENDING HTTP REDIRECT" << std::endl;
-	int clientFd = _requests[fd]->getClientFd();
-	// std::cout << "not working?\t" << clientFd << std::endl;
-	Response *r = _responses[clientFd];
-	r->redirectResponse();
-	close(clientFd);
-	removeConnection(fd);
-	if (_responses.count(clientFd) == 1){
-		std::cout << "1\n";
-		delete _responses[clientFd];
-		_responses.erase(clientFd);
-	}
-	if (_requests.count(fd) == 1){
-		std::cout << "2\n";
-		delete _requests[fd];
-		_requests.erase(fd);
-	}
-	if (!_responses.count(clientFd) and !_requests.count(fd)){
-		std::cout << "3\n";
-		close(clientFd);
-		removeConnection(clientFd);
-	}
-	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
