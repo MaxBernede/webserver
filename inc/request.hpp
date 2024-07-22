@@ -18,6 +18,12 @@ enum ErrorCode {
 	INTERNAL_SRV_ERR = 500
 };
 
+enum methodField {
+	METHOD,
+	LINK,
+	HTML_TYPE,
+};
+
 #define METHODS {"GET",	"POST",	"DELETE", "PUT", "PATCH", "CONNECT", "OPTIONS", "TRACE"}
 
 class RequestException : public std::exception {
@@ -46,7 +52,7 @@ class Request
 		//constructors
 		Request(int clientFd);
 		~Request();
-		void	constructRequest();
+		void		constructRequest();
 
 		void		fillBoundary(std::string text);
 		std::string	getValues(std::string key);
@@ -59,6 +65,7 @@ class Request
 		//GET
 		std::string	getFile();
 		std::string	getFileName();
+		std::string	getServerName();
 		int			getClientFd();
 		int			getRequestPort();
 		s_domain	getRequestDomain(); //dup of getrequesthost

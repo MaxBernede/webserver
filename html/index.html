@@ -7,14 +7,32 @@
 </head>
 <body>
 	<h1>Welcome to our Webserv project</h1>
-	<p>This is a simple index page.</p>
+	<p>Try the following:</p>
 	<ul>
+	    <li>What shall we call you?</li>
+		<form id="cookieForm">
+        	<label for="username"></label>
+       		<input type="text" id="username" name="username">
+        	<button type="button" onclick="setCookie()">Set Nickname</button>
+    	</form>
 		<li><a href="page1.html">Page 1 with image</a></li>
 		<li><a href="page2.html">Page 2, plain text</a></li>
 		<li><a href="test.html">Test, not sure what this is</a></li>
 		<li><a href="cgi-bin/python.cgi">Test CGI-Python</a></li>
+		<li><a href="cgi-bin/bash.cgi">Test CGI-Bash</a></li>
+
 		<p>Note : some pages don't exist yet, thats why there is a redirection to the error page</p>
 		<p>the page are only accessibles if they are found in the html folder</p>
 	</ul>
 </body>
+<script>
+        function setCookie() {
+            const username = document.getElementById('username').value;
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (3600 * 1000)); // 1 hour
+            const expiresString = "expires=" + expires.toUTCString();
+            document.cookie = `username=${username}; ${expiresString}; path=/`;
+            alert('Cookie has been set!');
+        }
+</script>
 </html>

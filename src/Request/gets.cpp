@@ -167,3 +167,9 @@ bool Request::getErrorPageStatus()
 {
 	return (_errorPageFound);
 }
+
+std::string	Request::getServerName()
+{
+	return (_config.getName());
+}
+
