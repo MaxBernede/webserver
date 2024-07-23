@@ -34,9 +34,6 @@ class ServerRun
 	private:
 		std::list<Server> _servers; // Server blocks from config file
 		std::vector<Socket *> _listenSockets; // Listener sockets 
-		std::unordered_map<int, Request *> _requests; // Request (not cgi)
-		std::unordered_map<int, CGI *> _cgi; // Cgi requests, int: pollFd (clientFd) -> create response
-		std::unordered_map<int, Response *> _responses; // Responses to be sent, int: pollFd to write to
 		std::unordered_map<int, HTTPObject *> _httpObjects;
 		std::unordered_map<int, s_poll_data> _pollData; // int: polFd
 		std::vector<struct pollfd> _pollFds; // vector to pass to poll
@@ -59,7 +56,7 @@ class ServerRun
 	void handleCGIRequest(int clientFd);
 	void handleStaticFileRequest(int clientFd);
 
-	void redirectToError(int ErrCode, Request *request, int clientFd); // Redirect to 404, 405
+	void redirectToError(int ErrCode, int clientFd); // Redirect to 404, 405
 	
 	void readFile(int fd);
 	void readPipe(int fd);

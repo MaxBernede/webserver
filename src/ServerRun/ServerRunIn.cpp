@@ -70,7 +70,7 @@ std::string filePath = _httpObjects[clientFd]->_request->getFilePath();
 }
 
 // Only handles 404 and 405
-void ServerRun::redirectToError(int ErrCode, Request *request, int clientFd)
+void ServerRun::redirectToError(int ErrCode, int clientFd)
 {
 	//check this code to implement the no reply 204 case of successfull delete or stuff like that
 	// if (_responses.find(clientFd) == _responses.end()) 
@@ -125,7 +125,7 @@ void ServerRun::readRequest(int clientFd)
 		if (ErrCode != 200 && _httpObjects[clientFd]->_request->getErrorPageStatus() == false)
 		{
 			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-			redirectToError(ErrCode, _requests[clientFd], clientFd);
+			redirectToError(ErrCode, clientFd);
 			return ;
 		}
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
