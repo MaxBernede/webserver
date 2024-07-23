@@ -4,6 +4,7 @@
 #include "webserver.hpp"
 
 class CGI;
+class HTTPObject;
 
 // For each server, you need a different listening socket for each port....
 enum pollType
@@ -66,6 +67,8 @@ class ServerRun
 	void sendRedirect(int fd);
 	void sendCgiResponse(int fd);
 	void sendError(int fd);
+
+	HTTPObject *findHTTPObject(int readFd);
 
 	Server getConfig(int port);
 	Server getConfig(std::string host);

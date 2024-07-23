@@ -11,11 +11,11 @@ class CGI;
 class Response {
 	public:
 	//	Response(Request *req, int clientFd, bool def_error);
-		Response();
+		Response(int clientFd);
 		~Response();
 
 		//Members functions
-		std::string makeStrResponse( void );
+		std::string makeStrResponse(Request *request);
 		void addToBuffer(std::string buffer);
 		void setResponseString(std::string response);
 		void setReady( void );
@@ -24,6 +24,7 @@ class Response {
 	// 	std::string redirectResponse( void );
 	 
 	private:
+		int			_clientFd;
 		std::string _file;
 		std::string _response_text;
 		//std::string	_html_file;

@@ -15,7 +15,7 @@
 
 Response::Response(int clientFd) : _clientFd(clientFd), _ready(false), _default_error(false)
 {
-	_response_text = ""
+	_response_text = "";
 }
 
 Response::~Response() {}
@@ -45,14 +45,14 @@ void Response::rSend( Request *request )
 	// 	std::cout << "Hey riends" << std::endl;
 	// Logger::log(_response_text, WARNING);
 	std::string response = _response_text;
-	if (!_default_error)
-		response = makeStrResponse();
+	// if (!_default_error)
+		response = makeStrResponse(request);
 	std::cout << "_______________________________________________\n";
 	std::cout << "Message to send =>\n" << response << std::endl;
 	std::cout << "_______________________________________________\n";
 	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
 	{
-		std::cout << "ERROR with SEND " << clientFd << std::endl;
+		std::cout << "ERROR with SEND " << _clientFd << std::endl;
 		throw(Exception("Error sending response", errno));
 	}
 }

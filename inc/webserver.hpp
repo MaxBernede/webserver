@@ -46,4 +46,4 @@
 #include "CGI.hpp"
 #include "error.hpp"
 #include "fileHandling.hpp"
-#include "HTTPObject"
+#include "HTTPObject.hpp"

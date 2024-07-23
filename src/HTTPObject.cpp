@@ -1,14 +1,29 @@
 #include "webserver.hpp"
 
 HTTPObject::HTTPObject(int clientFd) : 
-				_clientFd(clientFd),
-				_isCgi(false)
+				_clientFd(clientFd)
 {
 	_request = new Request(clientFd);
-	_response = new Response();
+	_response = new Response(clientFd);
 }
 
 HTTPObject::~HTTPObject(void){}
+
+std::string HTTPObject::redirectResponse(void)
+{
+	std::string oss = _response->redirectResponse(_clientFd, _request->getFileNameProtected(), _request->getConfig().getRedirect());
+	return (oss);
+}
+
+void HTTPObject::createCGI()
+{
+	_cgi = new CGI(_request, _clientFd);
+}
+
+void	HTTPObject::sendResponse(void)
+{
+	_response->rSend(_request);
+}
 
 void	HTTPObject::setConfig(Server config)
 {
@@ -16,20 +31,19 @@ void	HTTPObject::setConfig(Server config)
 	_request->setConfig(config);
 }
 
-std::string HTTPObject::redirectResponse(void)
+void	HTTPObject::setReadFd(int fd)
 {
-	std::string oss = _reponse.redirectResponse(_clientFd, _request->getFileNameProtected(), _request->getConfig().getRedirect());
-	return (oss);
+	_readFd = fd;
 }
 
-void	HTTPObject::sendResponse(void)
+int	HTTPObject::getReadFd(void)
 {
-	_reponse.rSend(_request);
+	return (_readFd);
 }
 
 bool	HTTPObject::isCgi(void)
 {
-	return (_isCgi);
+	return (_request->isCgi());
 }
 
 int		HTTPObject::getClientFd(void)

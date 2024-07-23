@@ -124,18 +124,19 @@ void ServerRun::serverRunLoop( void )
 /// TODO check functions with same name
 Server ServerRun::getConfig(int clientFd) // WILL ADD HOST
 {
-	int port = _httpObjects[clientFd]->_request.getRequestPort();
+	int port = _httpObjects[clientFd]->_request->getRequestPort();
+	std::cout << "port: " << port << std::endl;
 	if (port < 0)
 	{
 		throw Exception("Port not found", errno);
 	}
-	Server config = getConfig(port);
 	for (auto server : _servers)
 	{
 		for (auto p : server.getPorts())
 		{
 			if (p.port == port)
 			{
+				std::cout << "returning server\n";
 				return (server);
 			}
 		}
@@ -169,6 +170,16 @@ void ServerRun::removeConnection(int fd)
 		_pollData.erase(fd);
 }
 
+HTTPObject *ServerRun::findHTTPObject(int readFd)
+{
+	for (auto& pair : _httpObjects)
+	{
+		if (pair.second->getReadFd() == readFd) {
+		    return pair.second;
+		}
+	}
+	return nullptr; // Return nullptr if not found
+}
 
 /*
 

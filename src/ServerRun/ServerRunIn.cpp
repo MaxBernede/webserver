@@ -36,11 +36,15 @@ void ServerRun::acceptNewConnection(int listenerFd)
 void ServerRun::handleCGIRequest(int clientFd)
 {
 	std::cout << "CGI Request\n";
-	CGI *cgiRequest = new CGI(_requests[clientFd], clientFd);
-	int pipeFd = cgiRequest->getReadFd();
-	_cgi[pipeFd] = cgiRequest;
+	// CGI *cgiRequest = new CGI(_requests[clientFd], clientFd);
+	// int pipeFd = cgiRequest->getReadFd();
+	// _cgi[pipeFd] = cgiRequest;
+	// cgiRequest->runCgi();
+	_httpObjects[clientFd]->createCGI();
+	int pipeFd = _httpObjects[clientFd]->_cgi->getReadFd();
+	_httpObjects[clientFd]->setReadFd(pipeFd);
 	addQueue(CGI_READ_WAITING, pipeFd);
-	cgiRequest->runCgi();
+	_httpObjects[clientFd]->_cgi->runCgi();
 }
 
 void ServerRun::handleStaticFileRequest(int clientFd)
@@ -50,7 +54,8 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 	// if (fileName.empty() || fileName == "/") // this fix have been added because no possible skip for this function
 	// 	fileName = "index.html"; // This needs to be changed, temporary here for the HEAD request
 	// std::string filePath = _requests[clientFd]->getConfig().getRoot() + "html/" + fileName; // TODO root path based on config
-	std::string filePath = _httpObjects[clientFd]->_requests.getFilePath();
+	
+std::string filePath = _httpObjects[clientFd]->_request->getFilePath();
 	std::cout << "Opening static file: " << filePath << std::endl;
 	int fileFd = open(filePath.c_str(), O_RDONLY);
 	if (fileFd < 0)
@@ -59,7 +64,8 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 		throw(Exception("Opening static file failed", errno));
 	}
 	Logger::log("File correctly opened", INFO);
-	_requests[fileFd] = _requests[clientFd]; // TODO: We need to add the request header reading in here too
+	_httpObjects[clientFd]->setReadFd(fileFd);
+	//_requests[fileFd] = _requests[clientFd]; // TODO: We need to add the request header reading in here too
 	addQueue(FILE_READ_READING, fileFd);
 }
 
@@ -67,22 +73,34 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 void ServerRun::redirectToError(int ErrCode, Request *request, int clientFd)
 {
 	//check this code to implement the no reply 204 case of successfull delete or stuff like that
-	if (_responses.find(clientFd) == _responses.end()) 
-	{
-		Response *response = new Response(request, clientFd, true);
-		if (ErrCode == 404)
-			response->setResponseString(NOT_FOUND);
-		if (ErrCode == 405)
-			response->setResponseString(NOT_ALLOWED);
-		if (ErrCode == NO_CONTENT)
-			response->setResponseString("HTTP/1.1 204 No Content");
-		if (ErrCode == ErrorCode::CONFLICT)
-			response->setResponseString(HTTP_CONFLICT_RESPONSE);
-		if (ErrCode == ErrorCode::FORBIDDEN)
-			response->setResponseString(HTTP_FORBIDDEN_RESPONSE);
-		_responses[clientFd] = response;
-		_pollData[clientFd]._pollType = SEND_REDIR;
-	}
+	// if (_responses.find(clientFd) == _responses.end()) 
+	// {
+	// 	Response *response = new Response(request, clientFd, true);
+	// 	if (ErrCode == 404)
+	// 		response->setResponseString(NOT_FOUND);
+	// 	if (ErrCode == 405)
+	// 		response->setResponseString(NOT_ALLOWED);
+	// 	if (ErrCode == NO_CONTENT)
+	// 		response->setResponseString("HTTP/1.1 204 No Content");
+	// 	if (ErrCode == ErrorCode::CONFLICT)
+	// 		response->setResponseString(HTTP_CONFLICT_RESPONSE);
+	// 	if (ErrCode == ErrorCode::FORBIDDEN)
+	// 		response->setResponseString(HTTP_FORBIDDEN_RESPONSE);
+	// 	_responses[clientFd] = response;
+	// 	_pollData[clientFd]._pollType = SEND_REDIR;
+	// }
+	HTTPObject *obj = _httpObjects[clientFd];
+	if (ErrCode == 404)
+		obj->_response->setResponseString(NOT_FOUND);
+	if (ErrCode == 405)
+		obj->_response->setResponseString(NOT_ALLOWED);
+	if (ErrCode == NO_CONTENT)
+		obj->_response->setResponseString("HTTP/1.1 204 No Content");
+	if (ErrCode == ErrorCode::CONFLICT)
+		obj->_response->setResponseString(HTTP_CONFLICT_RESPONSE);
+	if (ErrCode == ErrorCode::FORBIDDEN)
+		obj->_response->setResponseString(HTTP_FORBIDDEN_RESPONSE);
+	_pollData[clientFd]._pollType = SEND_REDIR;
 }
 
 // Only continue after reading the whole request
@@ -91,18 +109,20 @@ void ServerRun::readRequest(int clientFd)
 	if (_httpObjects.find(clientFd) == _httpObjects.end())
 	{
 		HTTPObject *newObj = new HTTPObject(clientFd);
-		_httpObjects[clientFd] = newObject;
+		_httpObjects[clientFd] = newObj;
 	}
-	if (_httpObjects[clientFd]->_request.isDoneReading() == false)
+	if (_httpObjects[clientFd]->_request->isDoneReading() == false)
 	{
-		_httpObject[clientFd]._requests[clientFd]->readRequest();
+		std::cout << "reading\n";
+		_httpObjects[clientFd]->_request->readRequest();
 	}
-	else 
+	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
-		Server config = getConfig(_httpObjects[clientFd]->_request.getRequestPort());
+		std::cout << "managing\n";
+		Server config = getConfig(clientFd);
 		_httpObjects[clientFd]->setConfig(config);
-		int ErrCode = _httpObjects[clientFd]->_requests.checkRequest(); 
-		if (ErrCode != 200 && _requests[clientFd]->getErrorPageStatus() == false)
+		int ErrCode = _httpObjects[clientFd]->_request->checkRequest(); 
+		if (ErrCode != 200 && _httpObjects[clientFd]->_request->getErrorPageStatus() == false)
 		{
 			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 			redirectToError(ErrCode, _requests[clientFd], clientFd);
@@ -118,7 +138,7 @@ void ServerRun::readRequest(int clientFd)
 			}
 			handleCGIRequest(clientFd);
 		}
-		else if (_httpObjects[clientFd]->_request.getMethod(0) == "HEAD") // or anything that doesnt need READ file
+		else if (_httpObjects[clientFd]->_request->getMethod(0) == "HEAD") // or anything that doesnt need READ file
 		{
 			_pollData[clientFd]._pollType = FILE_READ_DONE;
 			return ;
@@ -186,60 +206,62 @@ void ServerRun::readFile(int fd) // Static file fd
 	char buffer[BUFFER_SIZE];
 
 	memset(buffer, '\0', BUFFER_SIZE);
-	int clientFd = _requests[fd]->getClientFd();
-	if (_responses.find(clientFd) == _responses.end()) // Response object not created
-	{
-		Response *response = new Response(_requests[fd], clientFd, false);
-		_responses[clientFd] = response;
-	}
+	// int clientFd = _requests[fd]->getClientFd();
+	// if (_responses.find(clientFd) == _responses.end()) // Response object not created
+	// {
+	// 	Response *response = new Response(_requests[fd], clientFd, false);
+	// 	_responses[clientFd] = response;
+	// }
+	HTTPObject *obj = findHTTPObject(fd);
 	int readChars = read(fd, buffer, BUFFER_SIZE - 1);
 	if (readChars < 0)
 		throw(Exception("Read file failed", errno));
 	if (readChars > 0)
 	{
-		_responses[clientFd]->addToBuffer(std::string(buffer, readChars));
+		obj->_response->addToBuffer(std::string(buffer, readChars));
 	}
 	if (readChars == 0)
 	{
 		_pollData[fd]._pollType = FILE_READ_DONE;
-		_responses[clientFd]->setReady();
+		obj->_response->setReady();
 		close(fd);
 	}
+
 }
 
-void ServerRun::readPipe(int fd) // Pipe read end fd
+void ServerRun::readPipe(int fd) // Pipe read-end fd
 {
-	if (_cgi[fd]->waitCgiChild())
-	{
+	// if (_cgi[fd]->waitCgiChild())
+	// {
 		char buffer[BUFFER_SIZE];
 
-		for (int i = 0; i < BUFFER_SIZE; i++)
-			buffer[i] = '\0';
-		int clientFd = _cgi[fd]->getClientFd();
-		if (_responses.find(clientFd) == _responses.end()) // Response object not created
-		{
-			Response *response = new Response(_cgi[fd]->getRequest(), clientFd, false);
-			_responses[clientFd] = response;
-		}
+		memset(buffer, '\0', BUFFER_SIZE);
+		HTTPObject *obj = findHTTPObject(fd);
+		// int clientFd = _cgi[fd]->getClientFd();
+		// if (_responses.find(clientFd) == _responses.end()) // Response object not created
+		// {
+		// 	Response *response = new Response(_cgi[fd]->getRequest(), clientFd, false);
+		// 	_responses[clientFd] = response;
+		// }
 		int readChars = read(fd, buffer, BUFFER_SIZE - 1);
 		if (readChars < 0)
 			throw(Exception("Read pipe failed!", errno));
 		if (readChars > 0)
 		{
-			_responses[clientFd]->addToBuffer(std::string(buffer, readChars));
+			obj->_response->addToBuffer(std::string(buffer, readChars));
 		}
 		if (readChars < BUFFER_SIZE - 1)
 		{
 			_pollData[fd]._pollType = CGI_READ_DONE;
-			_responses[clientFd]->setReady();
+			obj->_response->setReady();
 			close(fd);
 		}
-	}
+	// }
 }
 
 void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd)
-{
-	// std::cout << "Poll FD: " << pollFd.fd << " Poll type: " << pollData.pollType << std::endl;
+{	
+	std::cout << "Data in..." << std::endl;
 	switch (pollData._pollType)
 	{
 		case LISTENER:
