@@ -55,18 +55,16 @@ class ServerRun
 
 	void handleCGIRequest(int clientFd);
 	void handleStaticFileRequest(int clientFd);
-
 	void redirectToError(int ErrCode, int clientFd); // Redirect to 404, 405
 	
 	void readFile(int fd);
 	void readPipe(int fd);
 	void sendResponse(int fd);
 	void sendRedirect(int fd);
-	void sendCgiResponse(int fd);
 	void sendError(int fd);
 
 	HTTPObject *findHTTPObject(int readFd);
-
-	Server getConfig(int port);
-	Server getConfig(std::string host);
+	void		cleanUp(int clientFd);
+	Server 		getConfig(int port);
+	Server 		getConfig(std::string host);
 };

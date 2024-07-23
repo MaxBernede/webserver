@@ -1,19 +1,11 @@
 #include "../inc/webserver.hpp"
 #include "../inc/response.hpp"
+#include "HTTPStatus.hpp"
 #include "Redirect.hpp"
 
 //!Constructors
-// Response::Response(Request *req, int clientFd, bool def_error) : _request(req), _clientFd(clientFd), _ready(false), _default_error(def_error)
-// {
-// 	_response_text = "";
-// 	_html_file = this->_request->getFileName();
-// 	Logger::log("Constructor response call", INFO);
-// 	// for (const auto& pair : _request->getContent()) {
-// 	// 	std::cout << pair.first << ": " << pair.second << std::endl;
-// 	// }
-// }
 
-Response::Response(int clientFd) : _clientFd(clientFd), _ready(false), _default_error(false)
+Response::Response(int clientFd) : _clientFd(clientFd), _ready(false)
 {
 	_response_text = "";
 }
@@ -23,9 +15,11 @@ Response::~Response() {}
 std::string Response::makeStrResponse(Request *request)
 {
 	std::ostringstream oss;
-	std::string httpStatus = request->getMethod(2);
+	std::string http= request->getMethod(2);
 	std::string code = std::to_string(request->getErrorCode());
-	oss << httpStatus << " " << code << " OK\r\n\r\n";
+	std::string message = httpStatus[request->getErrorCode()];
+	oss << http << " " << code << " " << message;
+	oss << "\r\n\r\n";
 	oss << _response_text;
 
 	return oss.str();
@@ -41,12 +35,8 @@ void Response::addToBuffer(std::string buffer)
 
 void Response::rSend( Request *request )
 {
-	// if (_response_text.empty())
-	// 	std::cout << "Hey riends" << std::endl;
-	// Logger::log(_response_text, WARNING);
 	std::string response = _response_text;
-	// if (!_default_error)
-		response = makeStrResponse(request);
+	response = makeStrResponse(request);
 	std::cout << "_______________________________________________\n";
 	std::cout << "Message to send =>\n" << response << std::endl;
 	std::cout << "_______________________________________________\n";

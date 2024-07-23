@@ -14,10 +14,6 @@ CGI::~CGI(void)
 
 void CGI::runCgi()
 {
-	for (int i = 0; i < _cgiEnvArr.size(); i++)
-	{
-		std::cout << "cgi[i]: " << _cgiEnvCStr[i] << std::endl;
-	}
 	_pid = fork(); //forking to create new process
 	if (_pid == 0) //if child process
 	{
@@ -87,9 +83,7 @@ char **CGI::makeEnvCStr()
 	char **env = new char*[_cgiEnvArr.size() + 1];
 	for (size_t i = 0; i < _cgiEnvArr.size(); ++i)
 	{
-	//	env[i] = new char[envArr[i].length() + 1];
-		//std::strcpy(env[i], envArr[i].c_str());
-		env[i] = (char *)this->_cgiEnvArr[i].c_str();
+		env[i] = (char *)this->_cgiEnvArr[i].c_str(); // setting strings, but not allocated so _cgiEnvArr must remain
 	}
 	env[_cgiEnvArr.size()] = NULL;
 	return env;
