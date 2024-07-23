@@ -28,8 +28,6 @@ void Request::readRequest()
 	}
 }
 
-
-
 bool Request::isCgi()
 {
 	// check extension x.substr(x.find_last_of("*******") + 2) == "cx")

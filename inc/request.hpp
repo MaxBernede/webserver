@@ -51,6 +51,7 @@ class Request
 	public:
 		//constructors
 		Request(int clientFd);
+		Request(void);
 		~Request();
 		void		constructRequest();
 

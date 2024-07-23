@@ -19,17 +19,24 @@ I need the following from the client request parser:
 
 class CGI {
 	private:
+		int			_pid;
 		int			_sendPipe[2]; // pipe where CGI sends data
 		Request		*_request;
 		int			_clientFd;
-		char*const	* _cgiEnv;
+		std::vector<std::string> _cgiEnvArr;
+		char*const	*_cgiEnvCStr;
 
 	public:
 		CGI(Request *request, int clientFd);
 		~CGI(void);
 
+		// Cgi methods
 		void	runCgi();
-		char	**makeEnv(); // should take data from the request header
+		char	**makeEnvCStr();
+		std::vector<std::string>	makeEnvArr();
+		bool 	waitCgiChild();
+		
+		// Getters 
 		int		getReadFd();
 		int		getClientFd();
 		Request *getRequest();

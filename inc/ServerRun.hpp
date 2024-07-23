@@ -36,6 +36,7 @@ class ServerRun
 		std::unordered_map<int, Request *> _requests; // Request (not cgi)
 		std::unordered_map<int, CGI *> _cgi; // Cgi requests, int: pollFd (clientFd) -> create response
 		std::unordered_map<int, Response *> _responses; // Responses to be sent, int: pollFd to write to
+		std::unordered_map<int, HTTPObject *> _httpObjects;
 		std::unordered_map<int, s_poll_data> _pollData; // int: polFd
 		std::vector<struct pollfd> _pollFds; // vector to pass to poll
 

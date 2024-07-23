@@ -22,5 +22,4 @@ html_content = (
     "</body>\n"
     "</html>\n"
     )
-print(f"HTTP_COOKIE: {environ.get('HTTP_COOKIE', '')}")
 print(html_content)
