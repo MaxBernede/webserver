@@ -138,10 +138,10 @@ static std::list<s_domain> defaultPorts(){
 	std::list<s_domain> ports;
 	s_domain def;
 	def.port = 8080;
-	def.host = configIP("127.0.0.1");
+	def.host = "127.0.0.1";
 	s_domain ssl;
 	ssl.port = 8000;
-	ssl.host = configIP("127.0.0.1");
+	ssl.host = "127.0.0.1";
 	ports.push_back(def);
 	ports.push_back(ssl);
 	return ports;

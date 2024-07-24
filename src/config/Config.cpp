@@ -8,7 +8,7 @@ void confPort(std::string value, Server &serv){
 	std::string num = value.substr((value.find_first_of(":") + 1), (value.length() - ip.length() - 1));
 	num.pop_back();
 	if (ip == "localhost")
-		port.host = configIP("127.0.0.1");
+		port.host = "127.0.0.1";
 	else{
 		if (ip.find_first_not_of("1234567890.") != std::string::npos)
 			throw syntaxError();
@@ -21,7 +21,7 @@ void confPort(std::string value, Server &serv){
 		}
 		if (j != 3)
 			throw syntaxError();
-		port.host = configIP(ip);
+		port.host = ip;
 	}
 	if (num.find_first_not_of("1234567890") != std::string::npos || num.length() < 1
 		|| num.length() > 5 || std::stoi(num) > UINT16_MAX)

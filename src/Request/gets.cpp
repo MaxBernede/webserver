@@ -151,7 +151,7 @@ s_domain Request::getRequestDomain(){
 		// std::cout << "HOST\t"  << ip << "\tPORT\t" << port << std::endl;
 		if (ip == "localhost")
 			ip = "127.0.0.1";
-		Domain.host = configIP(ip);
+		Domain.host = ip;
 		return (Domain);
 	}
 	throw (Exception("Port not found", 404));	

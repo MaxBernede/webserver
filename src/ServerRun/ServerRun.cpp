@@ -113,35 +113,13 @@ void ServerRun::serverRunLoop( void )
 			}
 			catch(const Exception& e)
 			{
-				//Cath of the "Throw Port not found" in the readRequest;
+				//Catch of the "Throw Port not found" in the readRequest;
+				//If port server config is not found, the request does not properly get cleared out of the poll loop?
 				std::cerr << e.what() << '\n';
 			}
 		}
 	}
 }
-
-// /// TODO check functions with same name
-// Server ServerRun::getConfig(int clientFd) // WILL ADD HOST
-// {
-// 	int port = _httpObjects[clientFd]->_request->getRequestPort();
-// 	std::cout << "port: " << port << std::endl;
-// 	if (port < 0)
-// 	{
-// 		throw Exception("Port not found", errno);
-// 	}
-// 	for (auto server : _servers)
-// 	{
-// 		for (auto p : server.getPorts())
-// 		{
-// 			if (p.port == port)
-// 			{
-// 				std::cout << "returning server\n";
-// 				return (server);
-// 			}
-// 		}
-// 	}
-// 	throw(Exception("Server not found", 1));
-// }
 
 Server ServerRun::getConfig(s_domain port){
 	for (auto server : _servers){

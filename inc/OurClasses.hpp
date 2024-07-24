@@ -31,7 +31,7 @@ enum methods{
 
 typedef struct t_domain{
 	uint16_t	port;
-	uint32_t	host;
+	std::string	host;
 }	s_domain;
 
 typedef struct t_ePage{

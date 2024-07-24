@@ -110,13 +110,6 @@ void ServerRun::readRequest(int clientFd)
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 		// KOENS CODE!
 		if (_httpObjects[clientFd]->_request->isRedirect()){
-			// int temp = dup(clientFd);
-			// _requests[temp] = _requests[clientFd];
-			// if (_responses.find(clientFd) == _responses.end()) {
-			// 	Response *response = new Response(_requests[temp], clientFd, false);
-			// 	_responses[clientFd] = response;
-			// }
-			// addQueue(HTTP_REDIRECT, clientFd);
 			_pollData[clientFd]._pollType = HTTP_REDIRECT;
 		}
 		else {
