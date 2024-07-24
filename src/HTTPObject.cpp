@@ -9,15 +9,20 @@ HTTPObject::HTTPObject(int clientFd) :
 
 HTTPObject::~HTTPObject(void){}
 
-std::string HTTPObject::redirectResponse(void)
+std::string	HTTPObject::redirectResponse(void)
 {
 	std::string oss = _response->redirectResponse(_clientFd, _request->getFileNameProtected(), _request->getConfig().getRedirect());
 	return (oss);
 }
 
-void HTTPObject::createCGI()
+void	HTTPObject::createCGI()
 {
 	_cgi = new CGI(_request, _clientFd);
+}
+
+void	HTTPObject::runCGI(void)
+{
+	_cgi->run(_config.getRoot());
 }
 
 void	HTTPObject::sendResponse(void)

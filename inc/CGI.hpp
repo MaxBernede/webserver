@@ -20,7 +20,7 @@ I need the following from the client request parser:
 class CGI {
 	private:
 		int			_pid;
-		int			_sendPipe[2]; // pipe where CGI sends data
+		int			_cgiPipe[2]; // pipe where CGI sends data
 		Request		*_request;
 		int			_clientFd;
 		std::vector<std::string> _cgiEnvArr;
@@ -31,15 +31,15 @@ class CGI {
 		~CGI(void);
 
 		// Cgi methods
-		void	runCgi();
-		char	**makeEnvCStr();
-		std::vector<std::string>	makeEnvArr();
+		void	run(std::string root);
+		void	makeEnvCStr();
+		void	makeEnvArr();
 		bool 	waitCgiChild();
 		
 		// Getters 
 		int		getReadFd();
 		int		getClientFd();
-		Request *getRequest();
+		Request	*getRequest();
 
 };
 

@@ -2,7 +2,6 @@
 
 class HTTPObject {
 	private:
-		int			_port; // not set
 		int			_clientFd;
 		int			_readFd; // fileFd or pipeFd, only for GET requests
 	
@@ -18,6 +17,7 @@ class HTTPObject {
 		std::string redirectResponse(void);
 		void		sendResponse(void);
 		void		createCGI();
+		void		runCGI(void);
 		
 		// Getters & Setters
 		void		setConfig(Server config);

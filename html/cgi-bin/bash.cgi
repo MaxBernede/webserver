@@ -4,8 +4,11 @@
 
 # html_content:
 date=$(date)
-html_content="<!DOCTYPE html><html><body><h2>Current time: $date </h2><a href='/'>go home</a></body></html>"
-content_length=${#html_content}
+html_content="<!DOCTYPE html>\
+			<html><body>\
+			<h2>It is\n</h2>
+			<h2>$date </h2>
+			</body></html>"
 
 # body with html content
 echo -n -e "$html_content\r\n"

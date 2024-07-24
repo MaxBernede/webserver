@@ -41,7 +41,7 @@ void ServerRun::handleCGIRequest(int clientFd)
 	int pipeFd = _httpObjects[clientFd]->_cgi->getReadFd();
 	_httpObjects[clientFd]->setReadFd(pipeFd);
 	addQueue(CGI_READ_WAITING, pipeFd);
-	_httpObjects[clientFd]->_cgi->runCgi();
+	_httpObjects[clientFd]->runCGI();
 }
 
 void ServerRun::handleStaticFileRequest(int clientFd)
