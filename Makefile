@@ -1,7 +1,7 @@
 NAME := exe
 CXX := c++
 
-CXXFLAGS := -std=c++11 -Wall -Wextra -g -fsanitize=address
+CXXFLAGS := -std=c++20 -Wall -Wextra -g -fsanitize=address
 # CXXFLAGS := -Werror
 RM := rm -rf
 
@@ -36,7 +36,7 @@ fclean: clean
 re: fclean all
 
 run: $(NAME)
-	./$(NAME)
+	./$(NAME) template.conf
 
 .PHONY: clean all fclean re run
 
