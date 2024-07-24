@@ -103,7 +103,7 @@ class Request
 		void		removeDir(std::string & path);
 
 		void		configConfig();
-	
+		int			isFileorDir();
 		void		printAllData();
 
 	private:

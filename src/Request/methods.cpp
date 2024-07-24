@@ -1,4 +1,6 @@
 #include "webserver.hpp"
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <iostream>
 
 void Request::readRequest()
@@ -157,6 +159,34 @@ bool Request::redirRequest404()
 	return (_errorCode != 200);
 }
 
+int Request::isFileorDir()
+{
+	std::cout << "CHECK!\n";
+	if (_file == "")
+		_file = _config.getIndex();
+	_filePath = _config.getRoot() + _file;
+	std::cout << "filepath: " << _filePath << std::endl;
+	struct stat path_stat;
+	int statRes = stat(_filePath.c_str(), &path_stat);
+	if (statRes != 0)
+	{
+		std::cout << "Error accessig path: " << _filePath << std::endl;
+		return (1);
+	}
+	if (S_ISREG(path_stat.st_mode)) // if the path is a file
+	{
+		return (0);
+	}
+	else if (S_ISDIR(path_stat.st_mode)) // if the path is a diretory
+	{
+		// if directory, check if it has an index page defined
+		// else, 404.
+	}
+	
+	exit(1);
+	return (0);
+}
+
 int Request::checkRequest() // Checking for 404 and 405 Errors
 {
 	//Temp check for Max code:
@@ -168,6 +198,11 @@ int Request::checkRequest() // Checking for 404 and 405 Errors
 		std::cout << "redirect, not 404!\n";
 		return (200);
 	}
+	//check auto index
+	// if (isFileorDir())
+	// {
+
+	// }
 	if (redirRequest404())
 		return (getErrorCode());
 	return getErrorCode();

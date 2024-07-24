@@ -103,22 +103,15 @@ void ServerRun::readRequest(int clientFd)
 			return ;
 		}
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-		// KOENS CODE!
-		if (_httpObjects[clientFd]->_request->isRedirect()){
-			// int temp = dup(clientFd);
-			// _requests[temp] = _requests[clientFd];
-			// if (_responses.find(clientFd) == _responses.end()) {
-			// 	Response *response = new Response(_requests[temp], clientFd, false);
-			// 	_responses[clientFd] = response;
-			// }
-			// addQueue(HTTP_REDIRECT, temp);
+		if (_httpObjects[clientFd]->_request->isRedirect())
+		{
 			_pollData[clientFd]._pollType = HTTP_REDIRECT;
 		}
-		if (_httpObjects[clientFd]->isCgi()) // What do we do when CGI is not allowed?
+		else if (_httpObjects[clientFd]->isCgi()) 
 		{
 			if (!config.getCGI())
 			{
-				throw(Exception("CGI is not permitted for this server", 1));
+				throw(Exception("CGI is not permitted for this server", 1)); // What do we do when CGI is not allowed?
 				return ;
 			}
 			handleCGIRequest(clientFd);
