@@ -4,9 +4,8 @@
 void Request::readRequest()
 {
 	char buffer[BUFFER_SIZE];
-	int rb;
 
-	rb = recv(_clientFd, buffer, BUFFER_SIZE - 1, 0);
+	int rb = recv(_clientFd, buffer, BUFFER_SIZE - 1, 0);
 	if (rb < 0){
 		std::cerr << "Error reading request" << std::endl;
 		return;

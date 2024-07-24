@@ -26,6 +26,7 @@ void CGI::run(std::string root)
 		char *argv[2] = {(char *)cgiFilePath.c_str(), NULL};
 		execve(cgiFilePath.c_str(), argv, _cgiEnvCStr);
 		// if execve fails
+		delete _cgiEnvCStr;
 		std::cout << "Running CGI script failed (execve), path: " << cgiFilePath << std::endl;
 		std::cout << "Errno: " << std::strerror(errno) << std::endl;
 		exit(1); // exit child process with 1, upon failure

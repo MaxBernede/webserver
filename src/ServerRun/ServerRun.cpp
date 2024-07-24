@@ -114,8 +114,7 @@ void ServerRun::serverRunLoop( void )
 			catch(const Exception& e)
 			{
 				//Cath of the "Throw Port not found" in the readRequest;
-				//std::cerr << e.what() << '\n';
-				;
+				std::cerr << e.what() << '\n';
 			}
 		}
 	}

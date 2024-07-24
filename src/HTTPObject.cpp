@@ -1,13 +1,22 @@
 #include "webserver.hpp"
 
 HTTPObject::HTTPObject(int clientFd) : 
-				_clientFd(clientFd)
+				_clientFd(clientFd),
+				_cgi(NULL)
 {
 	_request = new Request(clientFd);
 	_response = new Response(clientFd);
 }
 
-HTTPObject::~HTTPObject(void){}
+HTTPObject::~HTTPObject(void)
+{
+	delete _request;
+	delete _response;
+	if (_cgi != NULL)
+	{
+		delete _cgi;
+	}
+}
 
 std::string	HTTPObject::redirectResponse(void)
 {
