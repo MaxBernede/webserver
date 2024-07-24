@@ -55,6 +55,7 @@ class ServerRun
 
 	void handleCGIRequest(int clientFd);
 	void handleStaticFileRequest(int clientFd);
+	void handleRedirection(int clientFd);
 	void redirectToError(int ErrCode, int clientFd); // Redirect to 404, 405
 	
 	void readFile(int fd);

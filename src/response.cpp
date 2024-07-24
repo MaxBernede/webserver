@@ -37,9 +37,9 @@ void Response::rSend( Request *request )
 {
 	std::string response = _response_text;
 	response = makeStrResponse(request);
-	std::cout << "_______________________________________________\n";
-	std::cout << "Message to send =>\n" << response << std::endl;
-	std::cout << "_______________________________________________\n";
+	// std::cout << "_______________________________________________\n";
+	// std::cout << "Message to send =>\n" << response << std::endl;
+	// std::cout << "_______________________________________________\n";
 	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
 	{
 		std::cout << "ERROR with SEND " << _clientFd << std::endl;
@@ -57,7 +57,6 @@ void Response::setResponseString(std::string response)
 	_response_text = response;
 }
 
-// somehow _request points to zero page, trying to fix this
 std::string Response::redirectResponse(int clientFd, std::string from, std::list<s_redirect> redirs)
 {
 	// std::string from = _request->getFileNameProtected();
@@ -73,6 +72,7 @@ std::string Response::redirectResponse(int clientFd, std::string from, std::list
 	}
 	if (to == "")
 		throw Exception("unexpected redirect error", 300);
+	std::cout << "FROM:\t" << from << "\tTO:\t" << to << std::endl;
 	std::cout << "do a thing" << std::endl << std::endl;
 	std::ostringstream oss;
 	oss << "HTTP/1.1 ";

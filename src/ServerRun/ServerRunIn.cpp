@@ -59,6 +59,11 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 	addQueue(FILE_READ_READING, fileFd);
 }
 
+void ServerRun::handleRedirection(int clientFd)
+{
+	addQueue(HTTP_REDIRECT, clientFd);
+}
+
 // Only handles 404 and 405
 void ServerRun::redirectToError(int ErrCode, int clientFd)
 {
@@ -111,26 +116,28 @@ void ServerRun::readRequest(int clientFd)
 			// 	Response *response = new Response(_requests[temp], clientFd, false);
 			// 	_responses[clientFd] = response;
 			// }
-			// addQueue(HTTP_REDIRECT, temp);
+			// addQueue(HTTP_REDIRECT, clientFd);
 			_pollData[clientFd]._pollType = HTTP_REDIRECT;
 		}
-		if (_httpObjects[clientFd]->isCgi()) // What do we do when CGI is not allowed?
-		{
-			if (!config.getCGI())
+		else {
+			if (_httpObjects[clientFd]->isCgi()) // What do we do when CGI is not allowed?
 			{
-				throw(Exception("CGI is not permitted for this server", 1));
+				if (!config.getCGI())
+				{
+					throw(Exception("CGI is not permitted for this server", 1));
+					return ;
+				}
+				handleCGIRequest(clientFd);
+			}
+			else if (_httpObjects[clientFd]->_request->getMethod(0) == "HEAD") // or anything that doesnt need READ file
+			{
+				_pollData[clientFd]._pollType = FILE_READ_DONE;
 				return ;
 			}
-			handleCGIRequest(clientFd);
-		}
-		else if (_httpObjects[clientFd]->_request->getMethod(0) == "HEAD") // or anything that doesnt need READ file
-		{
-			_pollData[clientFd]._pollType = FILE_READ_DONE;
-			return ;
-		}
-		else // Static file
-		{
-			handleStaticFileRequest(clientFd);
+			else // Static file
+			{
+				handleStaticFileRequest(clientFd);
+			}
 		}
 	}
 }

@@ -11,6 +11,15 @@ void ServerRun::sendResponse(int fd)
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
 
+void ServerRun::sendRedirect(int clientFd)
+{
+	std::cout << "SENDING HTTP REDIRECT" << std::endl;
+	_httpObjects[clientFd]->redirectResponse();
+	// removeConnection(clientFd);
+	cleanUp(clientFd);
+	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
+}
+
 void ServerRun::sendError(int clientFd)
 {
 	Logger::log("Sending Redir msg", INFO);
@@ -39,16 +48,6 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 		default:
 			break ;
 	}
-}
-
-void ServerRun::sendRedirect(int fd){
-	std::cout << "SENDING HTTP REDIRECT" << std::endl;
-	HTTPObject *obj = findHTTPObject(fd);
-	obj->redirectResponse();
-	removeConnection(fd);
-	int clientFd = obj->getClientFd();
-	cleanUp(clientFd);
-	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
 
 void ServerRun::cleanUp(int clientFd)
