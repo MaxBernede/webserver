@@ -10,26 +10,22 @@ class CGI;
 
 class Response {
 	public:
-		Response(Request *req, int clientFd, bool def_error);
+		Response(int clientFd);
 		~Response();
 
 		//Members functions
-		std::string makeStrResponse( void );
+		std::string makeStrResponse(Request *request);
 		void addToBuffer(std::string buffer);
 		void setResponseString(std::string response);
 		void setReady( void );
-		void rSend( void );
-		
-		std::string redirectResponse( void );
-	
+		void rSend(Request *request);
+		std::string redirectResponse(int clientFd, std::string from, std::list<s_redirect> redirs);
+	 
 	private:
+		int			_clientFd;
 		std::string _file;
 		std::string _response_text;
-		std::string	_html_file;
-		Request	*_request;
-		int	_clientFd;
-		bool _ready;
-		bool _default_error;
+		bool 		_ready;
 		const std::unordered_map<std::string,std::string> contentType = {
 			{"html","text/html"},
 			{"ico","image/x-icon"},

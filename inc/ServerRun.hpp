@@ -4,6 +4,7 @@
 #include "webserver.hpp"
 
 class CGI;
+class HTTPObject;
 
 // For each server, you need a different listening socket for each port....
 enum pollType
@@ -18,7 +19,7 @@ enum pollType
 	CGI_READ_WAITING,
 	CGI_READ_READING,
 	CGI_READ_DONE,
-	SEND_REDIR,
+	HTTP_ERROR,
 	HTTP_REDIRECT
 };
 
@@ -33,9 +34,7 @@ class ServerRun
 	private:
 		std::list<Server> _servers; // Server blocks from config file
 		std::vector<Socket *> _listenSockets; // Listener sockets 
-		std::unordered_map<int, Request *> _requests; // Request (not cgi)
-		std::unordered_map<int, CGI *> _cgi; // Cgi requests, int: pollFd (clientFd) -> create response
-		std::unordered_map<int, Response *> _responses; // Responses to be sent, int: pollFd to write to
+		std::unordered_map<int, HTTPObject *> _httpObjects;
 		std::unordered_map<int, s_poll_data> _pollData; // int: polFd
 		std::vector<struct pollfd> _pollFds; // vector to pass to poll
 
@@ -56,17 +55,16 @@ class ServerRun
 
 	void handleCGIRequest(int clientFd);
 	void handleStaticFileRequest(int clientFd);
-
-	void redirectToError(int ErrCode, Request *request, int clientFd); // Redirect to 404, 405
+	void redirectToError(int ErrCode, int clientFd); // Redirect to 404, 405
 	
 	void readFile(int fd);
 	void readPipe(int fd);
 	void sendResponse(int fd);
 	void sendRedirect(int fd);
-	void sendCgiResponse(int fd);
 	void sendError(int fd);
 
 	Server getConfig(s_domain port);
-	Server getConfig(int port);
-	// Server getConfig(std::string host);
+	// Server getConfig(int port);
+	HTTPObject *findHTTPObject(int readFd);
+	void		cleanUp(int clientFd);
 };

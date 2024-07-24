@@ -27,31 +27,26 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	socklen_t len = sizeof(sockaddr_in);
 
 	connFd = accept(listenerFd, (struct sockaddr *)cli_addr, &len);
-	std::cout << "New Client Connected accepted, CONN: " << connFd << std::endl;
 	if (connFd == -1)
-		throw(Exception("accept() errored and returned -1", errno));
+		throw(Exception("Error: accept() failed and returned -1", errno));
+	Logger::log("New client connection accepted at fd: " + std::to_string(connFd), LogLevel::INFO);
 	addQueue(CLIENT_CONNECTION_READY, connFd);
 }
 
 void ServerRun::handleCGIRequest(int clientFd)
 {
 	std::cout << "CGI Request\n";
-	CGI *cgiRequest = new CGI(_requests[clientFd], clientFd);
-	int pipeFd = cgiRequest->getReadFd();
-	_cgi[pipeFd] = cgiRequest;
-	// std::cout << "Cgi Pipe FD: " << pipeFd << std::endl;
+	Logger::log("A CGI Request is being handled", LogLevel::INFO);
+	_httpObjects[clientFd]->createCGI();
+	int pipeFd = _httpObjects[clientFd]->_cgi->getReadFd();
+	_httpObjects[clientFd]->setReadFd(pipeFd);
 	addQueue(CGI_READ_WAITING, pipeFd);
-	cgiRequest->runCgi();
+	_httpObjects[clientFd]->runCGI();
 }
 
 void ServerRun::handleStaticFileRequest(int clientFd)
 {
-	// // TODO check if _requests[clientFd]->getFileName() is defined in the configs redirect
-	// std::string fileName = _requests[clientFd]->getFileName(); //! WARNING FILENAME CHANGED
-	// if (fileName.empty() || fileName == "/") // this fix have been added because no possible skip for this function
-	// 	fileName = "index.html"; // This needs to be changed, temporary here for the HEAD request
-	// std::string filePath = _requests[clientFd]->getConfig().getRoot() + "html/" + fileName; // TODO root path based on config
-	std::string filePath = _requests[clientFd]->getConfig().getRoot() + _requests[clientFd]->getFileName();
+	std::string filePath = _httpObjects[clientFd]->_request->getFilePath();
 	std::cout << "Opening static file: " << filePath << std::endl;
 	int fileFd = open(filePath.c_str(), O_RDONLY);
 	if (fileFd < 0)
@@ -60,108 +55,84 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 		throw(Exception("Opening static file failed", errno));
 	}
 	Logger::log("File correctly opened", INFO);
-	_requests[fileFd] = _requests[clientFd]; // TODO: We need to add the request header reading in here too
+	_httpObjects[clientFd]->setReadFd(fileFd);
 	addQueue(FILE_READ_READING, fileFd);
 }
 
 // Only handles 404 and 405
-void ServerRun::redirectToError(int ErrCode, Request *request, int clientFd)
+void ServerRun::redirectToError(int ErrCode, int clientFd)
 {
-	//check this code to implement the no reply 204 case of successfull delete or stuff like that
-	if (_responses.find(clientFd) == _responses.end()) 
-	{
-		Response *response = new Response(request, clientFd, true);
-		if (ErrCode == 404)
-			response->setResponseString(NOT_FOUND);
-		if (ErrCode == 405)
-			response->setResponseString(NOT_ALLOWED);
-		if (ErrCode == NO_CONTENT)
-			response->setResponseString("HTTP/1.1 204 No Content");
-		if (ErrCode == ErrorCode::CONFLICT)
-			response->setResponseString(HTTP_CONFLICT_RESPONSE);
-		if (ErrCode == ErrorCode::FORBIDDEN)
-			response->setResponseString(HTTP_FORBIDDEN_RESPONSE);
-		_responses[clientFd] = response;
-		_pollData[clientFd]._pollType = SEND_REDIR;
-	}
+	HTTPObject *obj = _httpObjects[clientFd];
+	if (ErrCode == 404)
+		obj->_response->setResponseString(NOT_FOUND);
+	if (ErrCode == 405)
+		obj->_response->setResponseString(NOT_ALLOWED);
+	if (ErrCode == NO_CONTENT)
+		obj->_response->setResponseString("HTTP/1.1 204 No Content");
+	if (ErrCode == ErrorCode::CONFLICT)
+		obj->_response->setResponseString(HTTP_CONFLICT_RESPONSE);
+	if (ErrCode == ErrorCode::FORBIDDEN)
+		obj->_response->setResponseString(HTTP_FORBIDDEN_RESPONSE);
+	_pollData[clientFd]._pollType = HTTP_ERROR;
 }
 
 // Only continue after reading the whole request
 void ServerRun::readRequest(int clientFd)
-{	
-	//Logger::log("In read : " + std::to_string(clientFd) + " and " + std::to_string(_requests.find(clientFd) == _requests.end()), WARNING);
-	if(_requests.find(clientFd) != _requests.end() )
-		;
-	//Logger::log("Test, : " + std::to_string(_requests[clientFd]->getErrorCode()), WARNING);
-	if (_requests.find(clientFd) == _requests.end())
+{
+	if (_httpObjects.find(clientFd) == _httpObjects.end())
 	{
-		Logger::log("Enter : " + std::to_string(clientFd), WARNING);
-		Request *newRequest = new Request(clientFd);
-		_requests[clientFd] = newRequest;
+		HTTPObject *newObj = new HTTPObject(clientFd);
+		_httpObjects[clientFd] = newObj;
 	}
-	else if (_requests[clientFd]->isDoneReading() == false)
+	if (_httpObjects[clientFd]->_request->isDoneReading() == false)
 	{
-		_requests[clientFd]->readRequest();
+		_httpObjects[clientFd]->_request->readRequest();
 	}
-	if (_requests[clientFd]->isDoneReading() == true)
+	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
-		// int port = _requests[clientFd]->getRequestPort();
-		// if (port < 0)
-		// {
-		// 	throw Exception("Port not found", errno);
-		// 	exit(1);
-		// }
-		s_domain Domain = _requests[clientFd]->getRequestDomain();
+		_httpObjects[clientFd]->_request->printAllData();
+
+		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = getConfig(Domain);
-		_requests[clientFd]->setConfig(config);
-		_requests[clientFd]->configConfig();
-		int ErrCode = _requests[clientFd]->checkRequest(); // Max code : this is a request.getErrorCode();
-		Logger::log("ErrorCode: " + std::to_string(ErrCode), LogLevel::INFO);
-		//if (ErrCode != 0) //Yesim code
-		if (ErrCode != 200 && _requests[clientFd]->getErrorPageStatus() == false)
+		_httpObjects[clientFd]->setConfig(config);
+		int ErrCode = _httpObjects[clientFd]->_request->checkRequest(); 
+		if (ErrCode != 200 && _httpObjects[clientFd]->_request->getErrorPageStatus() == false)
 		{
 			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-			redirectToError(ErrCode, _requests[clientFd], clientFd);
+			redirectToError(ErrCode, clientFd);
 			return ;
 		}
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-		if (_requests[clientFd]->isRedirect()){
-			// printColor(RED, "HTTP REDIRECT\n");
-			int temp = dup(clientFd);
-			_requests[temp] = _requests[clientFd];
-			if (_responses.find(clientFd) == _responses.end()) {
-				Response *response = new Response(_requests[temp], clientFd, false);
-				_responses[clientFd] = response;
-			}
-			addQueue(HTTP_REDIRECT, temp);
+		// KOENS CODE!
+		if (_httpObjects[clientFd]->_request->isRedirect()){
+			// int temp = dup(clientFd);
+			// _requests[temp] = _requests[clientFd];
+			// if (_responses.find(clientFd) == _responses.end()) {
+			// 	Response *response = new Response(_requests[temp], clientFd, false);
+			// 	_responses[clientFd] = response;
+			// }
+			// addQueue(HTTP_REDIRECT, temp);
+			_pollData[clientFd]._pollType = HTTP_REDIRECT;
 		}
-		else {
-			if (_requests[clientFd]->isCgi()) // What do we do when CGI is not allowed?
+		if (_httpObjects[clientFd]->isCgi()) // What do we do when CGI is not allowed?
+		{
+			if (!config.getCGI())
 			{
-				if (!config.getCGI())
-				{
-					std::cout << "CGI is not allowed for this server\n";
-					return ;
-				}
-				handleCGIRequest(clientFd);
-			}
-			else if (_requests[clientFd]->getMethod(0) == "HEAD") // or anything that doesnt need READ file
-			{
-				Response *response = new Response(_requests[clientFd], clientFd, false);
-				_responses[clientFd] = response;
-				_pollData[clientFd]._pollType = FILE_READ_DONE;
+				throw(Exception("CGI is not permitted for this server", 1));
 				return ;
 			}
-			else // Static file
-			{
-				// if (_requests[clientFd]->getMethod(0) == "HEAD")
-				// 	Logger::log("Method doesn't read because HEAD", INFO);
-				// else
-				handleStaticFileRequest(clientFd);
-			}
+			handleCGIRequest(clientFd);
+		}
+		else if (_httpObjects[clientFd]->_request->getMethod(0) == "HEAD") // or anything that doesnt need READ file
+		{
+			_pollData[clientFd]._pollType = FILE_READ_DONE;
+			return ;
+		}
+		else // Static file
+		{
+			handleStaticFileRequest(clientFd);
 		}
 	}
-	//_requests.erase(clientFd);
 }
 
 void ServerRun::readFile(int fd) // Static file fd
@@ -169,57 +140,49 @@ void ServerRun::readFile(int fd) // Static file fd
 	char buffer[BUFFER_SIZE];
 
 	memset(buffer, '\0', BUFFER_SIZE);
-	int clientFd = _requests[fd]->getClientFd();
-	if (_responses.find(clientFd) == _responses.end()) // Response object not created
-	{
-		Response *response = new Response(_requests[fd], clientFd, false);
-		_responses[clientFd] = response;
-	}
+	HTTPObject *obj = findHTTPObject(fd);
 	int readChars = read(fd, buffer, BUFFER_SIZE - 1);
 	if (readChars < 0)
 		throw(Exception("Read file failed", errno));
 	if (readChars > 0)
 	{
-		_responses[clientFd]->addToBuffer(std::string(buffer, readChars));
+		obj->_response->addToBuffer(std::string(buffer, readChars));
 	}
 	if (readChars == 0)
 	{
 		_pollData[fd]._pollType = FILE_READ_DONE;
-		_responses[clientFd]->setReady();
+		obj->_response->setReady();
 		close(fd);
 	}
+
 }
 
-void ServerRun::readPipe(int fd) // Pipe read end fd
+void ServerRun::readPipe(int fd) // Pipe read-end fd
 {
 	char buffer[BUFFER_SIZE];
 
-	for (int i = 0; i < BUFFER_SIZE; i++)
-		buffer[i] = '\0';
-	int clientFd = _cgi[fd]->getClientFd();
-	if (_responses.find(clientFd) == _responses.end()) // Response object not created
+	memset(buffer, '\0', BUFFER_SIZE);
+	HTTPObject *obj = findHTTPObject(fd);
+	if (obj->_cgi->waitCgiChild())
 	{
-		Response *response = new Response(_cgi[fd]->getRequest(), clientFd, false);
-		_responses[clientFd] = response;
-	}
-	int readChars = read(fd, buffer, BUFFER_SIZE - 1);
-	if (readChars < 0)
-		throw(Exception("Read pipe failed!", errno));
-	if (readChars > 0)
-	{
-		_responses[clientFd]->addToBuffer(std::string(buffer, readChars));
-	}
-	if (readChars < BUFFER_SIZE - 1)
-	{
-		_pollData[fd]._pollType = CGI_READ_DONE;
-		_responses[clientFd]->setReady();
-		close(fd);
+		int readChars = read(fd, buffer, BUFFER_SIZE - 1);
+		if (readChars < 0)
+			throw(Exception("Read pipe failed!", errno));
+		if (readChars > 0)
+		{
+			obj->_response->addToBuffer(std::string(buffer, readChars));
+		}
+		if (readChars < BUFFER_SIZE - 1)
+		{
+			_pollData[fd]._pollType = CGI_READ_DONE;
+			obj->_response->setReady();
+			close(fd);
+		}
 	}
 }
 
 void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd)
-{
-	// std::cout << "Poll FD: " << pollFd.fd << " Poll type: " << pollData.pollType << std::endl;
+{	
 	switch (pollData._pollType)
 	{
 		case LISTENER:

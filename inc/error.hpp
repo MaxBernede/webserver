@@ -1,8 +1,7 @@
 #pragma once
 #include <string>
 
-# define NOT_FOUND "HTTP/1.1 404 Page Not Found\r\nContent-Type: text/html\r\n\r\n \
-<html lang=\"en\"> \
+# define NOT_FOUND "<html lang=\"en\"> \
 	<head> \
 		<meta charset=\"UTF-8\"> \
 	<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> \
@@ -41,8 +40,7 @@
 	</body> \
 </html>"
 
-# define NOT_ALLOWED "HTTP/1.1 405 Method Not Allowed\nContent-Type: text/html\r\n\r\n \
-<html lang=\"en\"> \
+# define NOT_ALLOWED "<html lang=\"en\"> \
 	<head> \
 		<meta charset=\"UTF-8\"> \
 	<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> \

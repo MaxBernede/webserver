@@ -4,9 +4,8 @@
 void Request::readRequest()
 {
 	char buffer[BUFFER_SIZE];
-	int rb;
 
-	rb = recv(_clientFd, buffer, BUFFER_SIZE - 1, 0);
+	int rb = recv(_clientFd, buffer, BUFFER_SIZE - 1, 0);
 	if (rb < 0){
 		std::cerr << "Error reading request" << std::endl;
 		return;
@@ -27,8 +26,6 @@ void Request::readRequest()
     	}
 	}
 }
-
-
 
 bool Request::isCgi()
 {
@@ -166,12 +163,13 @@ int Request::checkRequest() // Checking for 404 and 405 Errors
 	Logger::log("Checking file...", LogLevel::INFO);
 	if (redirRequest405())
 		return (getErrorCode());
-	if (isRedirect()){
+	if (isRedirect())
+	{
 		std::cout << "redirect, not 404!\n";
 		return (200);
+	}
 	if (redirRequest404())
 		return (getErrorCode());
-	}
 	return getErrorCode();
 }
 

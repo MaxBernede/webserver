@@ -69,7 +69,6 @@ void ServerRun::addQueue(pollType type, int fd)
 	s_poll_data newPollItem;
 	struct pollfd newPollFd;
 
-	//Logger::log("Type" + std::to_string(type) + std::to_string(fd), WARNING);
 	newPollFd = {fd, POLLIN | POLLOUT, 0};
 	newPollItem._pollType = type;
 	_pollFds.push_back(newPollFd);
@@ -109,35 +108,40 @@ void ServerRun::serverRunLoop( void )
 				{
 					// Write to client
 					dataOut(_pollData[fd], _pollFds[i]);
-					//Logger::log("data out finished", ERROR);
 				}
 
 			}
 			catch(const Exception& e)
 			{
 				//Cath of the "Throw Port not found" in the readRequest;
-				//std::cerr << e.what() << '\n';
-				;
+				std::cerr << e.what() << '\n';
 			}
 		}
 	}
 }
 
-/// TODO check functions with same name
-Server ServerRun::getConfig(int port) // WILL ADD HOST
-{
-	for (auto server : _servers)
-	{
-		for (auto p : server.getPorts())
-		{
-			if (p.port == port)
-			{
-				return (server);
-			}
-		}
-	}
-	throw(Exception("Server not found", 1));
-}
+// /// TODO check functions with same name
+// Server ServerRun::getConfig(int clientFd) // WILL ADD HOST
+// {
+// 	int port = _httpObjects[clientFd]->_request->getRequestPort();
+// 	std::cout << "port: " << port << std::endl;
+// 	if (port < 0)
+// 	{
+// 		throw Exception("Port not found", errno);
+// 	}
+// 	for (auto server : _servers)
+// 	{
+// 		for (auto p : server.getPorts())
+// 		{
+// 			if (p.port == port)
+// 			{
+// 				std::cout << "returning server\n";
+// 				return (server);
+// 			}
+// 		}
+// 	}
+// 	throw(Exception("Server not found", 1));
+// }
 
 Server ServerRun::getConfig(s_domain port){
 	for (auto server : _servers){
@@ -165,6 +169,16 @@ void ServerRun::removeConnection(int fd)
 		_pollData.erase(fd);
 }
 
+HTTPObject *ServerRun::findHTTPObject(int readFd)
+{
+	for (auto& pair : _httpObjects)
+	{
+		if (pair.second->getReadFd() == readFd) {
+		    return pair.second;
+		}
+	}
+	return nullptr; // Return nullptr if not found
+}
 
 /*
 

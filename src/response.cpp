@@ -1,26 +1,25 @@
 #include "../inc/webserver.hpp"
 #include "../inc/response.hpp"
+#include "HTTPStatus.hpp"
 #include "Redirect.hpp"
 
 //!Constructors
-Response::Response(Request *req, int clientFd, bool def_error) : _request(req), _clientFd(clientFd), _ready(false), _default_error(def_error)
+
+Response::Response(int clientFd) : _clientFd(clientFd), _ready(false)
 {
 	_response_text = "";
-	_html_file = this->_request->getFileName();
-	Logger::log("Constructor response call", INFO);
-	// for (const auto& pair : _request->getContent()) {
-	// 	std::cout << pair.first << ": " << pair.second << std::endl;
-	// }
 }
 
 Response::~Response() {}
 
-std::string Response::makeStrResponse(void)
+std::string Response::makeStrResponse(Request *request)
 {
 	std::ostringstream oss;
-	std::string httpStatus = _request->getMethod(2);
-	std::string code = std::to_string(_request->getErrorCode());
-	oss << httpStatus << " " << code << " OK\r\n\r\n";
+	std::string http= request->getMethod(2);
+	std::string code = std::to_string(request->getErrorCode());
+	std::string message = httpStatus[request->getErrorCode()];
+	oss << http << " " << code << " " << message;
+	oss << "\r\n\r\n";
 	oss << _response_text;
 
 	return oss.str();
@@ -34,17 +33,13 @@ void Response::addToBuffer(std::string buffer)
 	_response_text += buffer;
 }
 
-void Response::rSend( void )
+void Response::rSend( Request *request )
 {
-	// if (_response_text.empty())
-	// 	std::cout << "Hey riends" << std::endl;
-	// Logger::log(_response_text, WARNING);
 	std::string response = _response_text;
-	if (!_default_error)
-		response = makeStrResponse();
-	// std::cout << "_______________________________________________\n";
-	// std::cout << "Message to send =>\n" << response << std::endl;
-	// std::cout << "_______________________________________________\n";
+	response = makeStrResponse(request);
+	std::cout << "_______________________________________________\n";
+	std::cout << "Message to send =>\n" << response << std::endl;
+	std::cout << "_______________________________________________\n";
 	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
 	{
 		std::cout << "ERROR with SEND " << _clientFd << std::endl;
@@ -63,11 +58,12 @@ void Response::setResponseString(std::string response)
 }
 
 // somehow _request points to zero page, trying to fix this
-std::string Response::redirectResponse(void){
-	std::string from = _request->getFileNameProtected();
+std::string Response::redirectResponse(int clientFd, std::string from, std::list<s_redirect> redirs)
+{
+	// std::string from = _request->getFileNameProtected();
 	std::string to;
 	std::string val;
-	std::list<s_redirect> redirs = (_request->getConfig()).getRedirect();
+	// std::list<s_redirect> redirs = (_request->getConfig()).getRedirect();
 	for (s_redirect r : redirs){
 		if (r.redirFrom == from){
 			to = r.redirTo;
@@ -86,7 +82,7 @@ std::string Response::redirectResponse(void){
 	oss << "Location: ";
 	oss << to << "\r\n\r\n";
 	oss << REDIR_START << to << REDIR_END;
-	if (send(_clientFd, oss.str().c_str(), oss.str().length(), 0) == -1)
+	if (send(clientFd, oss.str().c_str(), oss.str().length(), 0) == -1)
 	{
 		throw(Exception("Error sending response", errno));
 	}
