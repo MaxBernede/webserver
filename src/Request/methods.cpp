@@ -290,3 +290,18 @@ void	Request::configConfig(){
 	}
 }
 
+void Request::checkVersion(){
+	std::string v = getMethod(2);
+
+	// std::cout << getMethod(0) << getMethod(1) << getMethod(2) <<std::endl;
+	// std::cout << v << " " << v[5] << "<-- version" << std::endl;
+	if (v[5] != '1' && v[5] != '2'){
+		_method[2] = "HTTP/1.1";
+		_errorCode = ErrorCode::HTTP_NOT_SUPPORT;
+		throw (RequestException("HTTP version is not correct", LogLevel::ERROR));
+	}
+}
+
+void Request::checkErrors(){
+	checkVersion();
+}

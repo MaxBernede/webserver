@@ -15,7 +15,7 @@ Response::~Response() {}
 std::string Response::makeStrResponse(Request *request)
 {
 	std::ostringstream oss;
-	std::string http= request->getMethod(2);
+	std::string http = request->getMethod(2);
 	std::string code = std::to_string(request->getErrorCode());
 	std::string message = httpStatus[request->getErrorCode()];
 	oss << http << " " << code << " " << message;
@@ -35,8 +35,7 @@ void Response::addToBuffer(std::string buffer)
 
 void Response::rSend( Request *request )
 {
-	std::string response = _response_text;
-	response = makeStrResponse(request);
+	std::string response = makeStrResponse(request);
 	std::cout << "_______________________________________________\n";
 	std::cout << "Message to send =>\n" << response << std::endl;
 	std::cout << "_______________________________________________\n";

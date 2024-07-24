@@ -11,12 +11,15 @@ enum reqType
 enum ErrorCode {
     OK = 200,
 	NO_CONTENT = 204,
+	BAD_REQUEST = 400,
     FORBIDDEN = 403,
     PAGE_NOT_FOUND = 404,
 	METHOD_NOT_ALLOWED = 405,
     CONFLICT = 409,
+	URI_TOO_LONG = 414,
 	INTERNAL_SRV_ERR = 500,
-	METHOD_NOT_IMPLEMENTED = 501
+	METHOD_NOT_IMPLEMENTED = 501,
+	HTTP_NOT_SUPPORT = 505
 };
 
 enum methodField {
@@ -101,6 +104,10 @@ class Request
 		void		handleDirDelete(std::string & path);
 		void		remove(std::string & path);
 		void		removeDir(std::string & path);
+
+		void		checkErrors();
+		void		checkVersion();
+		void		tooLong();
 
 		void		configConfig();
 	

@@ -20,6 +20,16 @@ Content-Type: application/json
 }
 )";
 
+const std::string HTTP_BAD_REQUEST = R"(
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+
+{
+    "error": "Bad Request",
+    "message": "Your browser sent a request that this server could not understand."
+}
+)";
+
 void ServerRun::acceptNewConnection(int listenerFd)
 {
 	int connFd = -1;
@@ -73,6 +83,8 @@ void ServerRun::redirectToError(int ErrCode, int clientFd)
 		obj->_response->setResponseString(HTTP_CONFLICT_RESPONSE);
 	if (ErrCode == ErrorCode::FORBIDDEN)
 		obj->_response->setResponseString(HTTP_FORBIDDEN_RESPONSE);
+	if (ErrCode == ErrorCode::BAD_REQUEST)
+		obj->_response->setResponseString(HTTP_BAD_REQUEST);
 	_pollData[clientFd]._pollType = HTTP_ERROR;
 }
 
@@ -90,12 +102,18 @@ void ServerRun::readRequest(int clientFd)
 	}
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
-		_httpObjects[clientFd]->_request->printAllData();
+		//_httpObjects[clientFd]->_request->printAllData();
+		int ErrCode = _httpObjects[clientFd]->_request->getErrorCode();
+		if (ErrCode != 200){
+			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
+			redirectToError(ErrCode, clientFd);
+			return ;
+		}
 
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = getConfig(Domain);
 		_httpObjects[clientFd]->setConfig(config);
-		int ErrCode = _httpObjects[clientFd]->_request->checkRequest(); 
+		ErrCode = _httpObjects[clientFd]->_request->checkRequest(); 
 		if (ErrCode != 200 && _httpObjects[clientFd]->_request->getErrorPageStatus() == false)
 		{
 			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;

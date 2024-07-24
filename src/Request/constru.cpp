@@ -51,6 +51,12 @@ void Request::parseFirstLine(std::istringstream &iss){
     std::istringstream line_stream(line);
 
     while (std::getline(line_stream, arg, ' ')){
+		if (arg == "\t" || arg == " " || arg.empty()){
+			_method.push_back("400");
+			_method.push_back("HTTP/1.1");
+			_errorCode = ErrorCode::BAD_REQUEST;
+			throw (RequestException("Bad Request", LogLevel::ERROR));
+		}
         _method.push_back(arg);
 	}
 
@@ -105,9 +111,21 @@ Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false), _erro
 
 Request::~Request() {}
 
+void Request::tooLong(){
+	Logger::log("Too long function Called", WARNING);
+	if (_request_text.size() >= _config.getMaxBody()){
+		_errorCode = ErrorCode::URI_TOO_LONG;
+		throw (RequestException("URI too long", LogLevel::ERROR));
+	}
+}
+
 void Request::constructRequest(){
 	Logger::log("Constructor request call", INFO);
-	// std::cout << _request_text << std::endl;
+
+	tooLong();
+	std::cout << _request_text << std::endl;
+
+
 
 	if (_request_text.empty())
 		throw RequestException("Empty request");
@@ -116,6 +134,7 @@ void Request::constructRequest(){
 	parseResponse(_request_text);	
 	setFile();
 
+	checkErrors();
 	std::string method = getMethod(0);
 	
 	Logger::log("Method is :" + method, INFO);
