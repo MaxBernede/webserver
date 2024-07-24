@@ -49,20 +49,27 @@ void Request::parseFirstLine(std::istringstream &iss){
 
 	std::getline(iss, line);
     std::istringstream line_stream(line);
-
+	int i = 0;
     while (std::getline(line_stream, arg, ' ')){
 		if (arg == "\t" || arg == " " || arg.empty()){
-			_method.push_back("400");
-			_method.push_back("HTTP/1.1");
+			_method[1] = "400";
+			_method[2] = "HTTP/1.1";
 			_errorCode = ErrorCode::BAD_REQUEST;
 			throw (RequestException("Bad Request", LogLevel::ERROR));
 		}
-        _method.push_back(arg);
+        _method[i] = arg;
+		i++;
 	}
 
 	// setFileName(_method[1]);
 
-	_method[2].erase(std::remove(_method[2].begin(), _method[2].end(), '\r'), _method[2].end());
+	//! ??????????????????????????????
+	if (getMethod(2).size() > 2)
+		_method[2].pop_back();
+	//_method[2].erase(std::remove(_method[2].begin(), _method[2].end(), '\r'), _method[2].end());
+	
+	
+	
 	size_t pos = line.find(' ');
 	if (pos != std::string::npos)
 		_request.emplace_back(create_pair(line, pos));
@@ -107,13 +114,19 @@ void Request::fillBoundary(std::string text){
 }
 
 //Constructor that parses everything
-Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false), _errorCode(ErrorCode::OK), _errorPageFound(false){}
+Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false), _errorCode(ErrorCode::OK), _errorPageFound(false){
+	_method.push_back("NULL");
+	_method.push_back("000");
+	_method.push_back("HTTP/1.1");
+}
 
 Request::~Request() {}
 
 void Request::tooLong(){
 	Logger::log("Too long function Called", WARNING);
-	if (_request_text.size() >= _config.getMaxBody()){
+	// Logger::log(std::to_string(_request_text.size()), WARNING);
+	// Logger::log(std::to_string(MAX_BODY_SIZE), WARNING);
+	if (_request_text.size() >= MAX_BODY_SIZE){
 		_errorCode = ErrorCode::URI_TOO_LONG;
 		throw (RequestException("URI too long", LogLevel::ERROR));
 	}

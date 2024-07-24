@@ -5,16 +5,26 @@ void Request::readRequest()
 {
 	char buffer[BUFFER_SIZE];
 
-	int rb = recv(_clientFd, buffer, BUFFER_SIZE - 1, 0);
+	//int rb = recv(_clientFd, buffer, BUFFER_SIZE - 1, 0);
+	int rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
+
 	if (rb < 0){
+		Logger::log(std::strerror(errno), ERROR);
+		//! error so read is done ?
+		_errorCode = ErrorCode::BAD_REQUEST; //not sure of the error
+		_doneReading = true;
 		std::cerr << "Error reading request" << std::endl;
 		return;
 	}
 	buffer[rb] = '\0';
 	_recv_bytes += rb;
 	_request_text += std::string(buffer, rb);
-	if (_request_text.length() > _config.getMaxBody())
+	//Logger::log(std::to_string(_config.getMaxBody()), LogLevel::WARNING);
+	if (_request_text.length() > MAX_BODY_SIZE)
+	{
+		_doneReading = true;
 		throw Exception("Payload too large", 413);
+	}
 	if (rb < BUFFER_SIZE - 1)
 	{
 		_doneReading = true;
@@ -157,6 +167,7 @@ bool Request::redirRequest404()
 	return (_errorCode != 200);
 }
 
+//TODO fix the function because all of that return the errorcode
 int Request::checkRequest() // Checking for 404 and 405 Errors
 {
 	//Temp check for Max code:

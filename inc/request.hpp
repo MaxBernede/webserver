@@ -2,6 +2,9 @@
 #include "webserver.hpp"
 #include <cstdio>
 
+#define MAX_BODY_SIZE 1048576
+//#define MAX_BODY_SIZE 1048
+
 enum reqType
 {
 	HTML,

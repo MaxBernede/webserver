@@ -21,7 +21,6 @@ Content-Type: application/json
 )";
 
 const std::string HTTP_BAD_REQUEST = R"(
-HTTP/1.1 400 Bad Request
 Content-Type: application/json
 
 {
@@ -103,6 +102,8 @@ void ServerRun::readRequest(int clientFd)
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
 		//_httpObjects[clientFd]->_request->printAllData();
+
+		//! check if error in request, variables not set yet
 		int ErrCode = _httpObjects[clientFd]->_request->getErrorCode();
 		if (ErrCode != 200){
 			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
@@ -113,6 +114,9 @@ void ServerRun::readRequest(int clientFd)
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = getConfig(Domain);
 		_httpObjects[clientFd]->setConfig(config);
+		
+		
+		//! check 404 405 only if config set
 		ErrCode = _httpObjects[clientFd]->_request->checkRequest(); 
 		if (ErrCode != 200 && _httpObjects[clientFd]->_request->getErrorPageStatus() == false)
 		{
