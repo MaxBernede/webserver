@@ -133,8 +133,6 @@ bool Request::redirRequest404()
 	if (_file == "")
 		_file = _config.getIndex();
 	_filePath = _config.getRoot() + _file;
-	std::cout << "root: " << _config.getRoot() << std::endl;
-	std::cout << "file: " << _file << std::endl;
 	Logger::log("Checking file: " + _filePath, LogLevel::INFO);
 	if (access(_filePath.c_str(), F_OK) == -1) // If file does not exist
 	{
@@ -149,47 +147,55 @@ bool Request::redirRequest404()
 				_file = item.url; // redir to error page on Server
 			}
 		}
-		std::cout << "_File after looping errorpgs: " << _file << std::endl;
 		_filePath = _config.getRoot() + _file;
 		if (access(_filePath.c_str(), F_OK) == -1 || !found)
 		{
 			_errorPageFound = false;
 		}
 	}
+	if (isFileorDir)
+	{
+		throw(Exception("Error, path requested is not a file", 1));
+	}
 	return (_errorCode != 200);
 }
 
-int Request::isFileorDir()
+int Request::isFileorDir(std::string filePath)
 {
-	std::cout << "CHECK!\n";
-	if (_file == "")
-		_file = _config.getIndex();
-	_filePath = _config.getRoot() + _file;
-	std::cout << "filepath: " << _filePath << std::endl;
+	Logger::log("Checking if the path " + filePath + " is a file or directory...", DEBUG);
 	struct stat path_stat;
-	int statRes = stat(_filePath.c_str(), &path_stat);
+	int statRes = stat(filePath.c_str(), &path_stat);
 	if (statRes != 0)
 	{
-		std::cout << "Error accessig path: " << _filePath << std::endl;
+		std::cout << "Error accessing path: " << filePath << std::endl;
 		return (1);
 	}
 	if (S_ISREG(path_stat.st_mode)) // if the path is a file
 	{
-		return (0);
+		return (0); // if its a file it is good.
 	}
-	else if (S_ISDIR(path_stat.st_mode)) // if the path is a diretory
+	return (1); // if path is not a file, i.e. a directory
+}
+
+int	Request::handleDirListing()
+{
+	if (_file == "")
+		_file = _config.getIndex();
+	if (_file == "")
 	{
-		// if directory, check if it has an index page defined
-		// else, 404.
+		if (_config.getAutoIndex())
+		{
+			// dir listing
+		}
+		else
+		{
+			return (0); // it will be caught in 404
+		}
 	}
-	
-	exit(1);
-	return (0);
 }
 
 int Request::checkRequest() // Checking for 404 and 405 Errors
 {
-	//Temp check for Max code:
 	Logger::log("Checking file...", LogLevel::INFO);
 	if (redirRequest405())
 		return (getErrorCode());
@@ -198,11 +204,8 @@ int Request::checkRequest() // Checking for 404 and 405 Errors
 		std::cout << "redirect, not 404!\n";
 		return (200);
 	}
-	//check auto index
-	// if (isFileorDir())
-	// {
+	if (handleDirListing())
 
-	// }
 	if (redirRequest404())
 		return (getErrorCode());
 	return getErrorCode();

@@ -96,6 +96,7 @@ class Request
 		bool		redirRequest501();
 		bool		redirRequest405();
 		bool		redirRequest404();
+		int			handleDirListing();
 		void		handleDelete();
 		void		handlePost();
 		void		handleDirDelete(std::string & path);
@@ -103,7 +104,7 @@ class Request
 		void		removeDir(std::string & path);
 
 		void		configConfig();
-		int			isFileorDir();
+		int			isFileorDir(std::string filePath);
 		void		printAllData();
 
 	private:
