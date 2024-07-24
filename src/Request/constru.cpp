@@ -53,9 +53,9 @@ void Request::parseFirstLine(std::istringstream &iss){
     while (std::getline(line_stream, arg, ' ')){
         _method.push_back(arg);
 	}
-
 	// setFileName(_method[1]);
-
+	if (_method.size() < 3)
+		throw (Exception("method not found", 404));
 	_method[2].erase(std::remove(_method[2].begin(), _method[2].end(), '\r'), _method[2].end());
 	size_t pos = line.find(' ');
 	if (pos != std::string::npos)
@@ -107,7 +107,7 @@ Request::~Request() {}
 
 void Request::constructRequest(){
 	Logger::log("Constructor request call", INFO);
-	// std::cout << _request_text << std::endl;
+	std::cout << _request_text << std::endl;
 
 	if (_request_text.empty())
 		throw RequestException("Empty request");
