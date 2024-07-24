@@ -6,16 +6,17 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/07/02 13:12:13 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/07/03 14:27:09 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/07/19 15:18:00 by mbernede      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include<string>
-#include<vector>
-#include<list>
-#include<utils.hpp>
+#include <string>
+#include <vector>
+#include <list>
+#include "OurClasses.hpp"
+#include "utils.hpp"
 
 class Config{
 	protected:

@@ -6,7 +6,7 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/07/02 13:28:08 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/07/02 14:28:53 by kposthum      ########   odam.nl         */
+/*   Updated: 2024/07/19 14:34:49 by mbernede      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include<utils.hpp>
 #include<ConfigClass.hpp>
-#include<Server.hpp>
+#include<server.hpp>
 
 #include<string>
 #include<list>

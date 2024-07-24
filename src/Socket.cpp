@@ -12,6 +12,8 @@ Socket::Socket(int port)
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE; // fills in your local host ip for you, saves you from having to hard code it
 
+	// TODO add IP number as argument one. see if getaddrinfo accepts IPv4
+	//127.0.0.1 - 127.255.255.254
 	int status = getaddrinfo(NULL, port_str.c_str(), &hints, &res);
 	bool bound = false;
 	if(status != 0)
@@ -23,6 +25,17 @@ Socket::Socket(int port)
 		_fd = socket(tmp->ai_family, tmp->ai_socktype, tmp->ai_protocol);
 		if (_fd == -1)
 			continue ;
+
+		//Check the code below for opti. It makes socket reusable so no waits
+		int opt = 1;
+		if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+		{
+			std::cerr << "Failed to set socket options" << std::endl;
+			close(_fd);
+			freeaddrinfo(res);
+			throw(Exception("Failed to set socket options", errno));
+		}
+
 		fcntl(_fd, F_SETFL, O_NONBLOCK);
 		if (bind(_fd, res->ai_addr, res->ai_addrlen) == 0)
 		{
@@ -34,7 +47,7 @@ Socket::Socket(int port)
 	freeaddrinfo(res);
 	if (!bound)
 	{
-		std::cout << "binding socket " << port << " failed" << std::endl;
+		std::cout << "Port " << port << ": ";
 		throw(Exception("Socket failed to bind", errno));
 	}
 	if (listen(_fd, SOMAXCONN))
@@ -42,7 +55,7 @@ Socket::Socket(int port)
 		close(_fd);
 		std::cout << "listening failed on socketfd " << _fd << " on port " << port << std::endl; 
 	}
-	std::cout << "Sockets created: " << _fd << std::endl;
+	std::cout << "Sockets created with fd " << _fd << " on: " << port << std::endl;
 }
 	
 Socket::~Socket()

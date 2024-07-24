@@ -1,30 +1,34 @@
 #include "webserver.hpp"
 #include "request.hpp"
-#include<utils.hpp>
-#include<Server.hpp>
 
+
+void Request::setFileName(std::string newName){
+	_file = newName;
+}
+
+// Max : is it maintanable ?
 void Request::setFile() {
-	std::string val = getValues("GET");
-	if (val.empty())
-		val = getValues("POST");
-	_file = val.empty() ? "" : firstWord(val);
-	_file.erase(0,1);
-	if (_file == "/")
+	_file = getMethod(1);
+	_file.erase(0, 1);
+	if (_file == "")
+	{
 		_file = _config.getIndex();
-	std::cout << "FILE\t" << _file << std::endl;
+	}
+	// _file = "index.html";
 }
 
 //Create a pair out of the line and the int pos of the delimiter (: for every lines or space for the first line)
 std::pair<std::string, std::string> create_pair(const std::string &line, size_t pos){
-	std::string key = line.substr(0, pos);
-	std::string value = line.substr(pos + 1); // Skip the delimiter
+	std::string key		= line.substr(0, pos);
+	std::string value	= line.substr(pos + 1); // Skip the delimiter
+
 	if (!value.empty() && value[0] == ' ')
 		value = value.substr(1); // Remove leading space if present
 	return std::make_pair(key, value);
 }
 
 void Request::parseBody(std::istringstream &iss, std::string &line) {
-    std::string body = "Body ";
+    std::string body	= "Body ";
 
     if (_boundary != "" && isBoundary(line)) {
         while (std::getline(iss, line)) {
@@ -41,13 +45,18 @@ void Request::parseBody(std::istringstream &iss, std::string &line) {
 
 //save as well the GET request in the all datas AND the _method
 void Request::parseFirstLine(std::istringstream &iss){
-	std::string line, arg;
+	std::string	line, arg;
+
 	std::getline(iss, line);
     std::istringstream line_stream(line);
 
     while (std::getline(line_stream, arg, ' ')){
         _method.push_back(arg);
 	}
+
+	// setFileName(_method[1]);
+
+	_method[2].erase(std::remove(_method[2].begin(), _method[2].end(), '\r'), _method[2].end());
 	size_t pos = line.find(' ');
 	if (pos != std::string::npos)
 		_request.emplace_back(create_pair(line, pos));
@@ -57,8 +66,8 @@ void Request::parseFirstLine(std::istringstream &iss){
 // it works as : get the first line based on space
 // then check for the ':' however if there is a boundary and its found, keep everything between as body
 void Request::parseResponse(const std::string& headers) {
-	std::istringstream iss(headers);
-	std::string line;
+	std::istringstream	iss(headers);
+	std::string			line;
 
 	parseFirstLine(iss);
 	while (std::getline(iss, line)) {
@@ -73,8 +82,9 @@ void Request::parseResponse(const std::string& headers) {
 }
 
 void Request::fillBoundary(std::string text){
-	std::string search = "boundary=";
-	size_t pos = text.find(search);
+	std::string search	= "boundary=";
+	size_t pos			= text.find(search);
+
 	if (pos == std::string::npos){
 		_boundary = "";
 		return;
@@ -91,38 +101,33 @@ void Request::fillBoundary(std::string text){
 }
 
 //Constructor that parses everything
-Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false) {}
+Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false), _errorCode(ErrorCode::OK), _errorPageFound(false){}
 
 Request::~Request() {}
 
-Request::Request(const Request &src){
-	*this = src;
-}
-
-Request &Request::operator=(const Request &src){
-	this->_method = src._method;
-	this->_request = src._request;
-	this->_request_str = src._request_str;
-	this->_boundary = src._boundary;
-	this->_clientFd = src._clientFd;
-	this->_request_text = src._request_text;
-	this->_read_bytes = src._read_bytes;
-	this->_config = src._config;
-	
-	return *this;
-}
-
 void Request::constructRequest(){
-	printColor(BLUE, "Constructor request call");
+	Logger::log("Constructor request call", INFO);
+	// std::cout << _request_text << std::endl;
+
+	if (_request_text.empty())
+		throw RequestException("Empty request");
+
 	fillBoundary(_request_text);
 	parseResponse(_request_text);	
 	setFile();
-	printAllData();
-	//Below is the equivalent of execution of the POST
-	// std::string body = getValues("Body");
-	// std::cout << _config << std::endl;
-	// if (!body.empty()){
-	// 	printColor(RED, "BODY CREATE");
-	// 	create_file(body, _config.getRoot());
-	// }
+
+	std::string method = getMethod(0);
+	
+	Logger::log("Method is :" + method, INFO);
+	if (method == "GET"){
+		;
+	}
+	else if (method == "DELETE"){
+		handleDelete();
+		return;
+	}
+	else if (method == "POST"){
+		handlePost();
+		return;
+	}
 }

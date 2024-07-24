@@ -5,21 +5,23 @@
 #include <sys/socket.h>
 #include "CGI.hpp"
 
-// TODO: remove 
-ServerRun::ServerRun(const std::list<Server> config){
+ServerRun::ServerRun(const std::list<Server> config)
+{
 	std::vector<int> listens;
 
 	if (config.empty())
 		throw(Exception("No servers defined in the config file", 1));
 	_servers = config;
 	// looping over the sever bloacks
-	for (auto server : _servers)	{
-		for (auto port : server.getPorts()){
+	for (auto server : _servers)
+	{
+		for (auto port : server.getPorts())
+		{
 			if (std::find(listens.begin(), listens.end(), port.port) == listens.end())
 				listens.push_back(port.port);
-			else{
-				std::cout << "port: " << port.port << std::endl;
-				std::cout << "Servers have the same port in config" << std::endl;
+			else
+			{
+				Logger::log("Servers have the same port in config: " + std::to_string(port.port), LogLevel::WARNING);
 			}
 		}
 	}
@@ -27,34 +29,43 @@ ServerRun::ServerRun(const std::list<Server> config){
 	createListenerSockets(listens);
 }
 
-ServerRun::~ServerRun( void ){
+ServerRun::~ServerRun( void )
+{
 	// delete everything
-	for (auto it : _listenSockets){
+	for (auto it : _listenSockets)
+	{
 		close(it->getFd());
 		delete it;
 	}
 }
 
-void ServerRun::createListenerSockets(std::vector<int> listens){
+void ServerRun::createListenerSockets(std::vector<int> listens)
+{
 	Socket *new_socket;
-	for (auto listen : listens){
-		try{
+	std::cout << "Creaing listening sockets\n";
+	for (auto listen : listens)
+	{
+		try
+		{
 			new_socket = new Socket(listen);
 			_listenSockets.push_back(new_socket);
 		}
-		catch (const Exception &e){
+		catch (const Exception &e)
+		{
 			std::cout << e.what() << std::endl;
 		}
 	}
 	if (_listenSockets.empty())
 		throw(Exception("No available port on the defined host", 1));
 	// add listener sockets to queue
-	for (int i = 0; i < (int)_listenSockets.size(); i++){
+	for (int i = 0; i < (int)_listenSockets.size(); i++)
+	{
 		addQueue(LISTENER, _listenSockets[i]->getFd());
 	}
 }
 
-void ServerRun::addQueue(pollType type, int fd){
+void ServerRun::addQueue(pollType type, int fd)
+{
 	s_poll_data newPollItem;
 	struct pollfd newPollFd;
 
@@ -64,42 +75,73 @@ void ServerRun::addQueue(pollType type, int fd){
 	_pollData[fd] = newPollItem;
 }
 
-// Loop to create sockets(), bind() and listen() for each server
-void ServerRun::serverRunLoop( void ){
-	// create epoll queue...
+void ServerRun::serverRunLoop( void )
+{
 	int nCon = -1;
-	printColor(GREEN, "Server running...");
-	while (true){
+	Logger::log("Server running... ", INFO);
+	while (true)
+	{
 		nCon = poll(_pollFds.data(), _pollFds.size(), 0);
-		if (nCon <= 0){
+		if (nCon <= 0)
+		{
 			if (nCon < 0 and errno != EAGAIN) // EGAIN: Resource temporarily unavailable
 				throw(Exception("Poll failed", errno));
 			continue ;
 		}
-		for (int i = 0; i < (int)_pollFds.size(); i++){
+		for (int i = 0; i < (int)_pollFds.size(); i++)
+		{
 			int fd = _pollFds[i].fd;
-			try{
-				if (_pollFds[i].revents & POLLIN){
+			try
+			{
+				if (_pollFds[i].revents & POLLIN)
+				{
 					// Only start reading CGI once the write end of the pipe is closed
-					if ((_pollFds[i].revents & POLLHUP) && _pollData[fd]._pollType == CGI_READ_WAITING){
+					if ((_pollFds[i].revents & POLLHUP) && _pollData[fd]._pollType == CGI_READ_WAITING)
+					{
 						std::cout << "CGI write side finished writing to the pipe\n";
 						_pollData[fd]._pollType = CGI_READ_READING;
 					}
 					//Read from client
 					dataIn(_pollData[fd], _pollFds[i]);
 				}
-				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollType == CGI_READ_DONE || _pollData[fd]._pollType == HTTP_REDIRECT){
+				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollType == CGI_READ_DONE)
+				{
 					// Write to client
 					dataOut(_pollData[fd], _pollFds[i]);
 				}
+
 			}
-			catch(const Exception& e){
+			catch(const Exception& e)
+			{
+				//Cath of the "Throw Port not found" in the readRequest;
 				std::cerr << e.what() << '\n';
 			}
 		}
 	}
 }
 
+// /// TODO check functions with same name
+// Server ServerRun::getConfig(int clientFd) // WILL ADD HOST
+// {
+// 	int port = _httpObjects[clientFd]->_request->getRequestPort();
+// 	std::cout << "port: " << port << std::endl;
+// 	if (port < 0)
+// 	{
+// 		throw Exception("Port not found", errno);
+// 	}
+// 	for (auto server : _servers)
+// 	{
+// 		for (auto p : server.getPorts())
+// 		{
+// 			if (p.port == port)
+// 			{
+// 				std::cout << "returning server\n";
+// 				return (server);
+// 			}
+// 		}
+// 	}
+// 	throw(Exception("Server not found", 1));
+// }
 
 Server ServerRun::getConfig(s_domain port){
 	for (auto server : _servers){
@@ -113,27 +155,29 @@ Server ServerRun::getConfig(s_domain port){
 	return (nullptr);
 }
 
-Server ServerRun::getConfig(int port){
-		for (auto server : _servers){
-		for (auto p : server.getPorts()){
-			if (p.port == port){
-				return (server);
-			}
-		}
-	}
-	throw Exception("Server not found", 404);
-	return (nullptr);
-}
-
-void ServerRun::removeConnection(int fd){
-	for (int i = 0; i < (int)_pollFds.size(); i++){
-		if (_pollFds[i].fd == fd){
+void ServerRun::removeConnection(int fd)
+{
+	for (int i = 0; i < (int)_pollFds.size(); i++)
+	{
+		if (_pollFds[i].fd == fd)
+		{
 			_pollFds.erase(_pollFds.begin() + i);
 			break ;
 		}
 	}
 	if (_pollData.count(fd))
 		_pollData.erase(fd);
+}
+
+HTTPObject *ServerRun::findHTTPObject(int readFd)
+{
+	for (auto& pair : _httpObjects)
+	{
+		if (pair.second->getReadFd() == readFd) {
+		    return pair.second;
+		}
+	}
+	return nullptr; // Return nullptr if not found
 }
 
 /*
