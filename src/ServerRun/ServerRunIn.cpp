@@ -98,7 +98,7 @@ void ServerRun::readRequest(int clientFd)
 		_httpObjects[clientFd]->_request->printAllData();
 
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
-		Server config = getConfig(Domain);
+		Server config = getConfig(Domain, clientFd);
 		_httpObjects[clientFd]->setConfig(config);
 		int ErrCode = _httpObjects[clientFd]->_request->checkRequest(); 
 		if (ErrCode != 200 && _httpObjects[clientFd]->_request->getErrorPageStatus() == false)
@@ -117,6 +117,9 @@ void ServerRun::readRequest(int clientFd)
 			{
 				if (!config.getCGI())
 				{
+					// redirectToError(404, clientFd); I assume we do something like this, if we do the lines below should be cleared
+					cleanUp(clientFd);
+					_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 					throw(Exception("CGI is not permitted for this server", 1));
 					return ;
 				}

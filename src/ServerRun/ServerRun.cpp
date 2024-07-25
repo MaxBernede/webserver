@@ -121,7 +121,7 @@ void ServerRun::serverRunLoop( void )
 	}
 }
 
-Server ServerRun::getConfig(s_domain port){
+Server ServerRun::getConfig(s_domain port, int clientFd){
 	for (auto server : _servers){
 		for (auto p : server.getPorts()){
 			if (p.port == port.port && p.host == port.host){
@@ -129,6 +129,8 @@ Server ServerRun::getConfig(s_domain port){
 			}
 		}
 	}
+	cleanUp(clientFd);
+	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 	throw (Exception("Server not found", 404));
 	return (nullptr);
 }
