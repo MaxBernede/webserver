@@ -47,3 +47,4 @@
 #include "error.hpp"
 #include "fileHandling.hpp"
 #include "HTTPObject.hpp"
+#include "HTTPError.hpp"

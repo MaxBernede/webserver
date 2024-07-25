@@ -94,6 +94,11 @@ void	Request::setConfig(Server config)
 	_config = config;
 }
 
+void Request::setErrorCode(ErrorCode err)
+{
+	_errorCode = err;
+}
+
 std::string Request::getDeleteFilename(const std::string& httpRequest) {
     // Find the start of the JSON body
     std::size_t jsonStart = httpRequest.find("\r\n\r\n");

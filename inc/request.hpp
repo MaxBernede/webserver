@@ -11,6 +11,7 @@ enum reqType
 enum ErrorCode {
     OK = 200,
 	NO_CONTENT = 204,
+	BAD_REQUEST = 400,
     FORBIDDEN = 403,
     PAGE_NOT_FOUND = 404,
 	METHOD_NOT_ALLOWED = 405,
@@ -62,7 +63,7 @@ class Request
 		void		parseFirstLine(std::istringstream &iss);
 		void		parseBody(std::istringstream &iss, std::string &line);
 		void 		parseResponse(const std::string& headers);
-		int			checkRequest();
+		void		checkRequest();
 
 		//GET
 		std::string	getFile();
@@ -86,20 +87,25 @@ class Request
 		// SET
 		void		setFileName(std::string newName);
 		void		setFile();
-		void		setConfig(Server config);	
+		void		setConfig(Server config);
+		void		setErrorCode(ErrorCode);
 
 		//Methods
 		bool		isRedirect();
 		bool		isCgi(); // boolean to tell if request is Cgi
 		bool		isDoneReading();
 		bool		isBoundary(const std::string &line);
-		bool		redirRequest501();
-		bool		redirRequest405();
-		bool		redirRequest404();
-		int			handleDirListing();
+
+		void		redirRequest501();
+		void		redirRequest405();
+		void		redirRequest404();
+		void		handleDirListing();
+
+		void		searchErrorPage();
 		void		handleDelete();
 		void		handlePost();
 		void		handleDirDelete(std::string & path);
+		
 		void		remove(std::string & path);
 		void		removeDir(std::string & path);
 

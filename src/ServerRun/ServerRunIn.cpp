@@ -1,8 +1,6 @@
 #include "webserver.hpp"
 
-const std::string HTTP_CONFLICT_RESPONSE = R"(
-HTTP/1.1 409 Conflict
-Content-Type: application/json
+const std::string HTTP_CONFLICT_RESPONSE = R"(Content-Type: application/json
 
 {
     "error": "Conflict",
@@ -10,9 +8,7 @@ Content-Type: application/json
 }
 )";
 
-const std::string HTTP_FORBIDDEN_RESPONSE = R"(
-HTTP/1.1 403 Forbidden
-Content-Type: application/json
+const std::string HTTP_FORBIDDEN_RESPONSE = R"(Content-Type: application/json
 
 {
     "error": "Forbidden",
@@ -35,7 +31,6 @@ void ServerRun::acceptNewConnection(int listenerFd)
 
 void ServerRun::handleCGIRequest(int clientFd)
 {
-	std::cout << "CGI Request\n";
 	Logger::log("A CGI Request is being handled", LogLevel::INFO);
 	_httpObjects[clientFd]->createCGI();
 	int pipeFd = _httpObjects[clientFd]->_cgi->getReadFd();
@@ -59,21 +54,34 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 	addQueue(FILE_READ_READING, fileFd);
 }
 
-// Only handles 404 and 405
+// Handles error code when no error file exists
 void ServerRun::redirectToError(int ErrCode, int clientFd)
 {
+	Logger::log("Redirecting to Error...", LogLevel::WARNING);
+	// need to add file search here...
 	HTTPObject *obj = _httpObjects[clientFd];
-	if (ErrCode == 404)
-		obj->_response->setResponseString(NOT_FOUND);
-	if (ErrCode == 405)
-		obj->_response->setResponseString(NOT_ALLOWED);
-	if (ErrCode == NO_CONTENT)
-		obj->_response->setResponseString("HTTP/1.1 204 No Content");
-	if (ErrCode == ErrorCode::CONFLICT)
-		obj->_response->setResponseString(HTTP_CONFLICT_RESPONSE);
-	if (ErrCode == ErrorCode::FORBIDDEN)
-		obj->_response->setResponseString(HTTP_FORBIDDEN_RESPONSE);
-	_pollData[clientFd]._pollType = HTTP_ERROR;
+	obj->_request->searchErrorPage();
+	if (obj->_request->getErrorPageStatus() == false) // if no error file does not exst
+	{
+		Logger::log("Error page does not exist..Error code: " + std::to_string(ErrCode), LogLevel::WARNING);
+		if (ErrCode == PAGE_NOT_FOUND)
+			obj->_response->setResponseString(NOT_FOUND);
+		if (ErrCode == METHOD_NOT_ALLOWED)
+			obj->_response->setResponseString(NOT_ALLOWED);
+		if (ErrCode == METHOD_NOT_IMPLEMENTED)
+			obj->_response->setResponseString(NOT_IMPLEMENTED);
+		if (ErrCode == NO_CONTENT)
+			obj->_response->setResponseString("HTTP/1.1 204 No Content");
+		if (ErrCode == ErrorCode::CONFLICT)
+			obj->_response->setResponseString(HTTP_CONFLICT_RESPONSE);
+		if (ErrCode == ErrorCode::FORBIDDEN)
+			obj->_response->setResponseString(HTTP_FORBIDDEN_RESPONSE);
+		_pollData[clientFd]._pollType = HTTP_ERROR;
+	}
+	else // if error page exists
+	{
+		handleStaticFileRequest(clientFd);
+	}
 }
 
 // Only continue after reading the whole request
@@ -95,13 +103,13 @@ void ServerRun::readRequest(int clientFd)
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = getConfig(Domain);
 		_httpObjects[clientFd]->setConfig(config);
-		int ErrCode = _httpObjects[clientFd]->_request->checkRequest(); 
-		if (ErrCode != 200 && _httpObjects[clientFd]->_request->getErrorPageStatus() == false)
-		{
-			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-			redirectToError(ErrCode, clientFd);
-			return ;
-		}
+		_httpObjects[clientFd]->_request->checkRequest(); 
+		// if (_httpObjects[clientFd]->_request->getErrorCode() != OK && _httpObjects[clientFd]->_request->getErrorPageStatus() == false)
+		// {
+		// 	_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
+		// 	redirectToError(_httpObjects[clientFd]->_request->getErrorCode(), clientFd);
+		// 	return ;
+		// }
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 		if (_httpObjects[clientFd]->_request->isRedirect())
 		{
@@ -111,8 +119,8 @@ void ServerRun::readRequest(int clientFd)
 		{
 			if (!config.getCGI())
 			{
-				throw(Exception("CGI is not permitted for this server", 1)); // What do we do when CGI is not allowed?
-				return ;
+				Logger::log("CGI is not permitted for this server", LogLevel::ERROR);
+				throw(HTTPError("CGI is not permitted for this server", ErrorCode::FORBIDDEN)); // What do we do when CGI is not allowed?
 			}
 			handleCGIRequest(clientFd);
 		}

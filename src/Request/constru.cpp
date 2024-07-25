@@ -62,6 +62,7 @@ void Request::parseFirstLine(std::istringstream &iss){
 		_request.emplace_back(create_pair(line, pos));
 }
 
+//!??? WHY IS THIS CALLED RESPONSE??? can i change it to request?
 //fill the _request
 // it works as : get the first line based on space
 // then check for the ':' however if there is a boundary and its found, keep everything between as body
@@ -110,14 +111,16 @@ void Request::constructRequest(){
 	// std::cout << _request_text << std::endl;
 
 	if (_request_text.empty())
-		throw RequestException("Empty request");
-
+		throw HTTPError("Bad request", ErrorCode::BAD_REQUEST);
 	fillBoundary(_request_text);
 	parseResponse(_request_text);	
 	setFile();
 
+	redirRequest405(); // ---> throw something case error
+
+	redirRequest501();
+
 	std::string method = getMethod(0);
-	
 	Logger::log("Method is :" + method, INFO);
 	if (method == "GET"){
 		;
