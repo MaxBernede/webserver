@@ -117,7 +117,8 @@ void ServerRun::readRequest(int clientFd)
 		
 		
 		//! check 404 405 only if config set
-		ErrCode = _httpObjects[clientFd]->_request->checkRequest(); 
+		_httpObjects[clientFd]->_request->checkRequest();
+		ErrCode = _httpObjects[clientFd]->_request->getErrorCode();
 		if (ErrCode != 200 && _httpObjects[clientFd]->_request->getErrorPageStatus() == false)
 		{
 			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;

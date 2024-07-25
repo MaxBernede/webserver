@@ -72,6 +72,7 @@ void Request::printAllData(){
 		Logger::log(pair.first + ": " + pair.second, DEBUG);
 }
 
+
 bool Request::redirRequest501()
 {
 	std::string method = getMethod(0);
@@ -168,20 +169,21 @@ bool Request::redirRequest404()
 }
 
 //TODO fix the function because all of that return the errorcode
-int Request::checkRequest() // Checking for 404 and 405 Errors
+void Request::checkRequest() // Checking for 404 and 405 Errors
 {
 	//Temp check for Max code:
 	Logger::log("Checking file...", LogLevel::INFO);
 	if (redirRequest405())
-		return (getErrorCode());
+		return ;
 	if (isRedirect())
 	{
 		std::cout << "redirect, not 404!\n";
-		return (200);
+		//? Below line is not sure
+		_errorCode = ErrorCode::OK;
+		return;
 	}
-	if (redirRequest404())
-		return (getErrorCode());
-	return getErrorCode();
+	redirRequest404();
+	return ;
 }
 
 void Request::remove(std::string &path){

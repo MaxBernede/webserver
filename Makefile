@@ -3,6 +3,7 @@ CXX := c++
 
 CXXFLAGS = -std=c++20 -Wall -Wextra -g 
 CXXFLAGS += -fsanitize=address
+CXXFLAGS += -include inc/webserver.hpp
 # CXXFLAGS += -Werror
 RM := rm -rf
 
