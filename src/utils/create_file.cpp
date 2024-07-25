@@ -1,5 +1,5 @@
-#include "../inc/webserver.hpp"
-#include "../inc/utils.hpp"
+#include "../inc/Webserver.hpp"
+#include "../inc/Utils.hpp"
 
 //Find filename in the body content
 //Find the last " and return whats in between

@@ -1,22 +1,10 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        ::::::::            */
-/*   ConfigClass.hpp                                    :+:    :+:            */
-/*                                                     +:+                    */
-/*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
-/*                                                   +#+                      */
-/*   Created: 2024/07/02 13:12:13 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/07/19 15:18:00 by mbernede      ########   odam.nl         */
-/*                                                                            */
-/* ************************************************************************** */
-
 #pragma once
 
 #include <string>
 #include <vector>
 #include <list>
 #include "OurClasses.hpp"
-#include "utils.hpp"
+#include "Utils.hpp"
 
 class Config{
 	protected:

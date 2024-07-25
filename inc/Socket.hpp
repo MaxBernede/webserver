@@ -1,14 +1,11 @@
 #pragma once
 
-# include "Exception.hpp"
-
-# include <sys/socket.h>
-# include <fcntl.h>
-# include <unistd.h>
-# include <netdb.h>
-
-# include <netinet/in.h>
-# include <cstdint>
+#include "Exception.hpp"
+#include <iostream>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <fcntl.h>
+#include <netdb.h>
 
 class Socket
 {

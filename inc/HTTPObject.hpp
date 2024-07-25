@@ -1,4 +1,7 @@
-#include "webserver.hpp"
+#pragma once
+#include "Webserver.hpp"
+
+class Response;
 
 class HTTPObject {
 	private:

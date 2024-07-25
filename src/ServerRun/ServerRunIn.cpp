@@ -1,4 +1,4 @@
-#include "webserver.hpp"
+#include "Webserver.hpp"
 
 const std::string HTTP_CONFLICT_RESPONSE = R"(Content-Type: application/json
 
@@ -111,25 +111,12 @@ void ServerRun::readRequest(int clientFd)
 	{
 		_httpObjects[clientFd]->_request->printAllData();
 
-		//! check if error in request, variables not set yet
-		int ErrCode = _httpObjects[clientFd]->_request->getErrorCode();
-		if (ErrCode != 200){
-			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-			redirectToError(ErrCode, clientFd);
-			return ;
-		}
-
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = getConfig(Domain);
 		_httpObjects[clientFd]->setConfig(config);
 		
 		_httpObjects[clientFd]->_request->checkRequest(); 
-		// if (_httpObjects[clientFd]->_request->getErrorCode() != OK && _httpObjects[clientFd]->_request->getErrorPageStatus() == false)
-		// {
-		// 	_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-		// 	redirectToError(_httpObjects[clientFd]->_request->getErrorCode(), clientFd);
-		// 	return ;
-		// }
+
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
 		if (_httpObjects[clientFd]->_request->isRedirect())
 		{

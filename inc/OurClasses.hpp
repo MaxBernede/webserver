@@ -2,6 +2,20 @@
 #include <exception>
 #include <string>
 
+enum ErrorCode {
+    OK = 200,
+	NO_CONTENT = 204,
+	BAD_REQUEST = 400,
+    FORBIDDEN = 403,
+    PAGE_NOT_FOUND = 404,
+	METHOD_NOT_ALLOWED = 405,
+    CONFLICT = 409,
+	URI_TOO_LONG = 414,
+	INTERNAL_SRV_ERR = 500,
+	METHOD_NOT_IMPLEMENTED = 501,
+	HTTP_NOT_SUPPORT = 505
+};
+
 class	invalidFile : public std::exception{
 	public:
 		const char	*what() const noexcept override {

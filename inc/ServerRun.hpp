@@ -1,7 +1,9 @@
-# pragma once
+#pragma once
 
 #include <iostream>
-#include "webserver.hpp"
+#include "Webserver.hpp"
+#include <unordered_map>
+#include <sys/poll.h>
 
 class CGI;
 class HTTPObject;

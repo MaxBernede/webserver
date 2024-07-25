@@ -1,8 +1,4 @@
-#include "../inc/webserver.hpp"
-#include "../inc/response.hpp"
-#include "HTTPStatus.hpp"
-#include "Redirect.hpp"
-
+#include "Response.hpp"
 //!Constructors
 
 Response::Response(int clientFd) : _clientFd(clientFd), _ready(false)

@@ -1,6 +1,6 @@
-#include "webserver.hpp"
-#include "server.hpp"
-#include "utils.hpp"
+#include "Webserver.hpp"
+#include "Server.hpp"
+#include "Utils.hpp"
 
 void confPort(std::string value, Server &serv){
 	s_domain port;

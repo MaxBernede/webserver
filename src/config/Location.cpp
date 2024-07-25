@@ -1,6 +1,6 @@
 #include "Location.hpp"
 #include "ConfigClass.hpp"
-#include "webserver.hpp"
+#include "Webserver.hpp"
 Location::Location(std::list<std::string> &body){
 	for (std::string s : body)
 		_body.push_back(s);

@@ -6,12 +6,12 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/07/02 13:12:16 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/07/19 15:10:43 by mbernede      ########   odam.nl         */
+/*   Updated: 2024/07/25 18:31:51 by mbernede      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ConfigClass.hpp"
-// #include "webserver.hpp"
+// #include "Webserver.hpp"
 
 static std::vector<bool> defaultMethods(){
 	std::vector<bool> methods;
