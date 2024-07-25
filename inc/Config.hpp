@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Server.hpp"
+
 void confPort(std::string value, Server &serv);
 void confName(std::string value, Server &serv);
 void confRoot(std::string value, Server &serv);

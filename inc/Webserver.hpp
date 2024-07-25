@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <exception>
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -19,21 +20,9 @@
 #include "Logger.hpp"
 #include "Utils.hpp"
 #include "Error.hpp"
-
-#include "Response.hpp"
-
-#include "ConfigClass.hpp"
 #include "OurClasses.hpp"
-
+#include "Config.hpp"
+#include "FileHandling.hpp"
 #include "HTTPError.hpp"
 
-#include "Location.hpp"
-
-#include "Server.hpp"
-#include "Config.hpp"
-#include "Socket.hpp"
-#include "ServerRun.hpp"
-#include "Request.hpp"
-#include "CGI.hpp"
-#include "FileHandling.hpp"
 #include "HTTPObject.hpp"

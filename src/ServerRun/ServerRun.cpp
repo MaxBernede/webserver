@@ -1,9 +1,4 @@
-#include "Webserver.hpp"
-#include <utility>
-#include <algorithm>
-#include <string>
-#include <sys/socket.h>
-#include "CGI.hpp"
+#include "ServerRun.hpp"
 
 ServerRun::ServerRun(const std::list<Server> config)
 {

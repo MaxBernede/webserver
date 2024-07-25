@@ -1,4 +1,4 @@
-#include "Webserver.hpp"
+#include "HTTPObject.hpp"
 
 HTTPObject::HTTPObject(int clientFd) : 
 				_clientFd(clientFd),

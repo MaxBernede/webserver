@@ -1,13 +1,5 @@
-#include<Webserver.hpp>
-#include<string>
-#include<iostream>
-#include<iomanip>
-#include<fstream>
-#include<exception>
-
-//test sleep
-#include <thread>
-#include <chrono>
+#include "Webserver.hpp"
+#include "ServerRun.hpp"
 
 int main(int argc, char** argv, char** env) {
 

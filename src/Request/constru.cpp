@@ -1,6 +1,4 @@
-#include "Webserver.hpp"
 #include "Request.hpp"
-#include "HTTPError.hpp"
 
 void Request::setFileName(std::string newName){
 	_file = newName;

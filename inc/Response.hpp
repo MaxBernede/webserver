@@ -1,13 +1,15 @@
 #pragma once
-#include "Webserver.hpp"
+
+#include <sys/socket.h>
+
 #include "Server.hpp"
 #include "Request.hpp"
 #include "Redirect.hpp"
-#include "CGI.hpp"
 
 #define BUFFER_SIZE 1024
 
 class CGI;
+class Request;
 
 class Response {
 	public:

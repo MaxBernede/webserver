@@ -1,4 +1,4 @@
-#include "../inc/Webserver.hpp"
+#include "Logger.hpp"
 
 std::ofstream	Logger::logFile;
 LogLevel		Logger::logLevel = INFO;

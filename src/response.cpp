@@ -1,5 +1,5 @@
 #include "Response.hpp"
-//!Constructors
+
 
 Response::Response(int clientFd) : _clientFd(clientFd), _ready(false)
 {

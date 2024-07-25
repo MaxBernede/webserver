@@ -1,7 +1,4 @@
-#include "Webserver.hpp"
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <iostream>
+#include "Request.hpp"
 
 void Request::readRequest(){
 	char buffer[BUFFER_SIZE];

@@ -1,6 +1,4 @@
 #include "CGI.hpp"
-#include <sys/wait.h>
-#include <cstring>
 
 CGI::CGI(Request *request, int clientFd) : _request(request), _clientFd(clientFd)
 {

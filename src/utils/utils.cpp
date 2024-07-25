@@ -1,6 +1,5 @@
 #include "Utils.hpp"
 #include <sys/stat.h>
-#include "ConfigClass.hpp"
 
 //Return the first word after GET (usually the html)
 //Check the scalability in case of different parsing ways to do

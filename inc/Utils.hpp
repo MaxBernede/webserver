@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include "ConfigClass.hpp"
+#include <fstream>
 
 std::string	firstWord(const std::string& str);
 bool		endsWith(const std::string& str, const std::string& suffix);

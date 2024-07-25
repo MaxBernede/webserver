@@ -1,9 +1,11 @@
 #pragma once
 
-#include <iostream>
 #include "Webserver.hpp"
+#include "Socket.hpp"
 #include <unordered_map>
 #include <sys/poll.h>
+#include <algorithm>
+
 
 class CGI;
 class HTTPObject;

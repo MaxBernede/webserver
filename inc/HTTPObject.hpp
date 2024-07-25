@@ -1,5 +1,9 @@
 #pragma once
-#include "Webserver.hpp"
+
+#include "Server.hpp"
+#include "Request.hpp"
+#include "Response.hpp"
+#include "CGI.hpp"
 
 class Response;
 
