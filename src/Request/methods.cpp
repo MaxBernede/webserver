@@ -3,29 +3,38 @@
 #include <sys/stat.h>
 #include <iostream>
 
-void Request::readRequest()
-{
+void Request::readRequest(){
 	char buffer[BUFFER_SIZE];
 
-	int rb = recv(_clientFd, buffer, BUFFER_SIZE - 1, 0);
+	//int rb = recv(_clientFd, buffer, BUFFER_SIZE - 1, 0);
+	int rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
+
 	if (rb < 0){
+		Logger::log(std::strerror(errno), ERROR);
+		//! error so read is done ?
+		_errorCode = ErrorCode::BAD_REQUEST; //not sure of the error
+		_doneReading = true;
 		std::cerr << "Error reading request" << std::endl;
 		return;
 	}
 	buffer[rb] = '\0';
 	_recv_bytes += rb;
 	_request_text += std::string(buffer, rb);
-	if (_request_text.length() > _config.getMaxBody())
+	//Logger::log(std::to_string(_config.getMaxBody()), LogLevel::WARNING);
+	if (_request_text.length() > MAX_BODY_SIZE)
+	{
+		_doneReading = true;
 		throw Exception("Payload too large", 413);
+	}
 	if (rb < BUFFER_SIZE - 1)
 	{
 		_doneReading = true;
 		try {
-			constructRequest();
-		}
+        	constructRequest();
+    	}
 		catch (const RequestException& e) {
-			e.what();
-		}
+        	e.what();
+    	}
 	}
 }
 
@@ -318,5 +327,21 @@ void	Request::configConfig(){
 			break ;
 		}
 	}
+}
+
+void Request::checkVersion(){
+	std::string v = getMethod(2);
+
+	// std::cout << getMethod(0) << getMethod(1) << getMethod(2) <<std::endl;
+	// std::cout << v << " " << v[5] << "<-- version" << std::endl;
+	if (v[5] != '1' && v[5] != '2'){
+		_method[2] = "HTTP/1.1";
+		_errorCode = ErrorCode::HTTP_NOT_SUPPORT;
+		throw (RequestException("HTTP version is not correct", LogLevel::ERROR));
+	}
+}
+
+void Request::checkErrors(){
+	checkVersion();
 }
 

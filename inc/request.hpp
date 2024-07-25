@@ -2,6 +2,9 @@
 #include "webserver.hpp"
 #include <cstdio>
 
+#define MAX_BODY_SIZE 1048576
+//#define MAX_BODY_SIZE 1048
+
 enum reqType
 {
 	HTML,
@@ -16,8 +19,10 @@ enum ErrorCode {
     PAGE_NOT_FOUND = 404,
 	METHOD_NOT_ALLOWED = 405,
     CONFLICT = 409,
+	URI_TOO_LONG = 414,
 	INTERNAL_SRV_ERR = 500,
-	METHOD_NOT_IMPLEMENTED = 501
+	METHOD_NOT_IMPLEMENTED = 501,
+	HTTP_NOT_SUPPORT = 505
 };
 
 enum methodField {
@@ -108,6 +113,10 @@ class Request
 		
 		void		remove(std::string & path);
 		void		removeDir(std::string & path);
+
+		void		checkErrors();
+		void		checkVersion();
+		void		tooLong();
 
 		void		configConfig();
 		int			isFileorDir(std::string filePath);
