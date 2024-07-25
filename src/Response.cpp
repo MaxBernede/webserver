@@ -8,6 +8,7 @@ Response::Response(int clientFd) : _clientFd(clientFd), _ready(false)
 
 Response::~Response() {}
 
+//! check the fck is going on with the 204 No response 2 headers?
 std::string Response::makeStrResponse(Request *request)
 {
 	std::ostringstream oss;
@@ -21,6 +22,11 @@ std::string Response::makeStrResponse(Request *request)
 	return oss.str();
 }
 
+void Response::errorResponseHTML(ErrorCode error) {
+	std::string text = httpStatus[int(error)];
+	_response_text = START_HTML + std::to_string(error) + ", " + text + END_HTML;
+	Logger::log(_response_text, ERROR);
+}
 
 //Read from the FD and fill the buffer with a max of 1024, then get the html out of it
 //read the HTML and return it as a string

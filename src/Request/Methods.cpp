@@ -76,7 +76,7 @@ void Request::redirRequest501()
 	std::string method = getMethod(0);
 	if (method != "GET" && method != "POST" && method != "DELETE" && method != "HEAD"){
 		_errorCode = METHOD_NOT_IMPLEMENTED;
-		throw(HTTPError("Method not implemented", ErrorCode::METHOD_NOT_IMPLEMENTED));
+		throw(HTTPError(ErrorCode::METHOD_NOT_IMPLEMENTED));
 	}
 }
 
@@ -96,25 +96,8 @@ void Request::redirRequest405() // If Method not Allowed, redirects to Server 40
 		index = HEAD;
 
 	if (index != -1 && _config.getMethod(index) == false)
-	{
-		// _errorCode = METHOD_NOT_ALLOWED;
-		// int found = false;
-		// for (auto item : _config.getErrorPages())
-		// {
-		// 	if (item.err == 405)
-		// 	{
-		// 		found = true;
-		// 		_errorPageFound = true;
-		// 		_file = item.url; // redir to error page on Server
-		// 	}
-		// }
-		// std::string filepath = _config.getRoot() + _file;
-		// if (access(filepath.c_str(), F_OK) == -1 || !found) // redirect to hardcoded 405 error
-		// {
-		// 	_errorPageFound = false;
-		// }
-		throw(HTTPError("Method not allowed", ErrorCode::METHOD_NOT_ALLOWED));
-	}
+		throw(HTTPError(ErrorCode::METHOD_NOT_ALLOWED));
+
 }
 
 void Request::searchErrorPage()
@@ -134,10 +117,10 @@ void Request::searchErrorPage()
 	{
 		_errorPageFound = false;
 	}
-	if (isFileorDir(_filePath))
-	{
-		throw(Exception("Error, path requested is not a file", 1));
-	}
+	// if (isFileorDir(_filePath))
+	// {
+	// 	throw(Exception("Error, path requested is not a file", 1));
+	// }
 }
 
 // Void or throw HTTPError 404
@@ -147,7 +130,7 @@ void Request::redirRequest404()
 		_file = _config.getIndex();
 	_filePath = _config.getRoot() + _file;
 	if (access(_filePath.c_str(), F_OK) == -1) // If file does not exist
-		throw(HTTPError("Page not found", ErrorCode::PAGE_NOT_FOUND));
+		throw(HTTPError(ErrorCode::PAGE_NOT_FOUND));
 }
 
 int Request::isFileorDir(std::string filePath)
@@ -174,23 +157,8 @@ void	Request::handleDirListing()
 		_file = _config.getIndex();
 
 	if (_file == "" && !_config.getAutoIndex())
-		throw(RequestException("500: Instance not allowed", LogLevel::ERROR));
+		throw (RequestException("500: Instance not allowed", LogLevel::ERROR));
 
-	// if (_file == "")
-	// 	_file = _config.getIndex();
-	// if (_file == "")
-	// {
-	// 	if (_config.getAutoIndex()) // dir listing allowed
-	// 	{
-	// 		return (1);
-	// 	}
-	// 	else
-	// 	{
-	// 		return (0); // return Internal Server Error 505
-	// 	}
-	// }
-	// else
-	// 	return (1);
 }
 
 void Request::checkRequest() // Checking for 404 and 405 Errors

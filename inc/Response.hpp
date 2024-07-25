@@ -18,11 +18,13 @@ class Response {
 
 		//Members functions
 		std::string makeStrResponse(Request *request);
-		void addToBuffer(std::string buffer);
-		void setResponseString(std::string response);
-		void setReady( void );
-		void rSend(Request *request);
-		std::string redirectResponse(int clientFd, std::string from, std::list<s_redirect> redirs);
+		void 		addToBuffer(std::string buffer);
+		void		setResponseString(std::string response);
+		void 		setReady( void );
+		void 		rSend(Request *request);
+		std::string	redirectResponse(int clientFd, std::string from, std::list<s_redirect> redirs);
+
+		void		errorResponseHTML(ErrorCode);
 	 
 	private:
 		int			_clientFd;

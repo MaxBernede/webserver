@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Exception.hpp"
+#include "Logger.hpp"
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -16,7 +17,8 @@ class Socket
 		Socket(int port);
 		~Socket(void);
 
-		Socket &operator=(Socket &other) noexcept;
+		void	fillStruct(struct addrinfo &hints);
+		Socket	&operator=(Socket &other) noexcept;
 
 		int	getFd( void );
 };

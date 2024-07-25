@@ -64,7 +64,7 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 }
 
 // Handles error code when no error file exists
-void ServerRun::redirectToError(int ErrCode, int clientFd)
+void ServerRun::redirectToError(ErrorCode ErrCode, int clientFd)
 {
 	Logger::log("Redirecting to Error...", LogLevel::WARNING);
 	// need to add file search here...
@@ -73,20 +73,9 @@ void ServerRun::redirectToError(int ErrCode, int clientFd)
 	if (obj->_request->getErrorPageStatus() == false) // if no error file does not exst
 	{
 		Logger::log("Error page does not exist..Error code: " + std::to_string(ErrCode), LogLevel::WARNING);
-		if (ErrCode == PAGE_NOT_FOUND)
-			obj->_response->setResponseString(NOT_FOUND);
-		if (ErrCode == METHOD_NOT_ALLOWED)
-			obj->_response->setResponseString(NOT_ALLOWED);
-		if (ErrCode == METHOD_NOT_IMPLEMENTED)
-			obj->_response->setResponseString(NOT_IMPLEMENTED);
-		if (ErrCode == NO_CONTENT)
-			obj->_response->setResponseString("HTTP/1.1 204 No Content");
-		if (ErrCode == ErrorCode::CONFLICT)
-			obj->_response->setResponseString(HTTP_CONFLICT_RESPONSE);
-		if (ErrCode == ErrorCode::FORBIDDEN)
-			obj->_response->setResponseString(HTTP_FORBIDDEN_RESPONSE);
-		if (ErrCode == ErrorCode::BAD_REQUEST)
-			obj->_response->setResponseString(HTTP_BAD_REQUEST);
+		obj->_response->errorResponseHTML(ErrCode);
+		// if (ErrCode == NO_CONTENT)
+		// 	obj->_response->setResponseString("HTTP/1.1 204 No Content");
 		_pollData[clientFd]._pollType = HTTP_ERROR;
 	}
 	else // if error page exists
@@ -127,7 +116,7 @@ void ServerRun::readRequest(int clientFd)
 			if (!config.getCGI())
 			{
 				Logger::log("CGI is not permitted for this server", LogLevel::ERROR);
-				throw(HTTPError("CGI is not permitted for this server", ErrorCode::FORBIDDEN)); // What do we do when CGI is not allowed?
+				throw (HTTPError(ErrorCode::FORBIDDEN)); // What do we do when CGI is not allowed?
 			}
 			handleCGIRequest(clientFd);
 		}

@@ -7,12 +7,11 @@
 class HTTPError : public std::exception
 {
 private:
-	std::string _message;
 	ErrorCode _errorCode; // Store the error number
 
 public:
 	// Constructor accepting message and error number
-	HTTPError(std::string msg, ErrorCode errorCode) : _message(msg), _errorCode(errorCode) {}
+	HTTPError(ErrorCode errorCode) : _errorCode(errorCode) {}
 
 	// Override what() function to include error number
 	const char *what() const noexcept override {

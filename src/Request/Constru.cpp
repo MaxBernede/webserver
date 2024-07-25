@@ -143,7 +143,7 @@ void Request::constructRequest(){
 
 
 	if (_request_text.empty())
-		throw HTTPError("Bad request", ErrorCode::BAD_REQUEST);
+		throw HTTPError(ErrorCode::BAD_REQUEST);
 	fillBoundary(_request_text);
 	parseResponse(_request_text);	
 	setFile();

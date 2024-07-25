@@ -5,7 +5,7 @@ ServerRun::ServerRun(const std::list<Server> config)
 	std::vector<int> listens;
 
 	if (config.empty())
-		throw(Exception("No servers defined in the config file", 1));
+		throw (Exception("No servers defined in the config file", 1));
 	_servers = config;
 	// looping over the sever bloacks
 	for (auto server : _servers)
@@ -76,13 +76,13 @@ void ServerRun::serverRunLoop( void )
 	Logger::log("Server running... ", INFO);
 	while (true)
 	{
+		// try
+		// {
 		nCon = poll(_pollFds.data(), _pollFds.size(), 0);
-		if (nCon <= 0)
-		{
-			if (nCon < 0 and errno != EAGAIN) // EGAIN: Resource temporarily unavailable
-				throw(Exception("Poll failed", errno));
-			continue ;
-		}
+
+		if (nCon < 0 and errno != EAGAIN) // EGAIN: Resource temporarily unavailable
+			throw (Exception("Poll failed", errno));
+
 		for (int i = 0; i < (int)_pollFds.size(); i++)
 		{
 			int fd = _pollFds[i].fd;
@@ -93,7 +93,7 @@ void ServerRun::serverRunLoop( void )
 					// Only start reading CGI once the write end of the pipe is closed
 					if ((_pollFds[i].revents & POLLHUP) && _pollData[fd]._pollType == CGI_READ_WAITING)
 					{
-						std::cout << "CGI write side finished writing to the pipe\n";
+						Logger::log("CGI write side finished writing to the pipe");
 						_pollData[fd]._pollType = CGI_READ_READING;
 					}
 					//Read from client
@@ -112,38 +112,21 @@ void ServerRun::serverRunLoop( void )
 				std::cerr << e.what() << '\n';
 			}
 			catch(const HTTPError& e)
-			{
-				std::cerr << e.what() << '\n';
+			{ 
+				Logger::log(e.what(), LogLevel::ERROR);
 				_pollData[fd]._pollType = CLIENT_CONNECTION_WAIT;
 				_httpObjects[fd]->_request->setErrorCode(e.getErrorCode());
 				redirectToError(_httpObjects[fd]->_request->getErrorCode(), fd);
 			}
 		}
+		// }
+		// catch(const Exception& e)
+		// {
+		// 	return ;
+		// 	//std::cerr << e.what() << '\n';
+		// }
 	}
 }
-
-// /// TODO check functions with same name
-// Server ServerRun::getConfig(int clientFd) // WILL ADD HOST
-// {
-// 	int port = _httpObjects[clientFd]->_request->getRequestPort();
-// 	std::cout << "port: " << port << std::endl;
-// 	if (port < 0)
-// 	{
-// 		throw Exception("Port not found", errno);
-// 	}
-// 	for (auto server : _servers)
-// 	{
-// 		for (auto p : server.getPorts())
-// 		{
-// 			if (p.port == port)
-// 			{
-// 				std::cout << "returning server\n";
-// 				return (server);
-// 			}
-// 		}
-// 	}
-// 	throw(Exception("Server not found", 1));
-// }
 
 Server ServerRun::getConfig(s_domain port){
 	for (auto server : _servers){
@@ -154,7 +137,6 @@ Server ServerRun::getConfig(s_domain port){
 		}
 	}
 	throw (Exception("Server not found", 404));
-	return (nullptr);
 }
 
 void ServerRun::removeConnection(int fd)
@@ -179,6 +161,7 @@ HTTPObject *ServerRun::findHTTPObject(int readFd)
 		    return pair.second;
 		}
 	}
+	//TODO Maybe throw and exception : Yesim said once
 	return nullptr; // Return nullptr if not found
 }
 
