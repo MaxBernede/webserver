@@ -48,11 +48,11 @@ void confRoot(std::string value, Server &serv){
 }
 
 void confMethods(std::string value, Server &serv){
-	std::string const meth[8] = {"GET", "POST", "DELETE", "PUT",
-		"PATCH", "CONNECT", "OPTIONS", "TRACE"};
+	std::string const meth[9] = {"GET", "POST", "DELETE", "PUT",
+		"PATCH", "CONNECT", "OPTIONS", "TRACE", "HEAD"};
 	while (value != ";"){
 		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-		for (int i = 0; i < 8; i++)
+		for (int i = 0; i < 9; i++)
 		{
 			if (tmp == meth[i]){
 				serv.setMethod(i, true);

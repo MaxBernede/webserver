@@ -103,7 +103,7 @@ bool Request::redirRequest405() // If Method not Allowed, redirects to Server 40
 		index = DELETE;
 	else if (method == "HEAD")
 		index = HEAD;
-	std::cout << _config << std::endl;
+	// std::cout << _config << std::endl;
 	if (!_config.getMethod(index))
 	{
 		_errorCode = METHOD_NOT_ALLOWED;
@@ -131,8 +131,8 @@ bool Request::redirRequest404()
 	if (_file == "")
 		_file = _config.getIndex();
 	_filePath = _config.getRoot() + _file;
-	std::cout << "root: " << _config.getRoot() << std::endl;
-	std::cout << "file: " << _file << std::endl;
+	// std::cout << "root: " << _config.getRoot() << std::endl;
+	// std::cout << "file: " << _file << std::endl;
 	Logger::log("Checking file: " + _filePath, LogLevel::INFO);
 	if (access(_filePath.c_str(), F_OK) == -1) // If file does not exist
 	{
@@ -147,7 +147,7 @@ bool Request::redirRequest404()
 				_file = item.url; // redir to error page on Server
 			}
 		}
-		std::cout << "_File after looping errorpgs: " << _file << std::endl;
+		// std::cout << "_File after looping errorpgs: " << _file << std::endl;
 		_filePath = _config.getRoot() + _file;
 		if (access(_filePath.c_str(), F_OK) == -1 || !found)
 		{
@@ -165,7 +165,7 @@ int Request::checkRequest() // Checking for 404 and 405 Errors
 		return (getErrorCode());
 	if (isRedirect())
 	{
-		std::cout << "redirect, not 404!\n";
+		// std::cout << "redirect, not 404!\n";
 		return (200);
 	}
 	if (redirRequest404())
@@ -256,9 +256,9 @@ bool Request::isRedirect(){
 	std::list<s_redirect> redirs = _config.getRedirect();
 	std::string fileName = getFileNameProtected();
 	for (s_redirect r : redirs){
-		std::cout << fileName << "\t\t" << r.redirFrom << std::endl;
+		// std::cout << fileName << "\t\t" << r.redirFrom << std::endl;
 		if (fileName == r.redirFrom){
-			std::cout << r.redirTo << std::endl;
+			// std::cout << r.redirTo << std::endl;
 			// std::cout << "is redirect" << std::endl;
 			return true;}
 	}
@@ -285,7 +285,7 @@ void	Request::configConfig()
 			_config.setPath(loc.getPath());
 			std::string newName = getFileNameProtected();
 			newName.erase(0, temp.length());
-			std::cout << newName << std::endl;
+			// std::cout << newName << std::endl;
 			_file = newName;
 			break ;
 		}

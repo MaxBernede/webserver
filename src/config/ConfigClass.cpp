@@ -6,16 +6,15 @@
 /*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2024/07/02 13:12:16 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/07/19 15:10:43 by mbernede      ########   odam.nl         */
+/*   Updated: 2024/07/26 16:50:00 by kposthum      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ConfigClass.hpp"
-// #include "webserver.hpp"
 
 static std::vector<bool> defaultMethods(){
 	std::vector<bool> methods;
-	for (int i = GET; i <= TRACE; i++){
+	for (int i = GET; i <= HEAD; i++){
 		if (i == GET || i == POST || i == DELETE)
 			methods.push_back(true);
 		else

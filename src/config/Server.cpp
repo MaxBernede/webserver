@@ -259,7 +259,7 @@ void Server::clearRoot(){
 }
 
 void Server::clearMethods(){
-	for (int i = GET; i <= TRACE; i++)
+	for (int i = GET; i <= HEAD; i++)
 		_methods[i] = false;
 }
 
