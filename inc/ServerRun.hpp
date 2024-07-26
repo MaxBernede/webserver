@@ -60,12 +60,13 @@ class ServerRun
 	void handleCGIRequest(int clientFd);
 	void handleStaticFileRequest(int clientFd);
 	void redirectToError(ErrorCode ErrCode, int clientFd); // Redirect to 404, 405
-	
+	int httpRedirect(ErrorCode status, int clientfd);
+
 	void readFile(int fd);
 	void readPipe(int fd);
 	void sendResponse(int fd);
-	void sendRedirect(int fd);
-	void sendError(int fd);
+	void sendRedirect(int clientFd);
+	void sendError(int clietnFd);
 
 	Server getConfig(s_domain port);
 	// Server getConfig(int port);

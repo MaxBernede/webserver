@@ -21,15 +21,15 @@ class HTTPObject {
 		HTTPObject(int clientFd);
 		~HTTPObject(void);
 		
-		std::string redirectResponse(void);
-		void		sendResponse(void);
-		void		createCGI();
-		void		runCGI(void);
+		void	sendRedirection(void);
+		void	sendResponse(void);
+		void	createCGI();
+		void	runCGI(void);
 		
 		// Getters & Setters
-		void		setConfig(Server config);
-		void		setReadFd(int fd);
-		bool		isCgi(void);
-		int			getClientFd(void); 
-		int			getReadFd(void);
+		void	setConfig(Server config);
+		void	setReadFd(int fd);
+		bool	isCgi(void);
+		int		getClientFd(void); 
+		int		getReadFd(void);
 };

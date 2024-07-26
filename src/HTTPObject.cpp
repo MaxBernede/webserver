@@ -18,10 +18,9 @@ HTTPObject::~HTTPObject(void)
 	}
 }
 
-std::string	HTTPObject::redirectResponse(void)
+void	HTTPObject::sendRedirection(void)
 {
-	std::string oss = _response->redirectResponse(_clientFd, _request->getFileNameProtected(), _request->getConfig().getRedirect());
-	return (oss);
+	_response->sendRedir();
 }
 
 void	HTTPObject::createCGI()

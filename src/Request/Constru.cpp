@@ -134,13 +134,8 @@ void Request::tooLong(){
 void Request::constructRequest(){
 	Logger::log("Constructor request call", INFO);
 	// std::cout << _request_text << std::endl;
-
-
-	tooLong();
+	tooLong(); // throws exception of too long
 	std::cout << _request_text << std::endl;
-
-
-
 
 	if (_request_text.empty())
 		throw HTTPError(ErrorCode::BAD_REQUEST);
@@ -149,7 +144,6 @@ void Request::constructRequest(){
 	setFile();
 
 	redirRequest405(); // ---> throw something case error
-
 	redirRequest501();
 
 	std::string method = getMethod(0);

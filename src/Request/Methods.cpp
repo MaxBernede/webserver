@@ -165,8 +165,7 @@ void Request::checkRequest() // Checking for 404 and 405 Errors
 {
 	Logger::log("Checking file...", LogLevel::INFO);
 
-	if (isRedirect())
-		return ;
+	handleRedirection();
 	handleDirListing(); // NOT WORKING
 	redirRequest404();
 }
@@ -254,7 +253,7 @@ void Request::handleDelete(){
 }
 
 // TODO not sure if we need this function anymore
-bool Request::isRedirect(){
+void Request::handleRedirection(){
 	std::list<s_redirect> redirs = _config.getRedirect();
 	std::string fileName = getFileNameProtected();
 
@@ -262,10 +261,9 @@ bool Request::isRedirect(){
 		// std::cout << fileName << "\t\t" << r.redirFrom << std::endl;
 		if (fileName == r.redirFrom){
 			Logger::log("Is a redirect", LogLevel::WARNING);
-			return true;
+			throw(HTTPError(ErrorCode(r.returnValue)));
 		}
 	}
-	return false;
 }
 
 void	Request::configConfig(){

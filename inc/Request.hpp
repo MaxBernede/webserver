@@ -93,7 +93,7 @@ class Request
 		void		setErrorCode(ErrorCode);
 
 		//Methods
-		bool		isRedirect();
+		void		handleRedirection();
 		bool		isCgi(); // boolean to tell if request is Cgi
 		bool		isDoneReading();
 		bool		isBoundary(const std::string &line);

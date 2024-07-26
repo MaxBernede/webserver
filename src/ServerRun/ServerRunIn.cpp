@@ -84,11 +84,20 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int clientFd)
 	}
 }
 
+int ServerRun::httpRedirect(ErrorCode status, int clientFd)
+{
+	HTTPObject *obj = _httpObjects[clientFd];
+	int Err = obj->_response->setRedirectStr(status, obj->_request->getFileNameProtected(), obj->_config.getRedirect());
+	Logger::log("HTTP Error Caught, Redirection Detected", LogLevel::DEBUG);
+	return (Err);
+}
+
 // Only continue after reading the whole request
 void ServerRun::readRequest(int clientFd)
 {
 	if (_httpObjects.find(clientFd) == _httpObjects.end())
 	{
+		Logger::log("Creating HTTP Obj", LogLevel::INFO);
 		HTTPObject *newObj = new HTTPObject(clientFd);
 		_httpObjects[clientFd] = newObj;
 	}
@@ -103,15 +112,13 @@ void ServerRun::readRequest(int clientFd)
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = getConfig(Domain);
 		_httpObjects[clientFd]->setConfig(config);
-		
-		_httpObjects[clientFd]->_request->checkRequest(); 
-
+		_httpObjects[clientFd]->_request->checkRequest();
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-		if (_httpObjects[clientFd]->_request->isRedirect())
-		{
-			_pollData[clientFd]._pollType = HTTP_REDIRECT;
-		}
-		else if (_httpObjects[clientFd]->isCgi()) 
+		// if (_httpObjects[clientFd]->_request->isRedirect())
+		// {
+			// _pollData[clientFd]._pollType = HTTP_REDIRECT;
+		// }
+		if (_httpObjects[clientFd]->isCgi()) 
 		{
 			if (!config.getCGI())
 			{

@@ -22,7 +22,8 @@ class Response {
 		void		setResponseString(std::string response);
 		void 		setReady( void );
 		void 		rSend(Request *request);
-		std::string	redirectResponse(int clientFd, std::string from, std::list<s_redirect> redirs);
+		void		sendRedir();
+		int			setRedirectStr(int status, std::string from, std::list<s_redirect> redirs);
 
 		void		errorResponseHTML(ErrorCode);
 	 

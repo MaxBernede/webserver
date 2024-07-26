@@ -114,9 +114,19 @@ void ServerRun::serverRunLoop( void )
 			catch(const HTTPError& e)
 			{ 
 				Logger::log(e.what(), LogLevel::ERROR);
-				_pollData[fd]._pollType = CLIENT_CONNECTION_WAIT;
 				_httpObjects[fd]->_request->setErrorCode(e.getErrorCode());
-				redirectToError(_httpObjects[fd]->_request->getErrorCode(), fd);
+				_pollData[fd]._pollType = CLIENT_CONNECTION_WAIT;
+				if (e.getErrorCode() >= MULTIPLE_CHOICE && e.getErrorCode() <= PERM_REDIR)
+				{
+					int ErrCode = httpRedirect(_httpObjects[fd]->_request->getErrorCode(), fd);
+					if (ErrCode == _httpObjects[fd]->_request->getErrorCode())
+					{
+						_pollData[fd]._pollType = HTTP_REDIRECT;
+					}
+					_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
+				}
+				if (e.getErrorCode() < MULTIPLE_CHOICE && e.getErrorCode() > PERM_REDIR)
+					redirectToError(_httpObjects[fd]->_request->getErrorCode(), fd);
 			}
 		}
 		// }

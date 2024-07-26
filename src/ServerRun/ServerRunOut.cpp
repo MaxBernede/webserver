@@ -1,6 +1,6 @@
 #include "ServerRun.hpp"
 
-void ServerRun::sendResponse(int fd)
+void ServerRun::sendResponse(int fd) // Using readFd
 {
 		Logger::log("Sending response to fd: " + std::to_string(fd), WARNING);
 		HTTPObject *obj = findHTTPObject(fd);
@@ -41,12 +41,9 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 	}
 }
 
-void ServerRun::sendRedirect(int fd){
-	std::cout << "SENDING HTTP REDIRECT" << std::endl;
-	HTTPObject *obj = findHTTPObject(fd);
-	obj->redirectResponse();
-	removeConnection(fd);
-	int clientFd = obj->getClientFd();
+void ServerRun::sendRedirect(int clientFd) // this is a clientFd!
+{
+	_httpObjects[clientFd]->sendRedirection();
 	cleanUp(clientFd);
 	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
