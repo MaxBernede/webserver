@@ -27,7 +27,8 @@ Config::Config():
 	_redirect(defaultRedirect()),
 	_autoIndex(true),
 	_index(defaultIndex()),
-	_cgi(true) {
+	_cgi(true), 
+	_basePath(getPath()){
 }
 
 

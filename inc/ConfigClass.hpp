@@ -21,6 +21,7 @@ class Config{
 		// in case of POST or DELETE request:
 		// directory in which to POST of from which to DELETE
 		std::string				_path;
+		std::string				_basePath;
 	public:
 		Config();
 		~Config();

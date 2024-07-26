@@ -117,10 +117,6 @@ void Request::searchErrorPage()
 	{
 		_errorPageFound = false;
 	}
-	// if (isFileorDir(_filePath))
-	// {
-	// 	throw(Exception("Error, path requested is not a file", 1));
-	// }
 }
 
 // Void or throw HTTPError 404

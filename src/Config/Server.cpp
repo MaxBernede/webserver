@@ -1,4 +1,5 @@
 #include "Webserver.hpp"
+#include "Logger.hpp"
 
 // add check for empty line
 bool servBlockStart(std::string buf){
@@ -157,6 +158,7 @@ static bool compare(std::string s1, std::string s2){
 	return false;
 }
 
+//! check the function I've built for that
 static std::string defaultRoot(char **env){
 	int i = 0;
 	while (env != nullptr && env[i] && !compare(env[i], "PWD=")){
@@ -186,16 +188,18 @@ Server::Server(char **env):
 	Config(),
 	_ports(defaultPorts()),
 	_name(defaultName()),
-	_root(defaultRoot(env) + "html/"),
+	_root("html/"),
 	_maxBody(1048576),
 	_errorPages(defaultErrorPages()){
+	
+	Logger::log("Root is : " + _root);
 	_path = "";
 }
 
 Server::Server():
 	_ports(defaultPorts()),
 	_name(defaultName()),
-	_root(defaultRoot(nullptr)),
+	_root("html/"),
 	_maxBody(1048576),
 	_errorPages(defaultErrorPages()){
 	_path = "";

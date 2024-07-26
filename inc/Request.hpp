@@ -64,7 +64,7 @@ class Request
 		void		readRequest();
 		void		parseFirstLine(std::istringstream &iss);
 		void		parseBody(std::istringstream &iss, std::string &line);
-		void 		parseResponse(const std::string& headers);
+		void 		parseRequest(const std::string& headers);
 		void		checkRequest();
 
 		//GET

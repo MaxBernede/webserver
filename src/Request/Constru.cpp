@@ -4,15 +4,12 @@ void Request::setFileName(std::string newName){
 	_file = newName;
 }
 
-// Max : is it maintanable ?
+//getmethod or replace by the config
 void Request::setFile() {
 	_file = getMethod(1);
 	_file.erase(0, 1);
 	if (_file == "")
-	{
 		_file = _config.getIndex();
-	}
-	// _file = "index.html";
 }
 
 //Create a pair out of the line and the int pos of the delimiter (: for every lines or space for the first line)
@@ -59,14 +56,10 @@ void Request::parseFirstLine(std::istringstream &iss){
 		i++;
 	}
 
-	// setFileName(_method[1]);
+	setFile();								//change link with config one if error
 
-	//! ??????????????????????????????
-	if (getMethod(2).size() > 2)
+	if (getMethod(2).size() > 2)			//pop the \r
 		_method[2].pop_back();
-	//_method[2].erase(std::remove(_method[2].begin(), _method[2].end(), '\r'), _method[2].end());
-	
-	
 	
 	size_t pos = line.find(' ');
 	if (pos != std::string::npos)
@@ -77,7 +70,7 @@ void Request::parseFirstLine(std::istringstream &iss){
 //fill the _request
 // it works as : get the first line based on space
 // then check for the ':' however if there is a boundary and its found, keep everything between as body
-void Request::parseResponse(const std::string& headers) {
+void Request::parseRequest(const std::string& headers) {
 	std::istringstream	iss(headers);
 	std::string			line;
 
@@ -122,7 +115,7 @@ Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false), _erro
 Request::~Request() {}
 
 void Request::tooLong(){
-	Logger::log("Too long function Called", WARNING);
+	//Logger::log("Too long function Called", WARNING);
 	// Logger::log(std::to_string(_request_text.size()), WARNING);
 	// Logger::log(std::to_string(MAX_BODY_SIZE), WARNING);
 	if (_request_text.size() >= MAX_BODY_SIZE){
@@ -137,10 +130,12 @@ void Request::constructRequest(){
 	tooLong(); // throws exception of too long
 	std::cout << _request_text << std::endl;
 
+	Logger::log(this->_config.getPath(), WARNING);
+
 	if (_request_text.empty())
 		throw HTTPError(ErrorCode::BAD_REQUEST);
 	fillBoundary(_request_text);
-	parseResponse(_request_text);	
+	parseRequest(_request_text);	
 	setFile();
 
 	redirRequest405(); // ---> throw something case error
