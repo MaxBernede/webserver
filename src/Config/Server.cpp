@@ -139,10 +139,10 @@ static std::list<s_domain> defaultPorts(){
 	std::list<s_domain> ports;
 	s_domain def;
 	def.port = 8080;
-	def.host = configIP("127.0.0.1");
+	def.host = "127.0.0.1";
 	s_domain ssl;
 	ssl.port = 8000;
-	ssl.host = configIP("127.0.0.1");
+	ssl.host = "127.0.0.1";
 	ports.push_back(def);
 	ports.push_back(ssl);
 	return ports;
@@ -263,7 +263,7 @@ void Server::clearRoot(){
 }
 
 void Server::clearMethods(){
-	for (int i = GET; i <= TRACE; i++)
+	for (int i = GET; i <= HEAD; i++)
 		_methods[i] = false;
 }
 
@@ -337,7 +337,7 @@ std::ostream & operator<< (std::ostream &out, const Server& src){
 	out << "name\t" << src.getName() << std::endl;
 	out << "root\t" << src.getRoot() << std::endl;
 	out << "methods\t";
-	for (int i = GET; i <= TRACE; i++){
+	for (int i = GET; i <= HEAD; i++){
 		out << boolstring(src.getMethod(i)) << "\t";
 	}
 	out << std::endl;

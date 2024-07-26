@@ -144,14 +144,17 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd){
 	}
 }
 
-Server ServerRun::getConfig(s_domain port){
+Server ServerRun::getConfig(s_domain port, int clientFd){
 	for (auto server : _servers){
+		std::string name = server.getName();
 		for (auto p : server.getPorts()){
-			if (p.port == port.port && p.host == port.host){
+			if (p.port == port.port && (p.host == port.host || port.host == name)){
 				return (server);
 			}
 		}
 	}
+	cleanUp(clientFd);
+	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 	throw (Exception("Server not found", 404));
 }
 

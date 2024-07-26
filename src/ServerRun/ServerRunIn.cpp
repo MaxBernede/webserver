@@ -108,7 +108,7 @@ void ServerRun::readRequest(int clientFd)
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
-		Server config = getConfig(Domain);
+		Server config = getConfig(Domain, clientFd);
 		_httpObjects[clientFd]->setConfig(config);
 		_httpObjects[clientFd]->_request->checkRequest();
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;

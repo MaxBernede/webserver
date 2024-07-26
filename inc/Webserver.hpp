@@ -7,12 +7,11 @@
 #include <fstream>
 #include <unistd.h>
 
-// #define MIN_PORT 1
-// #define MAX_PORT UINT16_MAX
+#define MIN_PORT 1
+#define MAX_PORT UINT16_MAX
 
-#define MIN_PORT 8000
-#define MAX_PORT 8100
-
+// #define MIN_PORT 8000
+// #define MAX_PORT 8100
 
 //What doesnt need anything
 #include "Colors.hpp"

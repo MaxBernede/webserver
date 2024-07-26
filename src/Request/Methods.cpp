@@ -1,6 +1,7 @@
 #include "Request.hpp"
 
-void Request::readRequest(){
+void Request::readRequest()
+{
 	char buffer[BUFFER_SIZE];
 
 	//int rb = recv(_clientFd, buffer, BUFFER_SIZE - 1, 0);

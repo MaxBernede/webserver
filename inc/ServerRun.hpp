@@ -71,7 +71,7 @@ class ServerRun
 	void sendRedirect(int clientFd);
 	void sendError(int clietnFd);
 
-	Server getConfig(s_domain port);
+	Server getConfig(s_domain port, int clientFd);
 	// Server getConfig(int port);
 	HTTPObject *findHTTPObject(int readFd);
 	void		cleanUp(int clientFd);

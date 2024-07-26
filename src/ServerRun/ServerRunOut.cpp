@@ -11,6 +11,13 @@ void ServerRun::sendResponse(int fd) // Using readFd
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
 
+void ServerRun::sendRedirect(int clientFd) // this is a clientFd!
+{
+	_httpObjects[clientFd]->sendRedirection();
+	cleanUp(clientFd);
+	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
+}
+
 void ServerRun::sendError(int clientFd)
 {
 	Logger::log("Sending Redir msg", INFO);
@@ -42,13 +49,6 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 		default:
 			break ;
 	}
-}
-
-void ServerRun::sendRedirect(int clientFd) // this is a clientFd!
-{
-	_httpObjects[clientFd]->sendRedirection();
-	cleanUp(clientFd);
-	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
 
 void ServerRun::cleanUp(int clientFd)
