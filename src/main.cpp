@@ -1,7 +1,7 @@
 #include "Webserver.hpp"
 #include "ServerRun.hpp"
 
-int main(int argc, char** argv, char** env) {
+int main(int argc, char** argv) {
 
 	std::list<Server> server;
 
@@ -11,17 +11,15 @@ int main(int argc, char** argv, char** env) {
 		std::ifstream conf(argv[1], std::ios::in);
 		if (!conf.is_open())
 			throw invalidFile();
-		server = init_serv(conf, env);
+		server = init_serv(conf);
 	}
 	catch(std::exception const &e){
-		Server def(env);
+		Server def;
 		server.push_front(def);
 	}
-
 	// for (Server s : server){
 	// 	std::cout << s << std::endl;
 	// }
-
 	// initialise ServerRun obj
 	ServerRun runningServer(server);
 	// Run server loop
