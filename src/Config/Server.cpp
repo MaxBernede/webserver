@@ -23,8 +23,8 @@ static std::string findKey(std::string str){
 		return str.substr(0, (str.length() - 1));
 }
 
-Server	pushBlock(std::list<std::string> block, char **env){
-	Server serv(env);
+Server	pushBlock(std::list<std::string> block){
+	Server serv;
 	void (*ptr[11])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
 		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex, &confRedirect, &confPath};
 	std::string const keys[11] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed",
@@ -79,7 +79,8 @@ Server	pushBlock(std::list<std::string> block, char **env){
 			}
 			catch(std::exception const &e){
 				std::cout << e.what() << std::endl;
-				continue;
+				Server def;
+				return def;
 			}
 		}
 		it++;
@@ -90,7 +91,7 @@ Server	pushBlock(std::list<std::string> block, char **env){
 	return serv;
 }
 
-std::list<Server>	init_serv(std::ifstream &conf, char **env){
+std::list<Server>	init_serv(std::ifstream &conf){
 	std::list<Server> server;
 	std::string buf;
 	std::list<std::string> block;
@@ -120,12 +121,12 @@ std::list<Server>	init_serv(std::ifstream &conf, char **env){
 						throw syntaxError();
 					block.push_back(buf);
 				}
-				server.push_back(pushBlock(block, env));
+				server.push_back(pushBlock(block));
 				block.clear();
 			}
 			catch(std::exception &e){
 				std::cout << e.what() << std::endl;
-				Server def(env);
+				Server def;
 				def.setPath(def.getRoot());
 				server.push_front(def);
 			}
@@ -152,24 +153,6 @@ static std::string defaultName(){
 	return "webserv.com";
 }
 
-static bool compare(std::string s1, std::string s2){
-	if (s1.compare(0, 4, s2) == 0)
-		return true;
-	return false;
-}
-
-//! check the function I've built for that
-static std::string defaultRoot(char **env){
-	int i = 0;
-	while (env != nullptr && env[i] && !compare(env[i], "PWD=")){
-		i++;
-	}
-	if (!env || !env[i])
-		return ("/var/www/");
-	std::string test = (env[i] + 4);
-	return test + '/';
-}
-
 static std::list<s_ePage> defaultErrorPages(){
 	std::list<s_ePage> erorPages;
 	s_ePage fofo;
@@ -183,20 +166,8 @@ static std::list<s_ePage> defaultErrorPages(){
 	return erorPages;
 }
 
-//default constructor
-Server::Server(char **env):
-	Config(),
-	_ports(defaultPorts()),
-	_name(defaultName()),
-	_root(_basePath + "html/"),
-	_maxBody(1048576),
-	_errorPages(defaultErrorPages()){
-	
-	Logger::log("Root is : " + _root);
-	_path = "";
-}
-
 Server::Server():
+	Config(),
 	_ports(defaultPorts()),
 	_name(defaultName()),
 	_root(_basePath + "html/"),
