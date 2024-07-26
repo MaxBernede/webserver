@@ -103,7 +103,7 @@ bool Request::redirRequest405() // If Method not Allowed, redirects to Server 40
 		index = DELETE;
 	else if (method == "HEAD")
 		index = HEAD;
-		
+	std::cout << _config << std::endl;
 	if (!_config.getMethod(index))
 	{
 		_errorCode = METHOD_NOT_ALLOWED;
@@ -259,21 +259,22 @@ bool Request::isRedirect(){
 		std::cout << fileName << "\t\t" << r.redirFrom << std::endl;
 		if (fileName == r.redirFrom){
 			std::cout << r.redirTo << std::endl;
-			std::cout << "is redirect" << std::endl;
+			// std::cout << "is redirect" << std::endl;
 			return true;}
 	}
 	return false;
 }
 
-void	Request::configConfig(){
+void	Request::configConfig()
+{
 	std::string temp = getFileNameProtected();
 	if (temp.find('/', 1) != std::string::npos)
 		temp.erase(temp.find('/', 1) + 1);
 	std::list<Location> locs = _config.getLocation();
 	for (Location loc : locs){
-		std::cout << "TEMP\t" << temp << "\tLOC\t" << loc.getName() << std::endl;
+		// std::cout << "TEMP\t" << temp << "\tLOC\t" << loc.getName() << std::endl;
 		if (temp == loc.getName() || (temp == loc.getRoot() && loc.getRoot() != _config.getRoot())){
-			std::cout << "IS LOCATION" << std::endl;
+			// std::cout << "IS LOCATION" << std::endl;
 			_config.setRoot(loc.getRoot());
 			for (int i = GET; i <= TRACE; i++)
 				_config.setMethod(loc.getMethod(i), i);

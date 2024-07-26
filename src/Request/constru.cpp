@@ -107,7 +107,7 @@ Request::~Request() {}
 
 void Request::constructRequest(){
 	Logger::log("Constructor request call", INFO);
-	std::cout << _request_text << std::endl;
+	// std::cout << _request_text << std::endl;
 
 	if (_request_text.empty())
 		throw RequestException("Empty request");

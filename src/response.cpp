@@ -72,8 +72,7 @@ std::string Response::redirectResponse(int clientFd, std::string from, std::list
 	}
 	if (to == "")
 		throw Exception("unexpected redirect error", 300);
-	std::cout << "FROM:\t" << from << "\tTO:\t" << to << std::endl;
-	std::cout << "do a thing" << std::endl << std::endl;
+	// std::cout << "FROM:\t" << from << "\tTO:\t" << to << std::endl;
 	std::ostringstream oss;
 	oss << "HTTP/1.1 ";
 	oss << val;
@@ -86,6 +85,6 @@ std::string Response::redirectResponse(int clientFd, std::string from, std::list
 	{
 		throw(Exception("Error sending response", errno));
 	}
-	std::cout << oss.str() << std::endl;
+	// std::cout << oss.str() << std::endl;
 	return oss.str();
 }
