@@ -1,7 +1,11 @@
-# pragma once
+#pragma once
 
-#include <iostream>
-#include "webserver.hpp"
+#include "Webserver.hpp"
+#include "Socket.hpp"
+#include <unordered_map>
+#include <sys/poll.h>
+#include <algorithm>
+
 
 class CGI;
 class HTTPObject;
@@ -20,7 +24,8 @@ enum pollType
 	CGI_READ_READING,
 	CGI_READ_DONE,
 	HTTP_ERROR,
-	HTTP_REDIRECT
+	HTTP_REDIRECT,
+	EMPTY_RESPONSE
 };
 
 typedef struct t_poll_data
@@ -46,23 +51,25 @@ class ServerRun
 	void createListenerSockets(std::vector<int> listens);
 	void addQueue(pollType type, int fd);
 	
-	void acceptNewConnection(int listenerFd);
-	void readRequest(int clientFd);
-	void removeConnection(int fd);
+	void	acceptNewConnection(int listenerFd);
+	void	readRequest(int clientFd);
+	void	executeRequest(int clientFd, Server config);
+	void	removeConnection(int fd);
 
 	void dataIn(s_poll_data pollData, struct pollfd pollFd); // read from client
 	void dataOut(s_poll_data pollData, struct pollfd pollFd); // write to client
 
-	void handleCGIRequest(int clientFd);
-	void handleStaticFileRequest(int clientFd);
-	void handleRedirection(int clientFd);
-	void redirectToError(int ErrCode, int clientFd); // Redirect to 404, 405
-	
+	void	handleCGIRequest(int clientFd);
+	void 	handleStaticFileRequest(int clientFd);
+	void	redirectToError(ErrorCode ErrCode, int clientFd); // Redirect to 404, 405
+	int 	httpRedirect(ErrorCode status, int clientfd);
+	void	handleHTTPError(ErrorCode err, int fd);
+
 	void readFile(int fd);
 	void readPipe(int fd);
 	void sendResponse(int fd);
-	void sendRedirect(int fd);
-	void sendError(int fd);
+	void sendRedirect(int clientFd);
+	void sendError(int clietnFd);
 
 	Server getConfig(s_domain port, int clientFd);
 	// Server getConfig(int port);

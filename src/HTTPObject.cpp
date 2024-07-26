@@ -1,4 +1,4 @@
-#include "webserver.hpp"
+#include "HTTPObject.hpp"
 
 HTTPObject::HTTPObject(int clientFd) : 
 				_clientFd(clientFd),
@@ -18,6 +18,10 @@ HTTPObject::~HTTPObject(void)
 	}
 }
 
+void	HTTPObject::sendRedirection(void)
+{
+	_response->sendRedir();
+}
 
 void	HTTPObject::createCGI()
 {
@@ -32,14 +36,6 @@ void	HTTPObject::runCGI(void)
 void	HTTPObject::sendResponse(void)
 {
 	_response->rSend(_request);
-}
-
-void	HTTPObject::redirectResponse(void)
-{
-	std::string from = _request->getFileNameProtected();
-	std::list<s_redirect> redirs = _request->getConfig().getRedirect();
-	_response->redirectResponse(_clientFd, from, redirs);
-	// return (oss);
 }
 
 void	HTTPObject::setConfig(Server config)

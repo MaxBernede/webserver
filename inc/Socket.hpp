@@ -1,14 +1,12 @@
 #pragma once
 
-# include "Exception.hpp"
-
-# include <sys/socket.h>
-# include <fcntl.h>
-# include <unistd.h>
-# include <netdb.h>
-
-# include <netinet/in.h>
-# include <cstdint>
+#include "Exception.hpp"
+#include "Logger.hpp"
+#include <iostream>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <fcntl.h>
+#include <netdb.h>
 
 class Socket
 {
@@ -19,7 +17,8 @@ class Socket
 		Socket(int port);
 		~Socket(void);
 
-		Socket &operator=(Socket &other) noexcept;
+		void	fillStruct(struct addrinfo &hints);
+		Socket	&operator=(Socket &other) noexcept;
 
 		int	getFd( void );
 };

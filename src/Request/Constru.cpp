@@ -1,20 +1,15 @@
-#include "webserver.hpp"
-#include "request.hpp"
-
+#include "Request.hpp"
 
 void Request::setFileName(std::string newName){
 	_file = newName;
 }
 
-// Max : is it maintanable ?
+//getmethod or replace by the config
 void Request::setFile() {
 	_file = getMethod(1);
 	_file.erase(0, 1);
 	if (_file == "")
-	{
 		_file = _config.getIndex();
-	}
-	// _file = "index.html";
 }
 
 //Create a pair out of the line and the int pos of the delimiter (: for every lines or space for the first line)
@@ -49,23 +44,33 @@ void Request::parseFirstLine(std::istringstream &iss){
 
 	std::getline(iss, line);
     std::istringstream line_stream(line);
-
+	int i = 0;
     while (std::getline(line_stream, arg, ' ')){
-        _method.push_back(arg);
+		if (arg == "\t" || arg == " " || arg.empty()){
+			_method[1] = "400";
+			_method[2] = "HTTP/1.1";
+			_errorCode = ErrorCode::BAD_REQUEST;
+			throw (RequestException("Bad Request", LogLevel::ERROR));
+		}
+        _method[i] = arg;
+		i++;
 	}
-	// setFileName(_method[1]);
-	if (_method.size() < 3)
-		throw (Exception("method not found", 404));
-	_method[2].erase(std::remove(_method[2].begin(), _method[2].end(), '\r'), _method[2].end());
+
+	setFile();								//change link with config one if error
+
+	if (getMethod(2).size() > 2)			//pop the \r
+		_method[2].pop_back();
+	
 	size_t pos = line.find(' ');
 	if (pos != std::string::npos)
 		_request.emplace_back(create_pair(line, pos));
 }
 
+//!??? WHY IS THIS CALLED RESPONSE??? can i change it to request?
 //fill the _request
 // it works as : get the first line based on space
 // then check for the ':' however if there is a boundary and its found, keep everything between as body
-void Request::parseResponse(const std::string& headers) {
+void Request::parseRequest(const std::string& headers) {
 	std::istringstream	iss(headers);
 	std::string			line;
 
@@ -101,33 +106,36 @@ void Request::fillBoundary(std::string text){
 }
 
 //Constructor that parses everything
-Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false), _errorCode(ErrorCode::OK), _errorPageFound(false){}
+Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false), _errorCode(ErrorCode::OK), _errorPageFound(false){
+	_method.push_back("NULL");
+	_method.push_back("000");
+	_method.push_back("HTTP/1.1");
+}
 
 Request::~Request() {}
+
+void Request::tooLong(){
+	//Logger::log("Too long function Called", WARNING);
+	// Logger::log(std::to_string(_request_text.size()), WARNING);
+	// Logger::log(std::to_string(MAX_BODY_SIZE), WARNING);
+	if (_request_text.size() >= MAX_BODY_SIZE){
+		_errorCode = ErrorCode::URI_TOO_LONG;
+		throw (RequestException("URI too long", LogLevel::ERROR));
+	}
+}
 
 void Request::constructRequest(){
 	Logger::log("Constructor request call", INFO);
 	// std::cout << _request_text << std::endl;
+	tooLong(); // throws exception of too long
+	std::cout << _request_text << std::endl;
+
+	Logger::log(_config.getPath(), WARNING);
 
 	if (_request_text.empty())
-		throw RequestException("Empty request");
-
+		throw HTTPError(ErrorCode::BAD_REQUEST);
 	fillBoundary(_request_text);
-	parseResponse(_request_text);	
+	parseRequest(_request_text);	
 	setFile();
-
-	std::string method = getMethod(0);
-	
-	Logger::log("Method is :" + method, INFO);
-	if (method == "GET"){
-		;
-	}
-	else if (method == "DELETE"){
-		handleDelete();
-		return;
-	}
-	else if (method == "POST"){
-		handlePost();
-		return;
-	}
+	checkErrors();
 }

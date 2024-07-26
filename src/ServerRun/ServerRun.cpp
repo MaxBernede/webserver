@@ -1,16 +1,11 @@
-#include "webserver.hpp"
-#include <utility>
-#include <algorithm>
-#include <string>
-#include <sys/socket.h>
-#include "CGI.hpp"
+#include "ServerRun.hpp"
 
 ServerRun::ServerRun(const std::list<Server> config)
 {
 	std::vector<int> listens;
 
 	if (config.empty())
-		throw(Exception("No servers defined in the config file", 1));
+		throw (Exception("No servers defined in the config file", 1));
 	_servers = config;
 	// looping over the sever bloacks
 	for (auto server : _servers)
@@ -57,10 +52,9 @@ void ServerRun::createListenerSockets(std::vector<int> listens)
 	}
 	if (_listenSockets.empty())
 		throw(Exception("No available port on the defined host", 1));
-	// add listener sockets to queue
-	for (int i = 0; i < (int)_listenSockets.size(); i++)
-	{
-		addQueue(LISTENER, _listenSockets[i]->getFd());
+	
+	for (int i = 0; i < (int)_listenSockets.size(); i++) {
+		addQueue(LISTENER, _listenSockets[i]->getFd()); // add listener sockets to queue
 	}
 }
 
@@ -81,13 +75,13 @@ void ServerRun::serverRunLoop( void )
 	Logger::log("Server running... ", INFO);
 	while (true)
 	{
+		// try
+		// {
 		nCon = poll(_pollFds.data(), _pollFds.size(), 0);
-		if (nCon <= 0)
-		{
-			if (nCon < 0 and errno != EAGAIN) // EGAIN: Resource temporarily unavailable
-				throw(Exception("Poll failed", errno));
-			continue ;
-		}
+
+		if (nCon < 0 and errno != EAGAIN) // EGAIN: Resource temporarily unavailable
+			throw (Exception("Poll failed", errno));
+
 		for (int i = 0; i < (int)_pollFds.size(); i++)
 		{
 			int fd = _pollFds[i].fd;
@@ -98,26 +92,55 @@ void ServerRun::serverRunLoop( void )
 					// Only start reading CGI once the write end of the pipe is closed
 					if ((_pollFds[i].revents & POLLHUP) && _pollData[fd]._pollType == CGI_READ_WAITING)
 					{
-						std::cout << "CGI write side finished writing to the pipe\n";
+						Logger::log("CGI write side finished writing to the pipe");
 						_pollData[fd]._pollType = CGI_READ_READING;
 					}
-					//Read from client
-					dataIn(_pollData[fd], _pollFds[i]);
+
+					dataIn(_pollData[fd], _pollFds[i]);						//Read from client
 				}
-				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollType == CGI_READ_DONE)
-				{
-					// Write to client
-					dataOut(_pollData[fd], _pollFds[i]);
+
+				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollType == CGI_READ_DONE){
+					dataOut(_pollData[fd], _pollFds[i]);					// Write to client
 				}
 
 			}
 			catch(const Exception& e)
 			{
-				//Catch of the "Throw Port not found" in the readRequest;
-				//If port server config is not found, the request does not properly get cleared out of the poll loop?
+				//Cath of the "Throw Port not found" in the readRequest;
 				std::cerr << e.what() << '\n';
 			}
+			catch(const HTTPError& e)
+			{ 
+				ErrorCode err = e.getErrorCode();
+				Logger::log(e.what(), LogLevel::ERROR);
+				_httpObjects[fd]->_request->setErrorCode(err);
+				_pollData[fd]._pollType = CLIENT_CONNECTION_WAIT;
+	
+				handleHTTPError(err, fd);
+			}
 		}
+		// }
+		// catch(const Exception& e)
+		// {
+		// 	return ;
+		// 	//std::cerr << e.what() << '\n';
+		// }
+	}
+}
+
+void ServerRun::handleHTTPError(ErrorCode err, int fd){
+	if (err >= MULTIPLE_CHOICE && err <= PERM_REDIR)
+	{
+		int ErrCode = httpRedirect(err, fd);
+		if (ErrCode == err)
+		{
+			_pollData[fd]._pollType = HTTP_REDIRECT;
+		}
+		_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
+	}
+	if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
+	{
+		redirectToError(err, fd);
 	}
 }
 
@@ -133,7 +156,6 @@ Server ServerRun::getConfig(s_domain port, int clientFd){
 	cleanUp(clientFd);
 	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 	throw (Exception("Server not found", 404));
-	return (nullptr);
 }
 
 void ServerRun::removeConnection(int fd)
@@ -158,6 +180,7 @@ HTTPObject *ServerRun::findHTTPObject(int readFd)
 		    return pair.second;
 		}
 	}
+
 	return nullptr; // Return nullptr if not found
 }
 

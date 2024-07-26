@@ -1,6 +1,6 @@
 #include "Location.hpp"
 #include "ConfigClass.hpp"
-#include "webserver.hpp"
+#include "Webserver.hpp"
 Location::Location(std::list<std::string> &body){
 	for (std::string s : body)
 		_body.push_back(s);
@@ -200,8 +200,9 @@ void	Location::autoConfig(Server &serv){
 		}
 		it++;
 	}
-	_root = temp + _root;
-	_path = _root + _path;
+	// temp == root of serv + _root here if find in location
+	_root = temp + _root;										// ....path/upload/
+	_path = _root + _path;										// .../path/upload/data/
 	// std::cout << "LOCATION OK" << std::endl;
 }
 
@@ -211,7 +212,7 @@ std::ostream & operator<< (std::ostream &out, const Location& src){
 	out << "\tname\t" << src.getName() << std::endl;
 	out << "\troot\t" << src.getRoot() << std::endl;
 	out << "\tmethods\t";
-	for (int i = GET; i <= TRACE; i++){
+	for (int i = GET; i <= HEAD; i++){
 		out << boolstring(src.getMethod(i)) << "\t";
 	}
 	out << std::endl;

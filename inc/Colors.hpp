@@ -1,6 +1,6 @@
 #pragma once
 
-#include "string"
+#include <string>
 
 // ANSI color
 const std::string RED = "\033[1;31m";

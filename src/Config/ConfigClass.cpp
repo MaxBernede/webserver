@@ -1,16 +1,5 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        ::::::::            */
-/*   ConfigClass.cpp                                    :+:    :+:            */
-/*                                                     +:+                    */
-/*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
-/*                                                   +#+                      */
-/*   Created: 2024/07/02 13:12:16 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/07/26 16:50:00 by kposthum      ########   odam.nl         */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "ConfigClass.hpp"
+// #include "Webserver.hpp"
 
 static std::vector<bool> defaultMethods(){
 	std::vector<bool> methods;
@@ -38,7 +27,8 @@ Config::Config():
 	_redirect(defaultRedirect()),
 	_autoIndex(true),
 	_index(defaultIndex()),
-	_cgi(true) {
+	_cgi(true), 
+	_basePath(getPath()){
 }
 
 

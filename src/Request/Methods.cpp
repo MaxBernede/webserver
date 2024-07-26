@@ -1,20 +1,27 @@
-#include "webserver.hpp"
-#include <iostream>
+#include "Request.hpp"
 
 void Request::readRequest()
 {
 	char buffer[BUFFER_SIZE];
 
-	int rb = recv(_clientFd, buffer, BUFFER_SIZE - 1, 0);
+	//int rb = recv(_clientFd, buffer, BUFFER_SIZE - 1, 0);
+	int rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
+
 	if (rb < 0){
+		_errorCode = ErrorCode::BAD_REQUEST; //not sure of the error
+		_doneReading = true;
 		std::cerr << "Error reading request" << std::endl;
-		return;
+		throw (HTTPError(ErrorCode::BAD_REQUEST));
 	}
 	buffer[rb] = '\0';
 	_recv_bytes += rb;
 	_request_text += std::string(buffer, rb);
-	if (_request_text.length() > _config.getMaxBody())
+	//Logger::log(std::to_string(_config.getMaxBody()), LogLevel::WARNING);
+	if (_request_text.length() > MAX_BODY_SIZE)
+	{
+		_doneReading = true;
 		throw Exception("Payload too large", 413);
+	}
 	if (rb < BUFFER_SIZE - 1)
 	{
 		_doneReading = true;
@@ -53,7 +60,7 @@ bool Request::isBoundary(const std::string &line){
 
 void Request::printAllData(){
 	Logger::log("Application started", INFO);
-	std::cout << "Boundary: " << _boundary << std::endl;
+	std::cout << "Boudary: " << _boundary << std::endl;
 	std::cout << "Method: ";
 	for (const auto &method : _method)
 		std::cout << method << " ";
@@ -62,35 +69,18 @@ void Request::printAllData(){
 		Logger::log(pair.first + ": " + pair.second, DEBUG);
 }
 
-bool Request::redirRequest501()
+// Void or Throw HTTPError
+void Request::redirRequest501()
 {
 	std::string method = getMethod(0);
-	if (method == "GET" || method == "POST" || method == "DELETE")
-		_errorCode = OK;
-	else
+	if (method != "GET" && method != "POST" && method != "DELETE" && method != "HEAD"){
 		_errorCode = METHOD_NOT_IMPLEMENTED;
-	if (_errorCode != OK)
-	{
-		int found = false;
-		for (auto item : _config.getErrorPages())
-		{
-			if (item.err == 501)
-			{
-				found = true;
-				_errorPageFound = true;
-				_file = item.url; // redir to error page on Server
-			}
-		}
-		std::string filepath = _config.getRoot() + _file;
-		if (access(filepath.c_str(), F_OK) == -1 || !found) // redirect to hardcoded 501 error?
-		{
-			_errorPageFound = false;
-		}
+		throw(HTTPError(ErrorCode::METHOD_NOT_IMPLEMENTED));
 	}
-	return (_errorCode != 200);
 }
 
-bool Request::redirRequest405() // If Method not Allowed, redirects to Server 405
+// Void or Throw HTTPError
+void Request::redirRequest405() // If Method not Allowed, redirects to Server 405
 {
 	std::string method = getMethod(0);
 	int index = -1;
@@ -103,82 +93,90 @@ bool Request::redirRequest405() // If Method not Allowed, redirects to Server 40
 		index = DELETE;
 	else if (method == "HEAD")
 		index = HEAD;
-	// std::cout << _config << std::endl;
-	if (!_config.getMethod(index))
-	{
-		_errorCode = METHOD_NOT_ALLOWED;
-		int found = false;
-		for (auto item : _config.getErrorPages())
-		{
-			if (item.err == 405)
-			{
-				found = true;
-				_errorPageFound = true;
-				_file = item.url; // redir to error page on Server
-			}
-		}
-		std::string filepath = _config.getRoot() + _file;
-		if (access(filepath.c_str(), F_OK) == -1 || !found) // redirect to hardcoded 405 error
-		{
-			_errorPageFound = false;
-		}
-	}
-	return (_errorCode != 200);
+	if (index == HEAD)
+		return ;
+	if (index != -1 && _config.getMethod(index) == false)
+		throw(HTTPError(ErrorCode::METHOD_NOT_ALLOWED));
+
 }
 
-bool Request::redirRequest404()
+void Request::searchErrorPage()
+{
+	int found = false;
+	for (auto item : _config.getErrorPages())
+	{
+		if (item.err == _errorCode)
+		{
+			found = true;
+			_errorPageFound = true;
+			_file = item.url; // redir to error page on Server
+		}
+	}
+	_filePath = _config.getRoot() + _file;
+	if (access(_filePath.c_str(), F_OK) == -1 || !found)
+	{
+		_errorPageFound = false;
+	}
+}
+
+// Void or throw HTTPError 404
+void Request::redirRequest404()
 {
 	if (_file == "")
 		_file = _config.getIndex();
 	_filePath = _config.getRoot() + _file;
-	// std::cout << "root: " << _config.getRoot() << std::endl;
-	// std::cout << "file: " << _file << std::endl;
-	Logger::log("Checking file: " + _filePath, LogLevel::INFO);
 	if (access(_filePath.c_str(), F_OK) == -1) // If file does not exist
-	{
-		_errorCode = PAGE_NOT_FOUND;
-		int found = false;
-		for (auto item : _config.getErrorPages())
-		{
-			if (item.err == 404)
-			{
-				found = true;
-				_errorPageFound = true;
-				_file = item.url; // redir to error page on Server
-			}
-		}
-		// std::cout << "_File after looping errorpgs: " << _file << std::endl;
-		_filePath = _config.getRoot() + _file;
-		if (access(_filePath.c_str(), F_OK) == -1 || !found)
-		{
-			_errorPageFound = false;
-		}
-	}
-	return (_errorCode != 200);
+		throw(HTTPError(ErrorCode::PAGE_NOT_FOUND));
 }
 
-int Request::checkRequest() // Checking for 404 and 405 Errors
+int Request::isFileorDir(std::string filePath)
 {
-	//Temp check for Max code:
-	Logger::log("Checking file...", LogLevel::INFO);
-	if (redirRequest405())
-		return (getErrorCode());
-	if (isRedirect())
+	Logger::log("Checking if the path " + filePath + " is a file or directory...", DEBUG);
+	struct stat path_stat;
+	int statRes = stat(filePath.c_str(), &path_stat);
+	if (statRes != 0)
 	{
-		// std::cout << "redirect, not 404!\n";
-		return (200);
+		std::cout << "Error accessing path: " << filePath << std::endl;
+		return (1);
 	}
-	if (redirRequest404())
-		return (getErrorCode());
-	return getErrorCode();
+	if (S_ISREG(path_stat.st_mode)) // if the path is a file
+	{
+		return (0); // if its a file it is good.
+	}
+	return (1); // if path is not a file, i.e. a directory
 }
 
-void Request::remove(std::string &path){
-	if (access(path.c_str(), W_OK) != 0){
+// Not sure about this logic
+void	Request::handleDirListing()
+{
+	if (_file == "")
+		_file = _config.getIndex();
+
+	if (_file == "" && !_config.getAutoIndex())
+		throw (RequestException("500: Instance not allowed", LogLevel::ERROR));
+
+}
+
+void Request::checkRequest() // Checking for 404 and 405 Errors
+{
+	Logger::log("Checking file...", LogLevel::INFO);
+
+	redirRequest405(); // ---> throw something case error
+	redirRequest501();
+	handleRedirection();
+	handleDirListing(); // NOT WORKING
+	redirRequest404();
+}
+
+void Request::remove(std::string &path)
+{
+	if (access(path.c_str(), W_OK) != 0)
+	{
 		_errorCode = FORBIDDEN;
 		throw RequestException("403: Path to delete have no write access", LogLevel::ERROR);
 	}
-	if (std::remove(path.c_str()) == 0){
+	if (std::remove(path.c_str()) == 0)
+	{
 		Logger::log("File deleted successfully", INFO);
 		_errorCode = NO_CONTENT;
 		throw RequestException("204: Should return Success");
@@ -187,19 +185,18 @@ void Request::remove(std::string &path){
 }
 
 void Request::removeDir(std::string &path){
-    try {
-        std::size_t num = std::filesystem::remove_all(path);
-        Logger::log("Removed: " + std::to_string(num) + " total files", INFO);
+	try {
+		std::size_t num = std::filesystem::remove_all(path);
+		Logger::log("Removed: " + std::to_string(num) + " total files", INFO);
 		_errorCode = NO_CONTENT;
-    }
+	}
 	catch (const std::filesystem::filesystem_error& e) {
-        std::cerr << "Error removing directory: " << e.what() << "\n";
+		std::cerr << "Error removing directory: " << e.what() << "\n";
 		_errorCode = INTERNAL_SRV_ERR;
 		throw RequestException("500: Error while deleting the dir", LogLevel::WARNING);
-    }
+	}
 	throw RequestException("204: Should return Success");
 }
-
 
 void Request::handleDirDelete(std::string &path){
 	if (path.back() != '/'){
@@ -208,16 +205,17 @@ void Request::handleDirDelete(std::string &path){
 	}
 	if (access(path.c_str(), W_OK) != 0){
 		_errorCode = FORBIDDEN;
-		throw RequestException("403: Path to delete have no write access", ERROR);
+		throw RequestException("403: Path to delete has no write access", ERROR);
 	}
 	removeDir(path);
 }
 
-void Request::handlePost(){
+void Request::handlePost()
+{
 	std::string body = getValues("Body");
 
 	if (body.empty())
-		throw RequestException("Body is empty", ERROR);
+		throw RequestException("Body is empty", ERROR); // check if not 422
 
 	Logger::log("Creating the file", INFO);
 	createFile(body, getPath() + "/saved_files");
@@ -244,37 +242,37 @@ void Request::handleDelete(){
 	Logger::log("File exist and will be deleted", INFO);
 
 	if (std::filesystem::is_regular_file(path))
-    	return (remove(path));
-    else if (std::filesystem::is_directory(path))
-        return (handleDirDelete(path));
+		return (remove(path));
+	else if (std::filesystem::is_directory(path))
+		return (handleDirDelete(path));
 	else
 		throw RequestException("Path is not a file and not a dir", LogLevel::ERROR);
 	return;
 }
 
-bool Request::isRedirect(){
+// TODO not sure if we need this function anymore
+void Request::handleRedirection(){
 	std::list<s_redirect> redirs = _config.getRedirect();
 	std::string fileName = getFileNameProtected();
+
 	for (s_redirect r : redirs){
 		// std::cout << fileName << "\t\t" << r.redirFrom << std::endl;
 		if (fileName == r.redirFrom){
-			// std::cout << r.redirTo << std::endl;
-			// std::cout << "is redirect" << std::endl;
-			return true;}
+			Logger::log("Is a redirect", LogLevel::WARNING);
+			throw(HTTPError(ErrorCode(r.returnValue)));
+		}
 	}
-	return false;
 }
 
-void	Request::configConfig()
-{
+void	Request::configConfig(){
 	std::string temp = getFileNameProtected();
 	if (temp.find('/', 1) != std::string::npos)
 		temp.erase(temp.find('/', 1) + 1);
 	std::list<Location> locs = _config.getLocation();
 	for (Location loc : locs){
-		// std::cout << "TEMP\t" << temp << "\tLOC\t" << loc.getName() << std::endl;
+		std::cout << "TEMP\t" << temp << "\tLOC\t" << loc.getName() << std::endl;
 		if (temp == loc.getName() || (temp == loc.getRoot() && loc.getRoot() != _config.getRoot())){
-			// std::cout << "IS LOCATION" << std::endl;
+			std::cout << "IS LOCATION" << std::endl;
 			_config.setRoot(loc.getRoot());
 			for (int i = GET; i <= TRACE; i++)
 				_config.setMethod(loc.getMethod(i), i);
@@ -285,10 +283,36 @@ void	Request::configConfig()
 			_config.setPath(loc.getPath());
 			std::string newName = getFileNameProtected();
 			newName.erase(0, temp.length());
-			// std::cout << newName << std::endl;
+			std::cout << newName << std::endl;
 			_file = newName;
 			break ;
 		}
 	}
 }
 
+void Request::checkVersion(){
+	std::string v = getMethod(2);
+
+	// std::cout << getMethod(0) << getMethod(1) << getMethod(2) <<std::endl;
+	// std::cout << v << " " << v[5] << "<-- version" << std::endl;
+	if (v[5] != '1' && v[5] != '2'){
+		_method[2] = "HTTP/1.1";
+		_errorCode = ErrorCode::HTTP_NOT_SUPPORT;
+		throw (RequestException("HTTP version is not correct", LogLevel::ERROR));
+	}
+}
+
+void Request::checkErrors(){
+	checkVersion();
+}
+
+void Request::execAction(){
+	std::string method = getMethod(0);
+
+	Logger::log("Request exec: " + method, INFO);
+
+	if (method == "DELETE")
+		handleDelete();
+	if (method == "POST")
+		handlePost();
+}

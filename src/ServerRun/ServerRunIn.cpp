@@ -1,8 +1,6 @@
-#include "webserver.hpp"
+#include "ServerRun.hpp"
 
-const std::string HTTP_CONFLICT_RESPONSE = R"(
-HTTP/1.1 409 Conflict
-Content-Type: application/json
+const std::string HTTP_CONFLICT_RESPONSE = R"(Content-Type: application/json
 
 {
     "error": "Conflict",
@@ -10,13 +8,20 @@ Content-Type: application/json
 }
 )";
 
-const std::string HTTP_FORBIDDEN_RESPONSE = R"(
-HTTP/1.1 403 Forbidden
-Content-Type: application/json
+const std::string HTTP_FORBIDDEN_RESPONSE = R"(Content-Type: application/json
 
 {
     "error": "Forbidden",
     "message": "You do not have permission to access this resource."
+}
+)";
+
+const std::string HTTP_BAD_REQUEST = R"(
+Content-Type: application/json
+
+{
+    "error": "Bad Request",
+    "message": "Your browser sent a request that this server could not understand."
 }
 )";
 
@@ -35,7 +40,6 @@ void ServerRun::acceptNewConnection(int listenerFd)
 
 void ServerRun::handleCGIRequest(int clientFd)
 {
-	std::cout << "CGI Request\n";
 	Logger::log("A CGI Request is being handled", LogLevel::INFO);
 	_httpObjects[clientFd]->createCGI();
 	int pipeFd = _httpObjects[clientFd]->_cgi->getReadFd();
@@ -59,26 +63,33 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 	addQueue(FILE_READ_READING, fileFd);
 }
 
-void ServerRun::handleRedirection(int clientFd)
+// Handles error code when no error file exists
+void ServerRun::redirectToError(ErrorCode ErrCode, int clientFd)
 {
-	addQueue(HTTP_REDIRECT, clientFd);
+	Logger::log("Redirecting to Error...", LogLevel::WARNING);
+	// need to add file search here...
+	HTTPObject *obj = _httpObjects[clientFd];
+	obj->_request->searchErrorPage();
+	if (obj->_request->getErrorPageStatus() == false) // if no error file does not exst
+	{
+		Logger::log("Error page does not exist..Error code: " + std::to_string(ErrCode), LogLevel::WARNING);
+		obj->_response->errorResponseHTML(ErrCode);
+		// if (ErrCode == NO_CONTENT)
+		// 	obj->_response->setResponseString("HTTP/1.1 204 No Content");
+		_pollData[clientFd]._pollType = HTTP_ERROR;
+	}
+	else // if error page exists
+	{
+		handleStaticFileRequest(clientFd);
+	}
 }
 
-// Only handles 404 and 405
-void ServerRun::redirectToError(int ErrCode, int clientFd)
+int ServerRun::httpRedirect(ErrorCode status, int clientFd)
 {
 	HTTPObject *obj = _httpObjects[clientFd];
-	if (ErrCode == 404)
-		obj->_response->setResponseString(NOT_FOUND);
-	if (ErrCode == 405)
-		obj->_response->setResponseString(NOT_ALLOWED);
-	if (ErrCode == NO_CONTENT)
-		obj->_response->setResponseString("HTTP/1.1 204 No Content");
-	if (ErrCode == ErrorCode::CONFLICT)
-		obj->_response->setResponseString(HTTP_CONFLICT_RESPONSE);
-	if (ErrCode == ErrorCode::FORBIDDEN)
-		obj->_response->setResponseString(HTTP_FORBIDDEN_RESPONSE);
-	_pollData[clientFd]._pollType = HTTP_ERROR;
+	int Err = obj->_response->setRedirectStr(status, obj->_request->getFileNameProtected(), obj->_config.getRedirect());
+	Logger::log("HTTP Error Caught, Redirection Detected", LogLevel::DEBUG);
+	return (Err);
 }
 
 // Only continue after reading the whole request
@@ -86,6 +97,7 @@ void ServerRun::readRequest(int clientFd)
 {
 	if (_httpObjects.find(clientFd) == _httpObjects.end())
 	{
+		Logger::log("Creating HTTP Obj", LogLevel::INFO);
 		HTTPObject *newObj = new HTTPObject(clientFd);
 		_httpObjects[clientFd] = newObj;
 	}
@@ -95,46 +107,38 @@ void ServerRun::readRequest(int clientFd)
 	}
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
-		_httpObjects[clientFd]->_request->printAllData();
-
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = getConfig(Domain, clientFd);
 		_httpObjects[clientFd]->setConfig(config);
-		int ErrCode = _httpObjects[clientFd]->_request->checkRequest(); 
-		if (ErrCode != 200 && _httpObjects[clientFd]->_request->getErrorPageStatus() == false)
-		{
-			_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-			redirectToError(ErrCode, clientFd);
-			return ;
-		}
+		_httpObjects[clientFd]->_request->checkRequest();
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-		// KOENS CODE!
-		if (_httpObjects[clientFd]->_request->isRedirect()){
-			_pollData[clientFd]._pollType = HTTP_REDIRECT;
+
+		executeRequest(clientFd, config);
+	}
+}
+
+void ServerRun::executeRequest(int clientFd, Server config){
+	if (_httpObjects[clientFd]->_request->needAction()){
+		try{
+			_httpObjects[clientFd]->_request->execAction();
 		}
-		else {
-			if (_httpObjects[clientFd]->isCgi()) // What do we do when CGI is not allowed?
-			{
-				if (!config.getCGI())
-				{
-					// redirectToError(404, clientFd); I assume we do something like this, if we do the lines below should be cleared
-					cleanUp(clientFd);
-					_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
-					throw(Exception("CGI is not permitted for this server", 1));
-					return ;
-				}
-				handleCGIRequest(clientFd);
-			}
-			else if (_httpObjects[clientFd]->_request->getMethod(0) == "HEAD") // or anything that doesnt need READ file
-			{
-				_pollData[clientFd]._pollType = FILE_READ_DONE;
-				return ;
-			}
-			else // Static file
-			{
-				handleStaticFileRequest(clientFd);
-			}
+		catch (const RequestException &e){
+			e.what();
 		}
+		_pollData[clientFd]._pollType = EMPTY_RESPONSE;
+	}
+	else if (_httpObjects[clientFd]->isCgi()) 
+	{
+		if (!config.getCGI())
+		{
+			Logger::log("CGI is not permitted for this server", LogLevel::ERROR);
+			throw (HTTPError(ErrorCode::FORBIDDEN)); // What do we do when CGI is not allowed?
+		}
+		handleCGIRequest(clientFd);
+	}
+	else // Static file
+	{
+		handleStaticFileRequest(clientFd);
 	}
 }
 

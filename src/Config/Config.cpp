@@ -1,6 +1,6 @@
-#include "webserver.hpp"
-#include "server.hpp"
-#include "utils.hpp"
+#include "Webserver.hpp"
+#include "Server.hpp"
+#include "Utils.hpp"
 
 void confPort(std::string value, Server &serv){
 	s_domain port;
@@ -52,13 +52,13 @@ void confMethods(std::string value, Server &serv){
 		"PATCH", "CONNECT", "OPTIONS", "TRACE", "HEAD"};
 	while (value != ";"){
 		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-		for (int i = 0; i < 9; i++)
+		for (int i = GET; i <= HEAD; i++)
 		{
 			if (tmp == meth[i]){
 				serv.setMethod(i, true);
 				break;
 			}
-			if (i == 7)
+			if (i == HEAD)
 				throw syntaxError();
 		}
 		value.erase(0, tmp.length());

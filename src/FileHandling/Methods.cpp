@@ -1,4 +1,4 @@
-#include "webserver.hpp"
+#include "FileHandling.hpp"
 
 bool containsSubstring(const std::string& subStr, const std::string& mainStr) {
 	// Logger::log(mainStr, INFO);
@@ -20,10 +20,12 @@ bool verifyPath(std::string &inputPath) {
 		if (!containsSubstring(getPath() + "/saved_files/", inputPath))
 			return false;
 		return true;
-    } catch (const std::filesystem::filesystem_error &e) {
+    } 
+    catch (const std::filesystem::filesystem_error &e) {
         std::cerr << "Filesystem error: " << e.what() << '\n';
         return false;
-    } catch (const std::exception &e) {
+    } 
+    catch (const std::exception &e) {
         std::cerr << "Error: " << e.what() << '\n';
         return false;
     }

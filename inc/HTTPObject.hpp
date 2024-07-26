@@ -1,4 +1,11 @@
-#include "webserver.hpp"
+#pragma once
+
+#include "Server.hpp"
+#include "Request.hpp"
+#include "Response.hpp"
+#include "CGI.hpp"
+
+class Response;
 
 class HTTPObject {
 	private:
@@ -14,7 +21,7 @@ class HTTPObject {
 		HTTPObject(int clientFd);
 		~HTTPObject(void);
 		
-		void	redirectResponse(void);
+		void	sendRedirection(void);
 		void	sendResponse(void);
 		void	createCGI();
 		void	runCGI(void);

@@ -1,6 +1,6 @@
-#include "webserver.hpp"
+#include "ServerRun.hpp"
 
-void ServerRun::sendResponse(int fd)
+void ServerRun::sendResponse(int fd) // Using readFd
 {
 		Logger::log("Sending response to fd: " + std::to_string(fd), WARNING);
 		HTTPObject *obj = findHTTPObject(fd);
@@ -11,11 +11,9 @@ void ServerRun::sendResponse(int fd)
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
 
-void ServerRun::sendRedirect(int clientFd)
+void ServerRun::sendRedirect(int clientFd) // this is a clientFd!
 {
-	std::cout << "SENDING HTTP REDIRECT" << std::endl;
-	_httpObjects[clientFd]->redirectResponse();
-	// removeConnection(clientFd);
+	_httpObjects[clientFd]->sendRedirection();
 	cleanUp(clientFd);
 	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
@@ -39,6 +37,9 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 		case FILE_READ_DONE:
 			sendResponse(pollFd.fd);
 			break ;
+		case EMPTY_RESPONSE:
+			sendError(pollFd.fd);
+			break;
 		case HTTP_ERROR:
 			sendError(pollFd.fd);
 			break ;

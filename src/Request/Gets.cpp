@@ -1,4 +1,4 @@
-#include "webserver.hpp"
+#include "Request.hpp"
 
 int Request::getClientFd(){
 	return (_clientFd);
@@ -50,21 +50,10 @@ std::string Request::getFileNameProtected( void ){
 }
 
 
-//WTF ? Why the hell am ireturning the file name only if it's a post or get
+
 //Return the first word after GET (usually the html) otherwise empty
-std::string Request::getFileName( void )
-{
+std::string Request::getFileName( void ){
 	return _file;
-	// std::string val = getValues("GET");
-	// if (val.empty()){
-	// 	val = getValues("POST");
-	// 	if (val.empty())
-	// 		return "";
-	// }
-	// std::string html_file = firstWord(val);
-	// if (html_file == "")
-	// 	return *(_config.getIndex()).begin(); //TODO: make it modular according to config
-	// return html_file;
 }
 
 
@@ -75,7 +64,6 @@ std::string Request::getValues(std::string key){
 	return "";
 }
 
-// TODO make an enum for this, remove '/r' char from the end of the lines
 // Method[3], 0 = Methode(Post, delete, etc..), 1 = Link (html/ cgi/ .ico), 2 = HTTP version
 std::string Request::getMethod(int index){
 	if (index < 0 || static_cast<std::vector<std::string>::size_type>(index) >= _method.size())
@@ -92,6 +80,11 @@ Server	Request::getConfig(){
 void	Request::setConfig(Server config)
 {
 	_config = config;
+}
+
+void Request::setErrorCode(ErrorCode err)
+{
+	_errorCode = err;
 }
 
 std::string Request::getDeleteFilename(const std::string& httpRequest) {
@@ -172,3 +165,9 @@ std::string	Request::getServerName()
 	return (_config.getName());
 }
 
+//True or False, HEAD included so no read after from serverRun
+bool Request::needAction(){
+	std::string m = getMethod(0);
+
+	return (m == "DELETE" || m == "POST" || m == "HEAD");
+}

@@ -1,22 +1,25 @@
 #pragma once
-#include "webserver.hpp"
+#include "Webserver.hpp"
 #include <cstdio>
+
+
+#include <filesystem>
+#include <vector>
+
+#include "Exception.hpp"
+#include "Logger.hpp"
+
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <iostream>
+
+#define MAX_BODY_SIZE 1048576
+//#define MAX_BODY_SIZE 1048
 
 enum reqType
 {
 	HTML,
 	IMG
-};
-
-enum ErrorCode {
-    OK = 200,
-	NO_CONTENT = 204,
-    FORBIDDEN = 403,
-    PAGE_NOT_FOUND = 404,
-	METHOD_NOT_ALLOWED = 405,
-    CONFLICT = 409,
-	INTERNAL_SRV_ERR = 500,
-	METHOD_NOT_IMPLEMENTED = 501
 };
 
 enum methodField {
@@ -61,8 +64,8 @@ class Request
 		void		readRequest();
 		void		parseFirstLine(std::istringstream &iss);
 		void		parseBody(std::istringstream &iss, std::string &line);
-		void 		parseResponse(const std::string& headers);
-		int			checkRequest();
+		void 		parseRequest(const std::string& headers);
+		void		checkRequest();
 
 		//GET
 		std::string	getFile();
@@ -82,28 +85,40 @@ class Request
 		std::string	getErrorString();
 		std::string	getFilePath();
 		bool		getErrorPageStatus();
+		bool		needAction();
+		void		execAction();
 
 		// SET
 		void		setFileName(std::string newName);
 		void		setFile();
-		void		setConfig(Server config);	
+		void		setConfig(Server config);
+		void		setErrorCode(ErrorCode);
 
 		//Methods
-		bool		isRedirect();
+		void		handleRedirection();
 		bool		isCgi(); // boolean to tell if request is Cgi
 		bool		isDoneReading();
 		bool		isBoundary(const std::string &line);
-		bool		redirRequest501();
-		bool		redirRequest405();
-		bool		redirRequest404();
+
+		void		redirRequest501();
+		void		redirRequest405();
+		void		redirRequest404();
+		void		handleDirListing();
+
+		void		searchErrorPage();
 		void		handleDelete();
 		void		handlePost();
 		void		handleDirDelete(std::string & path);
+		
 		void		remove(std::string & path);
 		void		removeDir(std::string & path);
 
+		void		checkErrors();
+		void		checkVersion();
+		void		tooLong();
+
 		void		configConfig();
-	
+		int			isFileorDir(std::string filePath);
 		void		printAllData();
 
 	private:

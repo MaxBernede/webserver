@@ -1,10 +1,13 @@
 #pragma once
-#include "webserver.hpp"
-#include <array>
+
+#include "Request.hpp"
 #include <iostream>
+#include <vector>
+#include <sys/wait.h>
 
 #define ENV_SIZE 18
 
+class Request;
 /*
 I need the following from the client request parser:
 - file name

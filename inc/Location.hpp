@@ -1,20 +1,8 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        ::::::::            */
-/*   Location.hpp                                       :+:    :+:            */
-/*                                                     +:+                    */
-/*   By: kposthum <kposthum@student.codam.nl>         +#+                     */
-/*                                                   +#+                      */
-/*   Created: 2024/07/02 13:28:08 by kposthum      #+#    #+#                 */
-/*   Updated: 2024/07/19 14:34:49 by mbernede      ########   odam.nl         */
-/*                                                                            */
-/* ************************************************************************** */
-
 #pragma once
 
-#include<utils.hpp>
+#include<Utils.hpp>
 #include<ConfigClass.hpp>
-#include<server.hpp>
+#include"Server.hpp"
 
 #include<string>
 #include<list>
