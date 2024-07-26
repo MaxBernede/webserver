@@ -107,35 +107,38 @@ void ServerRun::readRequest(int clientFd)
 	}
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
-		_httpObjects[clientFd]->_request->printAllData();
-
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = getConfig(Domain);
 		_httpObjects[clientFd]->setConfig(config);
 		_httpObjects[clientFd]->_request->checkRequest();
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-		// if (_httpObjects[clientFd]->_request->isRedirect())
-		// {
-			// _pollData[clientFd]._pollType = HTTP_REDIRECT;
-		// }
-		if (_httpObjects[clientFd]->isCgi()) 
-		{
-			if (!config.getCGI())
-			{
-				Logger::log("CGI is not permitted for this server", LogLevel::ERROR);
-				throw (HTTPError(ErrorCode::FORBIDDEN)); // What do we do when CGI is not allowed?
-			}
-			handleCGIRequest(clientFd);
+
+		executeRequest(clientFd, config);
+	}
+}
+
+void ServerRun::executeRequest(int clientFd, Server config){
+	if (_httpObjects[clientFd]->_request->needAction()){
+		try{
+			_httpObjects[clientFd]->_request->execAction();
 		}
-		else if (_httpObjects[clientFd]->_request->getMethod(0) == "HEAD") // or anything that doesnt need READ file
-		{
-			_pollData[clientFd]._pollType = FILE_READ_DONE;
-			return ;
+		catch (const RequestException &e){
+			e.what();
 		}
-		else // Static file
+		_pollData[clientFd]._pollType = EMPTY_RESPONSE;
+	}
+	else if (_httpObjects[clientFd]->isCgi()) 
+	{
+		if (!config.getCGI())
 		{
-			handleStaticFileRequest(clientFd);
+			Logger::log("CGI is not permitted for this server", LogLevel::ERROR);
+			throw (HTTPError(ErrorCode::FORBIDDEN)); // What do we do when CGI is not allowed?
 		}
+		handleCGIRequest(clientFd);
+	}
+	else // Static file
+	{
+		handleStaticFileRequest(clientFd);
 	}
 }
 

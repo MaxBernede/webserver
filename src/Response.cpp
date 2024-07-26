@@ -68,8 +68,8 @@ void Response::setResponseString(std::string response)
 
 int Response::setRedirectStr(int status, std::string from, std::list<s_redirect> redirs)
 {
-	std::string to;
-	std::string val;
+	std::string to = "";
+	std::string val = "";
 	for (s_redirect r : redirs){
 		if (r.redirFrom == from){
 			to = r.redirTo;
@@ -79,6 +79,7 @@ int Response::setRedirectStr(int status, std::string from, std::list<s_redirect>
 	}
 	if (to == "")
 	{
+		// throw()
 		// Internal Server Error
 		return (500);
 	}

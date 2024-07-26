@@ -188,7 +188,7 @@ Server::Server(char **env):
 	Config(),
 	_ports(defaultPorts()),
 	_name(defaultName()),
-	_root("html/"),
+	_root(_basePath + "html/"),
 	_maxBody(1048576),
 	_errorPages(defaultErrorPages()){
 	
@@ -199,7 +199,7 @@ Server::Server(char **env):
 Server::Server():
 	_ports(defaultPorts()),
 	_name(defaultName()),
-	_root("html/"),
+	_root(_basePath + "html/"),
 	_maxBody(1048576),
 	_errorPages(defaultErrorPages()){
 	_path = "";

@@ -165,3 +165,9 @@ std::string	Request::getServerName()
 	return (_config.getName());
 }
 
+//True or False, HEAD included so no read after from serverRun
+bool Request::needAction(){
+	std::string m = getMethod(0);
+
+	return (m == "DELETE" || m == "POST" || m == "HEAD");
+}

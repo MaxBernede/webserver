@@ -85,6 +85,8 @@ class Request
 		std::string	getErrorString();
 		std::string	getFilePath();
 		bool		getErrorPageStatus();
+		bool		needAction();
+		void		execAction();
 
 		// SET
 		void		setFileName(std::string newName);

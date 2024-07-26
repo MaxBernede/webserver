@@ -7,12 +7,10 @@ void Request::readRequest(){
 	int rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
 
 	if (rb < 0){
-		Logger::log(std::strerror(errno), ERROR);
-		//! error so read is done ?
 		_errorCode = ErrorCode::BAD_REQUEST; //not sure of the error
 		_doneReading = true;
 		std::cerr << "Error reading request" << std::endl;
-		return;
+		throw (HTTPError(ErrorCode::BAD_REQUEST));
 	}
 	buffer[rb] = '\0';
 	_recv_bytes += rb;
@@ -94,7 +92,8 @@ void Request::redirRequest405() // If Method not Allowed, redirects to Server 40
 		index = DELETE;
 	else if (method == "HEAD")
 		index = HEAD;
-
+	if (index == HEAD)
+		return ;
 	if (index != -1 && _config.getMethod(index) == false)
 		throw(HTTPError(ErrorCode::METHOD_NOT_ALLOWED));
 
@@ -161,6 +160,8 @@ void Request::checkRequest() // Checking for 404 and 405 Errors
 {
 	Logger::log("Checking file...", LogLevel::INFO);
 
+	redirRequest405(); // ---> throw something case error
+	redirRequest501();
 	handleRedirection();
 	handleDirListing(); // NOT WORKING
 	redirRequest404();
@@ -213,7 +214,7 @@ void Request::handlePost()
 	std::string body = getValues("Body");
 
 	if (body.empty())
-		throw RequestException("Body is empty", ERROR);
+		throw RequestException("Body is empty", ERROR); // check if not 422
 
 	Logger::log("Creating the file", INFO);
 	createFile(body, getPath() + "/saved_files");
@@ -304,3 +305,13 @@ void Request::checkErrors(){
 	checkVersion();
 }
 
+void Request::execAction(){
+	std::string method = getMethod(0);
+
+	Logger::log("Request exec: " + method, INFO);
+
+	if (method == "DELETE")
+		handleDelete();
+	if (method == "POST")
+		handlePost();
+}

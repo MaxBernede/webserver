@@ -130,28 +130,12 @@ void Request::constructRequest(){
 	tooLong(); // throws exception of too long
 	std::cout << _request_text << std::endl;
 
-	Logger::log(this->_config.getPath(), WARNING);
+	Logger::log(_config.getPath(), WARNING);
 
 	if (_request_text.empty())
 		throw HTTPError(ErrorCode::BAD_REQUEST);
 	fillBoundary(_request_text);
 	parseRequest(_request_text);	
 	setFile();
-
-	redirRequest405(); // ---> throw something case error
-	redirRequest501();
-
-	std::string method = getMethod(0);
-	Logger::log("Method is :" + method, INFO);
-	if (method == "GET"){
-		;
-	}
-	else if (method == "DELETE"){
-		handleDelete();
-		return;
-	}
-	else if (method == "POST"){
-		handlePost();
-		return;
-	}
+	checkErrors();
 }

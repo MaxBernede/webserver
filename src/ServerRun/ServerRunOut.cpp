@@ -30,6 +30,9 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 		case FILE_READ_DONE:
 			sendResponse(pollFd.fd);
 			break ;
+		case EMPTY_RESPONSE:
+			sendError(pollFd.fd);
+			break;
 		case HTTP_ERROR:
 			sendError(pollFd.fd);
 			break ;

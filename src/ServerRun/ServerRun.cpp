@@ -52,10 +52,9 @@ void ServerRun::createListenerSockets(std::vector<int> listens)
 	}
 	if (_listenSockets.empty())
 		throw(Exception("No available port on the defined host", 1));
-	// add listener sockets to queue
-	for (int i = 0; i < (int)_listenSockets.size(); i++)
-	{
-		addQueue(LISTENER, _listenSockets[i]->getFd());
+	
+	for (int i = 0; i < (int)_listenSockets.size(); i++) {
+		addQueue(LISTENER, _listenSockets[i]->getFd()); // add listener sockets to queue
 	}
 }
 
@@ -96,13 +95,12 @@ void ServerRun::serverRunLoop( void )
 						Logger::log("CGI write side finished writing to the pipe");
 						_pollData[fd]._pollType = CGI_READ_READING;
 					}
-					//Read from client
-					dataIn(_pollData[fd], _pollFds[i]);
+
+					dataIn(_pollData[fd], _pollFds[i]);						//Read from client
 				}
-				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollType == CGI_READ_DONE)
-				{
-					// Write to client
-					dataOut(_pollData[fd], _pollFds[i]);
+
+				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollType == CGI_READ_DONE){
+					dataOut(_pollData[fd], _pollFds[i]);					// Write to client
 				}
 
 			}
@@ -113,20 +111,12 @@ void ServerRun::serverRunLoop( void )
 			}
 			catch(const HTTPError& e)
 			{ 
+				ErrorCode err = e.getErrorCode();
 				Logger::log(e.what(), LogLevel::ERROR);
-				_httpObjects[fd]->_request->setErrorCode(e.getErrorCode());
+				_httpObjects[fd]->_request->setErrorCode(err);
 				_pollData[fd]._pollType = CLIENT_CONNECTION_WAIT;
-				if (e.getErrorCode() >= MULTIPLE_CHOICE && e.getErrorCode() <= PERM_REDIR)
-				{
-					int ErrCode = httpRedirect(_httpObjects[fd]->_request->getErrorCode(), fd);
-					if (ErrCode == _httpObjects[fd]->_request->getErrorCode())
-					{
-						_pollData[fd]._pollType = HTTP_REDIRECT;
-					}
-					_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
-				}
-				if (e.getErrorCode() < MULTIPLE_CHOICE && e.getErrorCode() > PERM_REDIR)
-					redirectToError(_httpObjects[fd]->_request->getErrorCode(), fd);
+	
+				handleHTTPError(err, fd);
 			}
 		}
 		// }
@@ -135,6 +125,22 @@ void ServerRun::serverRunLoop( void )
 		// 	return ;
 		// 	//std::cerr << e.what() << '\n';
 		// }
+	}
+}
+
+void ServerRun::handleHTTPError(ErrorCode err, int fd){
+	if (err >= MULTIPLE_CHOICE && err <= PERM_REDIR)
+	{
+		int ErrCode = httpRedirect(err, fd);
+		if (ErrCode == err)
+		{
+			_pollData[fd]._pollType = HTTP_REDIRECT;
+		}
+		_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
+	}
+	if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
+	{
+		redirectToError(err, fd);
 	}
 }
 
@@ -171,7 +177,7 @@ HTTPObject *ServerRun::findHTTPObject(int readFd)
 		    return pair.second;
 		}
 	}
-	//TODO Maybe throw and exception : Yesim said once
+
 	return nullptr; // Return nullptr if not found
 }
 
