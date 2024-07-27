@@ -129,9 +129,7 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd){
 	{
 		int ErrCode = httpRedirect(err, fd);
 		if (ErrCode == err)
-		{
 			_pollData[fd]._pollType = HTTP_REDIRECT;
-		}
 		_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
 	}
 	else if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
