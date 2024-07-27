@@ -12,7 +12,7 @@ void ServerRun::sendResponse(int fd) // Using readFd
 
 void ServerRun::sendError(int clientFd)
 {
-	//Logger::log("Sending Redir msg", INFO);
+	Logger::log("Sending Redir msg", INFO);
 	_httpObjects[clientFd]->sendResponse();
 	cleanUp(clientFd);
 }
@@ -20,7 +20,7 @@ void ServerRun::sendError(int clientFd)
 // Sending data from the server to the client
 void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 {
-	switch (pollData._pollType)
+	switch (pollData._pollState)
 	{
 		case CGI_READ_DONE:
 			sendResponse(pollFd.fd);

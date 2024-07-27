@@ -54,17 +54,18 @@ void ServerRun::createListenerSockets(std::vector<int> listens)
 		throw(Exception("No available port on the defined host", 1));
 	
 	for (int i = 0; i < (int)_listenSockets.size(); i++) {
-		addQueue(LISTENER, _listenSockets[i]->getFd()); // add listener sockets to queue
+		addQueue(LISTENER, SOCKET, _listenSockets[i]->getFd()); // add listener sockets to queue
 	}
 }
 
-void ServerRun::addQueue(pollType type, int fd)
+void ServerRun::addQueue(pollState state, fdType type, int fd)
 {
 	s_poll_data newPollItem;
 	struct pollfd newPollFd;
 
 	newPollFd = {fd, POLLIN | POLLOUT, 0};
-	newPollItem._pollType = type;
+	newPollItem._pollState = state;
+	newPollItem._fdType = type;
 	_pollFds.push_back(newPollFd);
 	_pollData[fd] = newPollItem;
 }
@@ -88,27 +89,27 @@ void ServerRun::serverRunLoop( void )
 				if (_pollFds[i].revents & POLLIN)
 				{
 					// Only start reading CGI once the write end of the pipe is closed
-					if ( _pollData[fd]._pollType == CGI_READ_WAITING)
+					if ( _pollData[fd]._pollState == CGI_READ_WAITING)
 					{
-						Logger::log("CGI write side finished writing to the pipe");
-						// HTTPObject *obj = findHTTPObject(fd);
-						// if (obj->_cgi->isTimeOut())
+						// Logger::log("CGI write side finished writing to the pipe");
+						if (findHTTPObject(fd)->_cgi->isTimeOut())
+							throw(HTTPError(INTERNAL_SRV_ERR));
 						// {
 						// 	Logger::log("CGI TimedOut");
 						// 	_httpObjects[fd]->_cgi->killChild();
 						// 	cleanUp(fd);
 						// 	continue ;
 						// }
-						if (_pollFds[i].revents & POLLHUP)
+						if (_pollFds[i].revents & POLLHUP && _pollData[fd]._pollState == CGI_READ_WAITING)
 						{
 							Logger::log("CGI did not TimedOut");
-							_pollData[fd]._pollType = CGI_READ_READING;
+							_pollData[fd]._pollState = CGI_READ_READING;
 						}
 					}
 					dataIn(_pollData[fd], _pollFds[i]);						//Read from client
 				}
 
-				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollType == CGI_READ_DONE){
+				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollState == CGI_READ_DONE){
 					dataOut(_pollData[fd], _pollFds[i]);					// Write to client
 				}
 
@@ -123,9 +124,11 @@ void ServerRun::serverRunLoop( void )
 			{ 
 				ErrorCode err = e.getErrorCode();
 				Logger::log(e.what(), LogLevel::ERROR);
-				_httpObjects[fd]->_request->setErrorCode(err);
-				_pollData[fd]._pollType = CLIENT_CONNECTION_WAIT;
-	
+				if (_pollData[fd]._fdType == CLIENTFD)
+					_httpObjects[fd]->_request->setErrorCode(err);
+				else
+					findHTTPObject(fd)->_request->setErrorCode(err);
+				_pollData[fd]._pollState = CLIENT_CONNECTION_WAIT;
 				handleHTTPError(err, fd);
 			}
 		}
@@ -137,7 +140,7 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd){
 	{
 		int ErrCode = httpRedirect(err, fd);
 		if (ErrCode == err)
-			_pollData[fd]._pollType = HTTP_REDIRECT;
+			_pollData[fd]._pollState = HTTP_REDIRECT;
 
 		_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
 	}

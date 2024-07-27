@@ -11,7 +11,7 @@ class CGI;
 class HTTPObject;
 
 // For each server, you need a different listening socket for each port....
-enum pollType
+enum pollState
 {
 	LISTENER,
 	CLIENT_CONNECTION_READY,
@@ -28,9 +28,17 @@ enum pollType
 	EMPTY_RESPONSE
 };
 
+enum fdType
+{
+	SOCKET,
+	CLIENTFD,
+	READFD
+};
+
 typedef struct t_poll_data
 {
-	pollType _pollType;
+	pollState _pollState;
+	fdType	_fdType;
 } s_poll_data;
 
 
@@ -49,7 +57,7 @@ class ServerRun
 
 	void serverRunLoop( void );
 	void createListenerSockets(std::vector<int> listens);
-	void addQueue(pollType type, int fd);
+	void addQueue(pollState state, fdType type, int fd);
 	
 	void	acceptNewConnection(int listenerFd);
 	void	handleRequest(int clientFd);

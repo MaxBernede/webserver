@@ -40,6 +40,10 @@ void CGI::run()
 bool 	CGI::waitCgiChild()
 {
 	int exitCode;
+	if (isTimeOut())
+	{
+		killChild();
+	}
 	int status = waitpid(_pid, &exitCode, WNOHANG);
 	if (status == -1)
 		throw(Exception("Error while waiting for cgi with pid " + std::to_string(_pid) , 1));
@@ -104,7 +108,7 @@ bool CGI::isTimeOut()
 {
 	auto _end = std::chrono::steady_clock::now();
 	std::chrono::duration<double> _timePassed = _end - _forkTime;
-    if (_timePassed.count() > 50)
+    if (_timePassed.count() > 10)
 		return (true);
 	return (false);
 }
