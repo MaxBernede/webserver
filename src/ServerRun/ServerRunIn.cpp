@@ -1,30 +1,5 @@
 #include "ServerRun.hpp"
 
-const std::string HTTP_CONFLICT_RESPONSE = R"(Content-Type: application/json
-
-{
-    "error": "Conflict",
-    "message": "The request could not be completed due to a conflict with the current state of the target resource."
-}
-)";
-
-const std::string HTTP_FORBIDDEN_RESPONSE = R"(Content-Type: application/json
-
-{
-    "error": "Forbidden",
-    "message": "You do not have permission to access this resource."
-}
-)";
-
-const std::string HTTP_BAD_REQUEST = R"(
-Content-Type: application/json
-
-{
-    "error": "Bad Request",
-    "message": "Your browser sent a request that this server could not understand."
-}
-)";
-
 void ServerRun::acceptNewConnection(int listenerFd)
 {
 	int connFd = -1;
@@ -33,10 +8,14 @@ void ServerRun::acceptNewConnection(int listenerFd)
 
 	connFd = accept(listenerFd, (struct sockaddr *)cli_addr, &len);
 	if (connFd == -1)
-		throw(Exception("Error: accept() failed and returned -1", errno));
-	Logger::log("New client connection accepted at fd: " + std::to_string(connFd), LogLevel::INFO);
+		throw (Exception("Error: accept() failed and returned -1", errno));
+	Logger::log("New client connection accepted at fd: " + std::to_string(connFd), LogLevel::DEBUG);
 	addQueue(CLIENT_CONNECTION_READY, connFd);
 }
+
+
+
+
 
 void ServerRun::handleCGIRequest(int clientFd)
 {
@@ -48,6 +27,10 @@ void ServerRun::handleCGIRequest(int clientFd)
 	_httpObjects[clientFd]->runCGI();
 }
 
+
+
+
+
 void ServerRun::handleStaticFileRequest(int clientFd)
 {
 	std::string filePath = _httpObjects[clientFd]->_request->getFilePath();
@@ -56,7 +39,7 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 	if (fileFd < 0)
 	{
 		std::cout << "Failed opening file: " << filePath << std::endl; // TODO 404 error
-		throw(Exception("Opening static file failed", errno));
+		throw (Exception("Opening static file failed", errno));
 	}
 	Logger::log("File correctly opened", INFO);
 	_httpObjects[clientFd]->setReadFd(fileFd);
@@ -70,7 +53,10 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int clientFd)
 	// need to add file search here...
 	HTTPObject *obj = _httpObjects[clientFd];
 	obj->_request->searchErrorPage();
-	if (obj->_request->getErrorPageStatus() == false) // if no error file does not exst
+	if (ErrCode == HTTP_NOT_SUPPORT){
+		_pollData[clientFd]._pollType = HTTP_ERROR;
+	}
+	else if (obj->_request->getErrorPageStatus() == false) // if no error file does not exst
 	{
 		Logger::log("Error page does not exist..Error code: " + std::to_string(ErrCode), LogLevel::WARNING);
 		obj->_response->errorResponseHTML(ErrCode);
@@ -93,7 +79,7 @@ int ServerRun::httpRedirect(ErrorCode status, int clientFd)
 }
 
 // Only continue after reading the whole request
-void ServerRun::readRequest(int clientFd)
+void ServerRun::handleRequest(int clientFd)
 {
 	if (_httpObjects.find(clientFd) == _httpObjects.end())
 	{
@@ -107,8 +93,11 @@ void ServerRun::readRequest(int clientFd)
 	}
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
+
+		_httpObjects[clientFd]->_request->startConstruRequest();
+
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
-		Server config = getConfig(Domain, clientFd);
+		Server config = findConfig(Domain, clientFd);
 		_httpObjects[clientFd]->setConfig(config);
 		_httpObjects[clientFd]->_request->checkRequest();
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
@@ -196,7 +185,7 @@ void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd)
 			acceptNewConnection(pollFd.fd);
 			break ;
 		case CLIENT_CONNECTION_READY: 
-			readRequest(pollFd.fd);
+			handleRequest(pollFd.fd);
 			break ;
 		case CGI_READ_READING:
 			readPipe(pollFd.fd);

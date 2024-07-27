@@ -1,10 +1,28 @@
 #include "Request.hpp"
 
+// Throw HTTPError if the request at this moment is bigger than MAX BODY SIZE
+void Request::requestReadTooLong(){
+	if (_request_text.length() > MAX_BODY_SIZE)
+	{
+		_doneReading = true;
+		throw HTTPError(URI_TOO_LONG);
+	}
+}
+
+void Request::startConstruRequest(){
+	try {
+		constructRequest();
+	}
+	catch (const RequestException& e) {
+		e.what();
+		throw HTTPError(_errorCode);
+	}
+}
+
 void Request::readRequest()
 {
 	char buffer[BUFFER_SIZE];
 
-	//int rb = recv(_clientFd, buffer, BUFFER_SIZE - 1, 0);
 	int rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
 
 	if (rb < 0){
@@ -16,22 +34,11 @@ void Request::readRequest()
 	buffer[rb] = '\0';
 	_recv_bytes += rb;
 	_request_text += std::string(buffer, rb);
-	//Logger::log(std::to_string(_config.getMaxBody()), LogLevel::WARNING);
-	if (_request_text.length() > MAX_BODY_SIZE)
-	{
+	
+	requestReadTooLong();
+	
+	if (rb < BUFFER_SIZE - 1) // Finished reading
 		_doneReading = true;
-		throw Exception("Payload too large", 413);
-	}
-	if (rb < BUFFER_SIZE - 1)
-	{
-		_doneReading = true;
-		try {
-        	constructRequest();
-    	}
-		catch (const RequestException& e) {
-        	e.what();
-    	}
-	}
 }
 
 bool Request::isCgi()
@@ -125,25 +132,8 @@ void Request::redirRequest404()
 	if (_file == "")
 		_file = _config.getIndex();
 	_filePath = _config.getRoot() + _file;
-	if (access(_filePath.c_str(), F_OK) == -1) // If file does not exist
-		throw(HTTPError(ErrorCode::PAGE_NOT_FOUND));
-}
-
-int Request::isFileorDir(std::string filePath)
-{
-	Logger::log("Checking if the path " + filePath + " is a file or directory...", DEBUG);
-	struct stat path_stat;
-	int statRes = stat(filePath.c_str(), &path_stat);
-	if (statRes != 0)
-	{
-		std::cout << "Error accessing path: " << filePath << std::endl;
-		return (1);
-	}
-	if (S_ISREG(path_stat.st_mode)) // if the path is a file
-	{
-		return (0); // if its a file it is good.
-	}
-	return (1); // if path is not a file, i.e. a directory
+	if (access(_filePath.c_str(), F_OK) == -1)
+		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 }
 
 // Not sure about this logic

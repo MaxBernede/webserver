@@ -128,9 +128,7 @@ void Request::constructRequest(){
 	Logger::log("Constructor request call", INFO);
 	// std::cout << _request_text << std::endl;
 	tooLong(); // throws exception of too long
-	std::cout << _request_text << std::endl;
-
-	Logger::log(_config.getPath(), WARNING);
+	Logger::log(_request_text, DEBUG);
 
 	if (_request_text.empty())
 		throw HTTPError(ErrorCode::BAD_REQUEST);

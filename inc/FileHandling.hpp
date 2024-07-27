@@ -4,5 +4,9 @@
 #include <string>
 #include "Utils.hpp"
 #include <iostream>
+#include <sys/stat.h>
 
-bool verifyPath(std::string &inputPath);
+#include "HTTPError.hpp"
+
+bool 		verifyPath(std::string &inputPath);
+bool		isFile(std::string filePath);

@@ -25,7 +25,6 @@ std::string Response::makeStrResponse(Request *request)
 void Response::errorResponseHTML(ErrorCode error) {
 	std::string text = httpStatus[int(error)];
 	_response_text = START_HTML + std::to_string(error) + ", " + text + END_HTML;
-	Logger::log(_response_text, ERROR);
 }
 
 //Read from the FD and fill the buffer with a max of 1024, then get the html out of it
@@ -37,11 +36,12 @@ void Response::addToBuffer(std::string buffer)
 
 void Response::rSend( Request *request )
 {
+	Logger::log("Sending Response to client");
 	std::string response = _response_text;
 	response = makeStrResponse(request);
-	std::cout << "_______________________________________________\n";
-	std::cout << "Message to send =>\n" << response << std::endl;
-	std::cout << "_______________________________________________\n";
+	// std::cout << "_______________________________________________\n";
+	// std::cout << "Message to send =>\n" << response << std::endl;
+	// std::cout << "_______________________________________________\n";
 	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
 	{
 		std::cout << "ERROR with SEND " << _clientFd << std::endl;

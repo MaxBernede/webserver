@@ -106,8 +106,9 @@ void ServerRun::serverRunLoop( void )
 			}
 			catch(const Exception& e)
 			{
+				;
 				//Cath of the "Throw Port not found" in the readRequest;
-				std::cerr << e.what() << '\n';
+				//std::cerr << e.what() << '\n';
 			}
 			catch(const HTTPError& e)
 			{ 
@@ -144,7 +145,14 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd){
 	}
 }
 
-Server ServerRun::getConfig(s_domain port, int clientFd){
+
+
+
+
+
+
+//return server or throw Exception
+Server ServerRun::findConfig(s_domain port, int clientFd){
 	for (auto server : _servers){
 		std::string name = server.getName();
 		for (auto p : server.getPorts()){
@@ -154,7 +162,8 @@ Server ServerRun::getConfig(s_domain port, int clientFd){
 		}
 	}
 	cleanUp(clientFd);
-	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
+
+	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY; // ! to change
 	throw (Exception("Server not found", 404));
 }
 

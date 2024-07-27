@@ -192,7 +192,7 @@ Server::Server(char **env):
 	_maxBody(1048576),
 	_errorPages(defaultErrorPages()){
 	
-	Logger::log("Root is : " + _root);
+	//Logger::log("Root is : " + _root);
 	_path = "";
 }
 

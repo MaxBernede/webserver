@@ -104,6 +104,7 @@ class Request
 		void		redirRequest405();
 		void		redirRequest404();
 		void		handleDirListing();
+		void		requestReadTooLong();
 
 		void		searchErrorPage();
 		void		handleDelete();
@@ -118,8 +119,9 @@ class Request
 		void		tooLong();
 
 		void		configConfig();
-		int			isFileorDir(std::string filePath);
+
 		void		printAllData();
+		void		startConstruRequest();
 
 	private:
 		std::vector<std::string> _method;

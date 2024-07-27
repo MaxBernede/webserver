@@ -52,7 +52,7 @@ class ServerRun
 	void addQueue(pollType type, int fd);
 	
 	void	acceptNewConnection(int listenerFd);
-	void	readRequest(int clientFd);
+	void	handleRequest(int clientFd);
 	void	executeRequest(int clientFd, Server config);
 	void	removeConnection(int fd);
 
@@ -71,8 +71,8 @@ class ServerRun
 	void sendRedirect(int clientFd);
 	void sendError(int clietnFd);
 
-	Server getConfig(s_domain port, int clientFd);
-	// Server getConfig(int port);
+	Server findConfig(s_domain port, int clientFd);
+
 	HTTPObject *findHTTPObject(int readFd);
 	void		cleanUp(int clientFd);
 };

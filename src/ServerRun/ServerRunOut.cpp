@@ -20,7 +20,7 @@ void ServerRun::sendRedirect(int clientFd) // this is a clientFd!
 
 void ServerRun::sendError(int clientFd)
 {
-	Logger::log("Sending Redir msg", INFO);
+	//Logger::log("Sending Redir msg", INFO);
 	_httpObjects[clientFd]->sendResponse();
 	cleanUp(clientFd);
 	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY; // But did I not close this?

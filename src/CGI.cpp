@@ -4,7 +4,8 @@ CGI::CGI(Request *request, int clientFd) : _request(request), _clientFd(clientFd
 {
 	makeEnvArr();
 	makeEnvCStr();
-	pipe(_cgiPipe);
+	if (pipe(_cgiPipe) < 0)
+		throw (Exception("Pipe Failed", 1));
 }
 
 CGI::~CGI(void)

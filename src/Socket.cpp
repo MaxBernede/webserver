@@ -57,7 +57,7 @@ Socket::Socket(int port)
 		close(_fd);
 		throw (Exception("listening failed on socketfd fd: " + std::to_string(_fd) + " on port: " + std::to_string(port), 1));
 	}
-	Logger::log("Sockets created with fd " + std::to_string(_fd) + " on port: " + std::to_string(port));
+	//Logger::log("Sockets created with fd " + std::to_string(_fd) + " on port: " + std::to_string(port));
 }
 	
 Socket::~Socket()
