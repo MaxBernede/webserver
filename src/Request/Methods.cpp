@@ -133,7 +133,8 @@ void Request::redirRequest404()
 	if (_file == "")
 		_file = _config.getIndex();
 	_filePath = _config.getRoot() + _file;
-	if (access(_filePath.c_str(), F_OK) == -1)
+	bool dirListing = _config.getAutoIndex();
+	if (access(_filePath.c_str(), F_OK) == -1 && dirListing == false)
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 }
 
@@ -142,10 +143,9 @@ void	Request::handleDirListing()
 {
 	if (_file == "")
 		_file = _config.getIndex();
-
-	if (_file == "" && !_config.getAutoIndex())
-		throw (RequestException("500: Instance not allowed", LogLevel::ERROR));
-
+	if ((_file == "" || _file.back() == '/') && !_config.getAutoIndex())
+		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
+	else if ((_file == "" || _file.back() == '/') && _config.getAutoIndex())
 }
 
 void Request::checkRequest() // Checking for 404 and 405 Errors

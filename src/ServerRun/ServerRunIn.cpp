@@ -13,10 +13,6 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	addQueue(CLIENT_CONNECTION_READY, connFd);
 }
 
-
-
-
-
 void ServerRun::handleCGIRequest(int clientFd)
 {
 	Logger::log("A CGI Request is being handled", LogLevel::INFO);
@@ -26,10 +22,6 @@ void ServerRun::handleCGIRequest(int clientFd)
 	addQueue(CGI_READ_WAITING, pipeFd);
 	_httpObjects[clientFd]->runCGI();
 }
-
-
-
-
 
 void ServerRun::handleStaticFileRequest(int clientFd)
 {
@@ -93,15 +85,12 @@ void ServerRun::handleRequest(int clientFd)
 	}
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
-
 		_httpObjects[clientFd]->_request->startConstruRequest();
-
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = findConfig(Domain, clientFd);
 		_httpObjects[clientFd]->setConfig(config);
 		_httpObjects[clientFd]->_request->checkRequest();
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
-
 		executeRequest(clientFd, config);
 	}
 }
