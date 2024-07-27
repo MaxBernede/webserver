@@ -154,9 +154,8 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd){
 //return server or throw Exception
 Server ServerRun::findConfig(s_domain port, int clientFd){
 	for (auto server : _servers){
-		std::string name = server.getName();
 		for (auto p : server.getPorts()){
-			if (p.port == port.port && (p.host == port.host || port.host == name)){
+			if (p.port == port.port && p.host == port.host){
 				return (server);
 			}
 		}

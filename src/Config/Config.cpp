@@ -8,7 +8,7 @@ void confPort(std::string value, Server &serv){
 	std::string num = value.substr((value.find_first_of(":") + 1), (value.length() - ip.length() - 1));
 	num.pop_back();
 	if (ip == "localhost")
-		port.host = "127.0.0.1";
+		port.host = configIP("127.0.0.1");
 	else{
 		if (ip.find_first_not_of("1234567890.") != std::string::npos)
 			throw syntaxError();
@@ -21,7 +21,7 @@ void confPort(std::string value, Server &serv){
 		}
 		if (j != 3)
 			throw syntaxError();
-		port.host = ip;
+		port.host = configIP(ip);
 	}
 	if (num.find_first_not_of("1234567890") != std::string::npos || num.length() < 1
 		|| num.length() > 5 || std::stoi(num) > UINT16_MAX)
@@ -48,17 +48,17 @@ void confRoot(std::string value, Server &serv){
 }
 
 void confMethods(std::string value, Server &serv){
-	std::string const meth[9] = {"GET", "POST", "DELETE", "PUT",
-		"PATCH", "CONNECT", "OPTIONS", "TRACE", "HEAD"};
+	std::string const meth[8] = {"GET", "POST", "DELETE", "PUT",
+		"PATCH", "CONNECT", "OPTIONS", "TRACE"};
 	while (value != ";"){
 		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-		for (int i = GET; i <= HEAD; i++)
+		for (int i = 0; i < 8; i++)
 		{
 			if (tmp == meth[i]){
 				serv.setMethod(i, true);
 				break;
 			}
-			if (i == HEAD)
+			if (i == 7)
 				throw syntaxError();
 		}
 		value.erase(0, tmp.length());

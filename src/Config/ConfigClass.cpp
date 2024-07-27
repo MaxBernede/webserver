@@ -3,7 +3,7 @@
 
 static std::vector<bool> defaultMethods(){
 	std::vector<bool> methods;
-	for (int i = GET; i <= HEAD; i++){
+	for (int i = GET; i <= TRACE; i++){
 		if (i == GET || i == POST || i == DELETE)
 			methods.push_back(true);
 		else

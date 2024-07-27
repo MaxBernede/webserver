@@ -28,7 +28,7 @@ enum methodField {
 	HTML_TYPE,
 };
 
-#define METHODS {"GET",	"POST",	"DELETE", "PUT", "PATCH", "CONNECT", "OPTIONS", "TRACE", "HEAD"}
+#define METHODS {"GET",	"POST",	"DELETE", "PUT", "PATCH", "CONNECT", "OPTIONS", "TRACE"}
 
 class RequestException : public std::exception {
 private:
