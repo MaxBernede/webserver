@@ -49,8 +49,7 @@ void Request::parseFirstLine(std::istringstream &iss){
 		if (arg == "\t" || arg == " " || arg.empty()){
 			_method[1] = "400";
 			_method[2] = "HTTP/1.1";
-			_errorCode = ErrorCode::BAD_REQUEST;
-			throw (RequestException("Bad Request", LogLevel::ERROR));
+			throw (HTTPError(BAD_REQUEST));
 		}
         _method[i] = arg;
 		i++;
@@ -66,8 +65,6 @@ void Request::parseFirstLine(std::istringstream &iss){
 		_request.emplace_back(create_pair(line, pos));
 }
 
-//!??? WHY IS THIS CALLED RESPONSE??? can i change it to request?
-//fill the _request
 // it works as : get the first line based on space
 // then check for the ':' however if there is a boundary and its found, keep everything between as body
 void Request::parseRequest(const std::string& headers) {
@@ -114,24 +111,11 @@ Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false), _erro
 
 Request::~Request() {}
 
-void Request::tooLong(){
-	//Logger::log("Too long function Called", WARNING);
-	// Logger::log(std::to_string(_request_text.size()), WARNING);
-	// Logger::log(std::to_string(MAX_BODY_SIZE), WARNING);
-	if (_request_text.size() >= MAX_BODY_SIZE){
-		_errorCode = ErrorCode::URI_TOO_LONG;
-		throw (RequestException("URI too long", LogLevel::ERROR));
-	}
-}
-
 void Request::constructRequest(){
 	Logger::log("Constructor request call", INFO);
-	// std::cout << _request_text << std::endl;
-	tooLong(); // throws exception of too long
-	Logger::log(_request_text, DEBUG);
 
 	if (_request_text.empty())
-		throw HTTPError(ErrorCode::BAD_REQUEST);
+		throw (HTTPError(BAD_REQUEST));
 	fillBoundary(_request_text);
 	parseRequest(_request_text);	
 	setFile();

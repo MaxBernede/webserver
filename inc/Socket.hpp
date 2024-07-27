@@ -2,6 +2,7 @@
 
 #include "Exception.hpp"
 #include "Logger.hpp"
+#include "Server.hpp"
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>

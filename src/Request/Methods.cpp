@@ -10,13 +10,7 @@ void Request::requestReadTooLong(){
 }
 
 void Request::startConstruRequest(){
-	try {
 		constructRequest();
-	}
-	catch (const RequestException& e) {
-		e.what();
-		throw HTTPError(_errorCode);
-	}
 }
 
 void Request::readRequest()
@@ -26,7 +20,6 @@ void Request::readRequest()
 	int rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
 
 	if (rb < 0){
-		_errorCode = ErrorCode::BAD_REQUEST; //not sure of the error
 		_doneReading = true;
 		std::cerr << "Error reading request fd: " << _clientFd << " : " << std::strerror(errno) << std::endl;
 
@@ -133,9 +126,14 @@ void Request::redirRequest404()
 	if (_file == "")
 		_file = _config.getIndex();
 	_filePath = _config.getRoot() + _file;
+<<<<<<< Updated upstream
 	bool dirListing = _config.getAutoIndex();
 	if (access(_filePath.c_str(), F_OK) == -1 && dirListing == false)
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
+=======
+	if (access(_filePath.c_str(), F_OK) == -1)
+		throw (HTTPError(PAGE_NOT_FOUND));
+>>>>>>> Stashed changes
 }
 
 // Not sure about this logic
@@ -143,15 +141,24 @@ void	Request::handleDirListing()
 {
 	if (_file == "")
 		_file = _config.getIndex();
+<<<<<<< Updated upstream
 	if ((_file == "" || _file.back() == '/') && !_config.getAutoIndex())
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 	// else if ((_file == "" || _file.back() == '/') && _config.getAutoIndex())
+=======
+
+	if (_file == "" && !_config.getAutoIndex())
+		throw (HTTPError(INTERNAL_SRV_ERR));
+
+>>>>>>> Stashed changes
 }
 
 void Request::checkRequest() // Checking for 404 and 405 Errors
 {
 	Logger::log("Checking file...", LogLevel::INFO);
 
+	if (_request_text.size() >= _config.getMaxBody())			//My function work but wrong data from config
+		throw (HTTPError(URI_TOO_LONG));
 	redirRequest405(); // ---> throw something case error
 	redirRequest501();
 	handleRedirection();
@@ -162,42 +169,35 @@ void Request::checkRequest() // Checking for 404 and 405 Errors
 void Request::remove(std::string &path)
 {
 	if (access(path.c_str(), W_OK) != 0)
-	{
-		_errorCode = FORBIDDEN;
-		throw RequestException("403: Path to delete have no write access", LogLevel::ERROR);
-	}
+		throw (HTTPError(FORBIDDEN));
+
 	if (std::remove(path.c_str()) == 0)
 	{
 		Logger::log("File deleted successfully", INFO);
-		_errorCode = NO_CONTENT;
-		throw RequestException("204: Should return Success");
+		throw (HTTPError(NO_CONTENT));
 	}
-	throw RequestException("Failed to delete the file", LogLevel::ERROR);
+	throw (HTTPError(OK));
 }
 
 void Request::removeDir(std::string &path){
 	try {
 		std::size_t num = std::filesystem::remove_all(path);
 		Logger::log("Removed: " + std::to_string(num) + " total files", INFO);
-		_errorCode = NO_CONTENT;
 	}
 	catch (const std::filesystem::filesystem_error& e) {
 		std::cerr << "Error removing directory: " << e.what() << "\n";
-		_errorCode = INTERNAL_SRV_ERR;
-		throw RequestException("500: Error while deleting the dir", LogLevel::WARNING);
+		throw (HTTPError(INTERNAL_SRV_ERR));
 	}
-	throw RequestException("204: Should return Success");
+	throw (HTTPError(NO_CONTENT));
 }
 
 void Request::handleDirDelete(std::string &path){
-	if (path.back() != '/'){
-		_errorCode = CONFLICT;
-		throw RequestException("409: Path to delete doesn't end with '/'", ERROR);
-	}
-	if (access(path.c_str(), W_OK) != 0){
-		_errorCode = FORBIDDEN;
-		throw RequestException("403: Path to delete has no write access", ERROR);
-	}
+	if (path.back() != '/')
+		throw (HTTPError(CONFLICT));
+
+	if (access(path.c_str(), W_OK) != 0)
+		throw (HTTPError(FORBIDDEN));
+
 	removeDir(path);
 }
 
@@ -206,7 +206,7 @@ void Request::handlePost()
 	std::string body = getValues("Body");
 
 	if (body.empty())
-		throw RequestException("Body is empty", ERROR); // check if not 422
+		throw (HTTPError(OK)); // check if not 422
 
 	Logger::log("Creating the file", INFO);
 	createFile(body, getPath() + "/saved_files");
@@ -217,19 +217,15 @@ void Request::handleDelete(){
 	std::string path = getPath() + "/saved_files/" + file;
 
 	if (file == "")
-		throw RequestException("File name is empty, nothing will be deleted", LogLevel::WARNING);
+		throw (HTTPError(OK));
 
 	Logger::log("File to delete is : " + file + " Path: " + path, INFO);
-	if (!exists(path)){
-		_errorCode = ErrorCode::PAGE_NOT_FOUND;
-		throw RequestException("File not deleted: doesn't exist", LogLevel::WARNING);
-	}
+	if (!exists(path))
+		throw (HTTPError(PAGE_NOT_FOUND));
 
-	if (!verifyPath(path)){
-		//Not sure of error code
-		_errorCode = ErrorCode::PAGE_NOT_FOUND;
-		throw RequestException("Path requiered not found, file tried to delete ../", LogLevel::ERROR);
-	}
+	if (!verifyPath(path))
+		throw (HTTPError(PAGE_NOT_FOUND));
+
 	Logger::log("File exist and will be deleted", INFO);
 
 	if (std::filesystem::is_regular_file(path))
@@ -237,7 +233,7 @@ void Request::handleDelete(){
 	else if (std::filesystem::is_directory(path))
 		return (handleDirDelete(path));
 	else
-		throw RequestException("Path is not a file and not a dir", LogLevel::ERROR);
+		throw (HTTPError(NO_CONTENT));
 	return;
 }
 
@@ -288,8 +284,7 @@ void Request::checkVersion(){
 	// std::cout << v << " " << v[5] << "<-- version" << std::endl;
 	if (v[5] != '1' && v[5] != '2'){
 		_method[2] = "HTTP/1.1";
-		_errorCode = ErrorCode::HTTP_NOT_SUPPORT;
-		throw (RequestException("HTTP version is not correct", LogLevel::ERROR));
+		throw (HTTPError(HTTP_NOT_SUPPORT));
 	}
 }
 

@@ -75,8 +75,6 @@ void ServerRun::serverRunLoop( void )
 	Logger::log("Server running... ", INFO);
 	while (true)
 	{
-		// try
-		// {
 		nCon = poll(_pollFds.data(), _pollFds.size(), 0);
 
 		if (nCon < 0 and errno != EAGAIN) // EGAIN: Resource temporarily unavailable
@@ -120,12 +118,6 @@ void ServerRun::serverRunLoop( void )
 				handleHTTPError(err, fd);
 			}
 		}
-		// }
-		// catch(const Exception& e)
-		// {
-		// 	return ;
-		// 	//std::cerr << e.what() << '\n';
-		// }
 	}
 }
 
@@ -134,15 +126,13 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd){
 	{
 		int ErrCode = httpRedirect(err, fd);
 		if (ErrCode == err)
-		{
 			_pollData[fd]._pollType = HTTP_REDIRECT;
-		}
+
 		_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
 	}
+
 	if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
-	{
 		redirectToError(err, fd);
-	}
 }
 
 

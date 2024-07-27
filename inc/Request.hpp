@@ -85,7 +85,7 @@ class Request
 		std::string	getErrorString();
 		std::string	getFilePath();
 		bool		getErrorPageStatus();
-		bool		needAction();
+		bool		isEmptyResponse();
 		void		execAction();
 
 		// SET

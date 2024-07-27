@@ -86,6 +86,11 @@ void ServerRun::handleRequest(int clientFd)
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
 		_httpObjects[clientFd]->_request->startConstruRequest();
+<<<<<<< Updated upstream
+=======
+
+		Logger::log("Request has been constructed", DEBUG);
+>>>>>>> Stashed changes
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = findConfig(Domain);
 		_httpObjects[clientFd]->setConfig(config);
@@ -96,16 +101,7 @@ void ServerRun::handleRequest(int clientFd)
 }
 
 void ServerRun::executeRequest(int clientFd, Server config){
-	if (_httpObjects[clientFd]->_request->needAction()){
-		try{
-			_httpObjects[clientFd]->_request->execAction();
-		}
-		catch (const RequestException &e){
-			e.what();
-		}
-		_pollData[clientFd]._pollType = EMPTY_RESPONSE;
-	}
-	else if (_httpObjects[clientFd]->isCgi()) 
+	if (_httpObjects[clientFd]->isCgi()) // GET and POST for CGI
 	{
 		if (!config.getCGI())
 		{
@@ -113,6 +109,11 @@ void ServerRun::executeRequest(int clientFd, Server config){
 			throw (HTTPError(ErrorCode::FORBIDDEN)); // What do we do when CGI is not allowed?
 		}
 		handleCGIRequest(clientFd);
+	}
+	else if (_httpObjects[clientFd]->_request->isEmptyResponse()) { 	// POST or DEL or HEAD
+		_pollData[clientFd]._pollType = EMPTY_RESPONSE;
+		
+		_httpObjects[clientFd]->_request->execAction();
 	}
 	else // Static file
 	{

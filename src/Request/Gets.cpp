@@ -131,7 +131,7 @@ std::string Request::getErrorString(){
 s_domain Request::getRequestDomain(){
 	s_domain Domain;
 	std::string host = this->getValues("Host");
-	
+	std::cout << "HOST: " << host << std::endl;
 	size_t colonIndex = host.find_last_of(":");
 	if (colonIndex != std::string::npos)
 	{
@@ -144,7 +144,7 @@ s_domain Request::getRequestDomain(){
 		Domain.host = ip;
 		return (Domain);
 	}
-	throw (Exception("Port not found", 404));	
+	throw (HTTPError(INTERNAL_SRV_ERR));
 }
 
 std::string	Request::getFilePath()
@@ -163,7 +163,7 @@ std::string	Request::getServerName()
 }
 
 //True or False, HEAD included so no read after from serverRun
-bool Request::needAction(){
+bool Request::isEmptyResponse(){
 	std::string m = getMethod(0);
 
 	return (m == "DELETE" || m == "POST" || m == "HEAD");

@@ -1,5 +1,5 @@
 #include "Socket.hpp"
-
+#include <string>
 
 void Socket::fillStruct(struct addrinfo &hints){
 	memset(&hints, 0, sizeof(hints));
@@ -12,11 +12,14 @@ void Socket::fillStruct(struct addrinfo &hints){
 Socket::Socket(int port)
 {
 	struct addrinfo hints, *res, *tmp;
-	std::string port_str = std::to_string(port);
+	std::string	port_str = std::to_string(port);
+	// std::string	ip = port.host;
+	// std::to_string(port);
 
 	fillStruct(hints);
 
 	// TODO add IP number as argument one. see if getaddrinfo accepts IPv4
+	// change first parameter to getPort() -> host
 	//127.0.0.1 - 127.255.255.254
 	int status = getaddrinfo(NULL, port_str.c_str(), &hints, &res);
 	bool bound = false;
