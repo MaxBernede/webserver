@@ -1,0 +1,3 @@
+Setup a list of methods accepted for a certain route (e.g., try to delete something with and without permission).
+Upload some file to the server and get it back.
+With the help of the students you should check that everything is working properly. You have to test the CGI with the "GET" and "POST" methods.

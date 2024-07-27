@@ -166,19 +166,6 @@ static std::list<s_ePage> defaultErrorPages(){
 	return erorPages;
 }
 
-//default constructor
-Server::Server(char **env):
-	Config(),
-	_ports(defaultPorts()),
-	_name(defaultName()),
-	_root(_basePath + "html/"),
-	_maxBody(1048576),
-	_errorPages(defaultErrorPages()){
-	
-	//Logger::log("Root is : " + _root);
-	_path = "";
-}
-
 Server::Server():
 	Config(),
 	_ports(defaultPorts()),

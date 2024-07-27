@@ -29,7 +29,6 @@ class Server : public Config{
 
 	public:
 		Server();
-		Server(char **env);
 		~Server();
 		Server(const Server &obj);
 		Server &operator=(const Server &obj);

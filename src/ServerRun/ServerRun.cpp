@@ -146,11 +146,6 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd){
 }
 
 
-
-
-
-
-
 //return server or throw Exception
 Server ServerRun::findConfig(s_domain port, int clientFd){
 	for (auto server : _servers){
@@ -160,10 +155,7 @@ Server ServerRun::findConfig(s_domain port, int clientFd){
 			}
 		}
 	}
-	cleanUp(clientFd);
-
-	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY; // ! to change
-	throw (Exception("Server not found", 404));
+	throw (HTTPError(INTERNAL_SRV_ERR));
 }
 
 void ServerRun::removeConnection(int fd)

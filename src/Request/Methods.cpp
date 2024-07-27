@@ -28,7 +28,8 @@ void Request::readRequest()
 	if (rb < 0){
 		_errorCode = ErrorCode::BAD_REQUEST; //not sure of the error
 		_doneReading = true;
-		std::cerr << "Error reading request" << std::endl;
+		std::cerr << "Error reading request fd: " << _clientFd << " : " << std::strerror(errno) << std::endl;
+
 		throw (HTTPError(ErrorCode::BAD_REQUEST));
 	}
 	buffer[rb] = '\0';

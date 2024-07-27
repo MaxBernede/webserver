@@ -15,7 +15,8 @@ std::string Response::makeStrResponse(Request *request)
 	std::string http= request->getMethod(2);
 	std::string code = std::to_string(request->getErrorCode());
 	std::string message = httpStatus[request->getErrorCode()];
-	oss << http << " " << code << " " << message;
+	oss << http << " " << code << " " << message ;
+	oss << "\nConnection: close";
 	oss << "\r\n\r\n";
 	oss << _response_text;
 
@@ -39,12 +40,13 @@ void Response::rSend( Request *request )
 	Logger::log("Sending Response to client");
 	std::string response = _response_text;
 	response = makeStrResponse(request);
-	// std::cout << "_______________________________________________\n";
-	// std::cout << "Message to send =>\n" << response << std::endl;
-	// std::cout << "_______________________________________________\n";
+	std::cout << "_______________________________________________\n";
+	std::cout << "Message to send =>\n" << response << std::endl;
+	std::cout << "_______________________________________________\n";
 	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
 	{
 		std::cout << "ERROR with SEND " << _clientFd << std::endl;
+		std::cerr << std::strerror(errno) << std::endl;
 		// throw(Exception("Error sending response", errno));
 	}
 }

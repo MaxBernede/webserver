@@ -8,7 +8,6 @@ void ServerRun::sendResponse(int fd) // Using readFd
 		removeConnection(fd);
 		int clientFd = obj->getClientFd();
 		cleanUp(clientFd);
-		_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
 
 void ServerRun::sendError(int clientFd)
@@ -16,7 +15,6 @@ void ServerRun::sendError(int clientFd)
 	//Logger::log("Sending Redir msg", INFO);
 	_httpObjects[clientFd]->sendResponse();
 	cleanUp(clientFd);
-	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY; // But did I not close this?
 }
 
 // Sending data from the server to the client
@@ -48,12 +46,12 @@ void ServerRun::sendRedirect(int clientFd) // this is a clientFd!
 {
 	_httpObjects[clientFd]->sendRedirection();
 	cleanUp(clientFd);
-	_pollData[clientFd]._pollType = CLIENT_CONNECTION_READY;
 }
 
 void ServerRun::cleanUp(int clientFd)
 {
 	close(clientFd);
+	removeConnection(clientFd);
 	if (_httpObjects.count(clientFd))
 	{
 		delete _httpObjects[clientFd];
