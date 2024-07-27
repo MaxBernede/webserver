@@ -107,8 +107,6 @@ void ServerRun::serverRunLoop( void )
 			catch(const Exception& e)
 			{
 				;
-				//Cath of the "Throw Port not found" in the readRequest;
-				//std::cerr << e.what() << '\n';
 			}
 			catch(const HTTPError& e)
 			{ 
@@ -116,16 +114,9 @@ void ServerRun::serverRunLoop( void )
 				Logger::log(e.what(), LogLevel::ERROR);
 				_httpObjects[fd]->_request->setErrorCode(err);
 				_pollData[fd]._pollType = CLIENT_CONNECTION_WAIT;
-	
 				handleHTTPError(err, fd);
 			}
 		}
-		// }
-		// catch(const Exception& e)
-		// {
-		// 	return ;
-		// 	//std::cerr << e.what() << '\n';
-		// }
 	}
 }
 

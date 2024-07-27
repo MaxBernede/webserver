@@ -145,7 +145,8 @@ void	Request::handleDirListing()
 		_file = _config.getIndex();
 	if ((_file == "" || _file.back() == '/') && !_config.getAutoIndex())
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
-	// else if ((_file == "" || _file.back() == '/') && _config.getAutoIndex())
+	else if ((_file == "" || _file.back() == '/') && _config.getAutoIndex())
+		
 }
 
 void Request::checkRequest() // Checking for 404 and 405 Errors
@@ -155,7 +156,7 @@ void Request::checkRequest() // Checking for 404 and 405 Errors
 	redirRequest405(); // ---> throw something case error
 	redirRequest501();
 	handleRedirection();
-	handleDirListing(); // NOT WORKING
+	handleDirListing(); // NOT WORKING YET
 	redirRequest404();
 }
 
