@@ -87,7 +87,7 @@ void ServerRun::handleRequest(int clientFd)
 	{
 		_httpObjects[clientFd]->_request->startConstruRequest();
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
-		Server config = findConfig(Domain, clientFd);
+		Server config = findConfig(Domain);
 		_httpObjects[clientFd]->setConfig(config);
 		_httpObjects[clientFd]->_request->checkRequest();
 		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
