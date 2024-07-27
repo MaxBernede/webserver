@@ -126,14 +126,9 @@ void Request::redirRequest404()
 	if (_file == "")
 		_file = _config.getIndex();
 	_filePath = _config.getRoot() + _file;
-<<<<<<< Updated upstream
 	bool dirListing = _config.getAutoIndex();
 	if (access(_filePath.c_str(), F_OK) == -1 && dirListing == false)
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
-=======
-	if (access(_filePath.c_str(), F_OK) == -1)
-		throw (HTTPError(PAGE_NOT_FOUND));
->>>>>>> Stashed changes
 }
 
 // Not sure about this logic
@@ -141,16 +136,9 @@ void	Request::handleDirListing()
 {
 	if (_file == "")
 		_file = _config.getIndex();
-<<<<<<< Updated upstream
 	if ((_file == "" || _file.back() == '/') && !_config.getAutoIndex())
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 	// else if ((_file == "" || _file.back() == '/') && _config.getAutoIndex())
-=======
-
-	if (_file == "" && !_config.getAutoIndex())
-		throw (HTTPError(INTERNAL_SRV_ERR));
-
->>>>>>> Stashed changes
 }
 
 void Request::checkRequest() // Checking for 404 and 405 Errors

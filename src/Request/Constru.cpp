@@ -17,6 +17,10 @@ std::pair<std::string, std::string> create_pair(const std::string &line, size_t 
 	std::string key		= line.substr(0, pos);
 	std::string value	= line.substr(pos + 1); // Skip the delimiter
 
+	size_t sp = key.find(' ');
+	if (sp != std::string::npos)
+		throw (HTTPError(ErrorCode::BAD_REQUEST));
+
 	if (!value.empty() && value[0] == ' ')
 		value = value.substr(1); // Remove leading space if present
 	return std::make_pair(key, value);

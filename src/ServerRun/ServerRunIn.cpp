@@ -86,11 +86,6 @@ void ServerRun::handleRequest(int clientFd)
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
 		_httpObjects[clientFd]->_request->startConstruRequest();
-<<<<<<< Updated upstream
-=======
-
-		Logger::log("Request has been constructed", DEBUG);
->>>>>>> Stashed changes
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = findConfig(Domain);
 		_httpObjects[clientFd]->setConfig(config);
