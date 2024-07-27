@@ -3,6 +3,7 @@
 #include "Request.hpp"
 #include <iostream>
 #include <vector>
+#include <signal.h>
 #include <sys/wait.h>
 
 #define ENV_SIZE 18
@@ -22,12 +23,13 @@ I need the following from the client request parser:
 
 class CGI {
 	private:
-		int			_pid;
-		int			_cgiPipe[2]; // pipe where CGI sends data
-		Request		*_request;
-		int			_clientFd;
-		std::vector<std::string> _cgiEnvArr;
-		char*const	*_cgiEnvCStr;
+		int							_pid;
+		int							_cgiPipe[2]; // pipe where CGI sends data
+		Request						*_request;
+		int							_clientFd;
+		std::vector<std::string>	_cgiEnvArr;
+		char*const					*_cgiEnvCStr;
+		std::chrono::time_point<std::chrono::steady_clock> _forkTime;
 
 	public:
 		CGI(Request *request, int clientFd);
@@ -38,6 +40,8 @@ class CGI {
 		void	makeEnvCStr();
 		void	makeEnvArr();
 		bool 	waitCgiChild();
+		bool	isTimeOut();
+		void	killChild();
 		
 		// Getters 
 		int		getReadFd();

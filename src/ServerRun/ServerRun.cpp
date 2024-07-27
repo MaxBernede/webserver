@@ -88,12 +88,23 @@ void ServerRun::serverRunLoop( void )
 				if (_pollFds[i].revents & POLLIN)
 				{
 					// Only start reading CGI once the write end of the pipe is closed
-					if ((_pollFds[i].revents & POLLHUP) && _pollData[fd]._pollType == CGI_READ_WAITING)
+					if ( _pollData[fd]._pollType == CGI_READ_WAITING)
 					{
 						Logger::log("CGI write side finished writing to the pipe");
-						_pollData[fd]._pollType = CGI_READ_READING;
+						// HTTPObject *obj = findHTTPObject(fd);
+						// if (obj->_cgi->isTimeOut())
+						// {
+						// 	Logger::log("CGI TimedOut");
+						// 	_httpObjects[fd]->_cgi->killChild();
+						// 	cleanUp(fd);
+						// 	continue ;
+						// }
+						if (_pollFds[i].revents & POLLHUP)
+						{
+							Logger::log("CGI did not TimedOut");
+							_pollData[fd]._pollType = CGI_READ_READING;
+						}
 					}
-
 					dataIn(_pollData[fd], _pollFds[i]);						//Read from client
 				}
 

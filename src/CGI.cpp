@@ -32,6 +32,7 @@ void CGI::run()
 	}
 	else //parent (main) process
 	{
+		_forkTime = std::chrono::steady_clock::now();
 		close(_cgiPipe[1]); // close write-end of the response pipe (send)
 	}
 }
@@ -88,6 +89,24 @@ void CGI::makeEnvCStr()
 	}
 	env[_cgiEnvArr.size()] = NULL;
 	_cgiEnvCStr = env;
+}
+
+void	CGI::killChild()
+{
+	if (_pid > 0)
+	{
+		kill(_pid, SIGKILL);
+		waitpid(_pid, nullptr, 0); // Wait for the child process to terminate
+	}
+}
+
+bool CGI::isTimeOut()
+{
+	auto _end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> _timePassed = _end - _forkTime;
+    if (_timePassed.count() > 50)
+		return (true);
+	return (false);
 }
 
 int CGI::getReadFd()
