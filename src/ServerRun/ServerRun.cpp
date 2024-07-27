@@ -106,7 +106,7 @@ void ServerRun::serverRunLoop( void )
 			}
 			catch(const Exception& e)
 			{
-				;
+				std::cout << e.what() << std::endl;
 			}
 			catch(const HTTPError& e)
 			{ 
@@ -121,7 +121,11 @@ void ServerRun::serverRunLoop( void )
 }
 
 void ServerRun::handleHTTPError(ErrorCode err, int fd){
-	if (err >= MULTIPLE_CHOICE && err <= PERM_REDIR)
+	if (err == DIRECTORY_LISTING)
+	{
+		DirectoryListing(fd);
+	}
+	else if (err >= MULTIPLE_CHOICE && err <= PERM_REDIR)
 	{
 		int ErrCode = httpRedirect(err, fd);
 		if (ErrCode == err)
@@ -130,7 +134,7 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd){
 		}
 		_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
 	}
-	if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
+	else if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
 	{
 		redirectToError(err, fd);
 	}

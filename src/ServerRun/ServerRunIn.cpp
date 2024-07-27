@@ -38,6 +38,11 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 	addQueue(FILE_READ_READING, fileFd);
 }
 
+void ServerRun::DirectoryListing(int clientFd){
+	Logger::log("Auto index on.", LogLevel::DEBUG);
+	HTTPObject *obj = _httpObjects[clientFd];
+}
+
 // Handles error code when no error file exists
 void ServerRun::redirectToError(ErrorCode ErrCode, int clientFd)
 {

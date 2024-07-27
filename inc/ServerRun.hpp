@@ -61,6 +61,7 @@ class ServerRun
 
 	void	handleCGIRequest(int clientFd);
 	void 	handleStaticFileRequest(int clientFd);
+	void	DirectoryListing(int clientFd);
 	void	redirectToError(ErrorCode ErrCode, int clientFd); // Redirect to 404, 405
 	int 	httpRedirect(ErrorCode status, int clientfd);
 	void	handleHTTPError(ErrorCode err, int fd);

@@ -67,6 +67,7 @@ void Response::setResponseString(std::string response)
 {
 	_response_text = response;
 }
+void Response::setAutoIndex();
 
 int Response::setRedirectStr(int status, std::string from, std::list<s_redirect> redirs)
 {

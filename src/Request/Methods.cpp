@@ -146,7 +146,7 @@ void	Request::handleDirListing()
 	if ((_file == "" || _file.back() == '/') && !_config.getAutoIndex())
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 	else if ((_file == "" || _file.back() == '/') && _config.getAutoIndex())
-		
+		throw (HTTPError(ErrorCode::DIRECTORY_LISTING));
 }
 
 void Request::checkRequest() // Checking for 404 and 405 Errors
