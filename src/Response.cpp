@@ -40,9 +40,9 @@ void Response::rSend(Request *request)
 	Logger::log("Sending Response to client");
 	std::string response = _response_text;
 	response = makeStrResponse(request);
-	std::cout << "_______________________________________________\n";
-	std::cout << "Message to send =>\n" << response << std::endl;
-	std::cout << "_______________________________________________\n";
+	// std::cout << "_______________________________________________\n";
+	// std::cout << "Message to send =>\n" << response << std::endl;
+	// std::cout << "_______________________________________________\n";
 	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
 	{
 		std::cout << "ERROR with SEND " << _clientFd << std::endl;
@@ -95,7 +95,7 @@ int Response::setRedirectStr(int status, std::string from, std::list<s_redirect>
 	oss << "Content-Type: text; charset=utf-8\r\n";
 	oss << "Location: ";
 	oss << to << "\r\n\r\n";
-	oss << REDIR_START << to << REDIR_END;
+	oss << REDIR_START << "<a href=\"" << to << "\">" << to << "</a>" << REDIR_END;
 	std::cout << oss.str() << std::endl;
 	_response_text = oss.str();
 	return (status);
@@ -103,8 +103,8 @@ int Response::setRedirectStr(int status, std::string from, std::list<s_redirect>
 
 void Response::setDirectoryListing(Request *request)
 {
-	// std::cout << "DIRNAME\t" << request->getConfig().getBasePath() << request->getConfig().getRoot() << std::endl;
-	std::string name = (request->getConfig().getBasePath() + request->getConfig().getRoot()).c_str();
+	std::cout << "DIRNAME\t" << request->getConfig().getBasePath() << request->getConfig().getRoot() << request->getFileName() << std::endl;
+	std::string name = request->getConfig().getBasePath() + request->getConfig().getRoot() + request->getFileName();
 	
 	std::vector<std::string> v;
 	DIR* dirp = opendir(name.c_str()); //request->getFileNameProtected()
@@ -128,9 +128,11 @@ void Response::setDirectoryListing(Request *request)
 	for (std::string s : v)
 	{
 		std::cout << "LIST:\t" << s << std::endl;
-		if (isDirectory(s.c_str())){
+		std::string link = name + s;
+		if (isDirectory(link.c_str())){
 			s += '/';
 		}
+		// std::string link = name + s;
 		oss << "<li><a href=\"" << s << "\">";
 		oss << s << "</a></li>";
 	}

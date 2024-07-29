@@ -31,9 +31,9 @@
 	</head> \
 	<body> \
 		<div class=\"error-container\"> \
-			<h1>You are being redirected to <a href=\""
+			<h1>You are being redirected to "
 
-#define REDIR_END "\"></a></h1> \
+#define REDIR_END "</h1> \
 		</div> \
 	</body> \
 </html>"
