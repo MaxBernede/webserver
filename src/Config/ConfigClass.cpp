@@ -13,7 +13,7 @@ static std::vector<bool> defaultMethods(){
 }
 
 static std::string defaultIndex(){
-	return "index.html";
+	return "";
 }
 
 static std::list<s_redirect> defaultRedirect(){
@@ -30,7 +30,6 @@ Config::Config():
 	_cgi(true), 
 	_basePath(getPath()){
 }
-
 
 Config::~Config(){}
 
@@ -74,6 +73,10 @@ bool	Config::getCGI() const{
 
 std::string	Config::getPath() const{
 	return _path;
+}
+
+std::string Config::getBasePath() const{
+	return _basePath;
 }
 
 void	Config::setMethod(int method, bool value){

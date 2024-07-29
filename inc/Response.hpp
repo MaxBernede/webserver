@@ -1,10 +1,13 @@
 #pragma once
 
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #include "Server.hpp"
 #include "Request.hpp"
 #include "Redirect.hpp"
+#include "AutoIndex.hpp"
 
 #define BUFFER_SIZE 1024
 
@@ -23,6 +26,7 @@ class Response {
 		void 		setReady( void );
 		void 		rSend(Request *request);
 		void		sendRedir();
+		void		setDirectoryListing(Request *request);
 		int			setRedirectStr(int status, std::string from, std::list<s_redirect> redirs);
 
 		void		errorResponseHTML(ErrorCode);

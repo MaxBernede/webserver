@@ -25,6 +25,7 @@ enum pollType
 	CGI_READ_DONE,
 	HTTP_ERROR,
 	HTTP_REDIRECT,
+	AUTO_INDEX,
 	EMPTY_RESPONSE
 };
 
@@ -69,6 +70,7 @@ class ServerRun
 	void readFile(int fd);
 	void readPipe(int fd);
 	void sendResponse(int fd);
+	void sendAutoIndex(int cleintFd);
 	void sendRedirect(int clientFd);
 	void sendError(int clietnFd);
 

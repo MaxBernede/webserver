@@ -37,9 +37,17 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 		case HTTP_REDIRECT:
 			sendRedirect(pollFd.fd);
 			break ;
+		case AUTO_INDEX:
+			sendAutoIndex(pollFd.fd);
 		default:
 			break ;
 	}
+}
+
+void ServerRun::sendAutoIndex(int clientFd)
+{
+	_httpObjects[clientFd]->sendAutoIndex();
+	cleanUp(clientFd);
 }
 
 void ServerRun::sendRedirect(int clientFd) // this is a clientFd!

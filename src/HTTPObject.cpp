@@ -17,6 +17,10 @@ HTTPObject::~HTTPObject(void)
 		delete _cgi;
 	}
 }
+void	HTTPObject::sendAutoIndex()
+{
+	_response->sendRedir();
+}
 
 void	HTTPObject::sendRedirection(void)
 {

@@ -124,6 +124,7 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd){
 	if (err == DIRECTORY_LISTING)
 	{
 		DirectoryListing(fd);
+		_pollData[fd]._pollType = AUTO_INDEX;
 	}
 	else if (err >= MULTIPLE_CHOICE && err <= PERM_REDIR)
 	{

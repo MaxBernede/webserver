@@ -35,7 +35,7 @@ void Response::addToBuffer(std::string buffer)
 	_response_text += buffer;
 }
 
-void Response::rSend( Request *request )
+void Response::rSend(Request *request)
 {
 	Logger::log("Sending Response to client");
 	std::string response = _response_text;
@@ -50,6 +50,7 @@ void Response::rSend( Request *request )
 		// throw(Exception("Error sending response", errno));
 	}
 }
+
 
 void Response::sendRedir()
 {
@@ -67,7 +68,6 @@ void Response::setResponseString(std::string response)
 {
 	_response_text = response;
 }
-void Response::setAutoIndex();
 
 int Response::setRedirectStr(int status, std::string from, std::list<s_redirect> redirs)
 {
@@ -99,4 +99,41 @@ int Response::setRedirectStr(int status, std::string from, std::list<s_redirect>
 	std::cout << oss.str() << std::endl;
 	_response_text = oss.str();
 	return (status);
+}
+
+void Response::setDirectoryListing(Request *request)
+{
+	// std::cout << "DIRNAME\t" << request->getConfig().getBasePath() << request->getConfig().getRoot() << std::endl;
+	std::string name = (request->getConfig().getBasePath() + request->getConfig().getRoot()).c_str();
+	
+	std::vector<std::string> v;
+	DIR* dirp = opendir(name.c_str()); //request->getFileNameProtected()
+    struct dirent * dp;
+    while ((dp = readdir(dirp)) != NULL)
+	{
+        v.push_back(dp->d_name);
+    }
+    closedir(dirp);
+
+	std::ostringstream oss;
+	std::string http = request->getMethod(2);
+	std::string code = std::to_string(request->getErrorCode());
+	std::string message = httpStatus[request->getErrorCode()];
+	oss << http << " " << code << " " << message ;
+	oss << "\r\nConnection: close";
+	oss << "\r\n\r\n";
+	oss << DIR_LIST_START;
+	oss << "'";
+	oss << DIR_LIST_MID;
+	for (std::string s : v)
+	{
+		std::cout << "LIST:\t" << s << std::endl;
+		if (isDirectory(s.c_str())){
+			s += '/';
+		}
+		oss << "<li><a href=\"" << s << "\">";
+		oss << s << "</a></li>";
+	}
+	oss << DIR_LIST_END;
+	_response_text = oss.str();
 }
