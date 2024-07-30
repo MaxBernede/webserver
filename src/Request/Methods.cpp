@@ -40,6 +40,7 @@ bool Request::isCgi()
 	// check extension x.substr(x.find_last_of("*******") + 2) == "cx")
 	std::string fileName = getFileName();
 	std::string extension = getExtension(fileName);
+	std::cout << "What is the file extension: " << extension << std::endl;
 	return (extension == "cgi");
 }
 
@@ -98,7 +99,6 @@ void Request::redirRequest405() // If Method not Allowed, redirects to Server 40
 		return ;
 	if (index != -1 && _config.getMethod(index) == false)
 		throw(HTTPError(ErrorCode::METHOD_NOT_ALLOWED));
-
 }
 
 void Request::searchErrorPage()

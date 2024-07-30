@@ -177,15 +177,20 @@ void ServerRun::removeConnection(int fd)
 		_pollData.erase(fd);
 }
 
-HTTPObject *ServerRun::findHTTPObject(int readFd)
+HTTPObject *ServerRun::findHTTPObject(int fd)
 {
 	for (auto& pair : _httpObjects)
 	{
-		if (pair.second->getReadFd() == readFd) {
+		if (pair.second->getReadFd() == fd) {
 		    return pair.second;
 		}
 	}
-
+	for (auto& pair : _httpObjects)
+	{
+		if (pair.second->getWriteFd() == fd) {
+		    return pair.second;
+		}
+	}
 	return nullptr; // Return nullptr if not found
 }
 

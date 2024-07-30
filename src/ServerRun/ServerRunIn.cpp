@@ -13,14 +13,17 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	addQueue(CLIENT_CONNECTION_READY, CLIENTFD, connFd);
 }
 
-void ServerRun::handleCGIRequest(int clientFd)
+void ServerRun::handleCgiRequest(int clientFd)
 {
 	Logger::log("A CGI Request is being handled", LogLevel::INFO);
-	_httpObjects[clientFd]->createCGI();
-	int pipeFd = _httpObjects[clientFd]->_cgi->getReadFd();
-	_httpObjects[clientFd]->setReadFd(pipeFd);
-	addQueue(CGI_READ_WAITING, READFD, pipeFd);
-	_httpObjects[clientFd]->runCGI();
+	_httpObjects[clientFd]->createCgi();
+	int readFd = _httpObjects[clientFd]->_cgi->getReadFd();
+	int writeFd = _httpObjects[clientFd]->_cgi->getWriteFd();
+	_httpObjects[clientFd]->setReadFd(readFd);
+	_httpObjects[clientFd]->setWriteFd(writeFd);
+	addQueue(CGI_READ_WAITING, READFD, readFd);
+	addQueue(CGI_WRITE_TO_PIPE, WRITEFD, writeFd);
+	_httpObjects[clientFd]->runCgi();
 }
 
 void ServerRun::handleStaticFileRequest(int clientFd)
@@ -57,7 +60,6 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int clientFd)
 	{
 		Logger::log("Error page does not exist..Error code: " + std::to_string(ErrCode), LogLevel::WARNING);
 		obj->_response->errorResponseHTML(ErrCode);
-		std::cout << "created response string\n";
 		// if (ErrCode == NO_CONTENT)
 		// 	obj->_response->setResponseString("HTTP/1.1 204 No Content");
 		_pollData[clientFd]._pollState = HTTP_ERROR;
@@ -92,6 +94,7 @@ void ServerRun::handleRequest(int clientFd)
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
 		_httpObjects[clientFd]->_request->startConstruRequest();
+		_httpObjects[clientFd]->_request->printAllData();
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = findConfig(Domain);
 		_httpObjects[clientFd]->setConfig(config);
@@ -104,16 +107,17 @@ void ServerRun::handleRequest(int clientFd)
 void ServerRun::executeRequest(int clientFd, Server config){
 	if (_httpObjects[clientFd]->isCgi()) // GET and POST for CGI
 	{
+		std::cout << "It is a CGI request...\n";
 		if (!config.getCGI())
 		{
 			Logger::log("CGI is not permitted for this server", LogLevel::ERROR);
 			throw (HTTPError(ErrorCode::FORBIDDEN)); // What do we do when CGI is not allowed?
 		}
-		handleCGIRequest(clientFd);
+		handleCgiRequest(clientFd);
 	}
 	else if (_httpObjects[clientFd]->_request->isEmptyResponse()) { 	// POST or DEL or HEAD
-		_pollData[clientFd]._pollState = EMPTY_RESPONSE;
 		
+		_pollData[clientFd]._pollState = EMPTY_RESPONSE;
 		_httpObjects[clientFd]->_request->execAction();
 	}
 	else // Static file
@@ -148,6 +152,7 @@ void ServerRun::readPipe(int fd) // Pipe read-end fd
 {
 	char buffer[BUFFER_SIZE];
 
+	Logger::log("Reading the pipe read end...", LogLevel::DEBUG);
 	memset(buffer, '\0', BUFFER_SIZE);
 	HTTPObject *obj = findHTTPObject(fd);
 	if (obj->_cgi->waitCgiChild())

@@ -11,6 +11,8 @@ class HTTPObject {
 	private:
 		int			_clientFd;
 		int			_readFd; // fileFd or pipeFd, only for GET requests
+		int			_writeFd; // upload pipe read end to write to cgi child process
+		bool 		_doneWritingToCgi;
 	
 	public:
 		Server 		_config;
@@ -19,17 +21,20 @@ class HTTPObject {
 		CGI			*_cgi;
 		
 		HTTPObject(int clientFd);
-		~HTTPObject(void);
+		~HTTPObject();
 		
-		void	sendRedirection(void);
-		void	sendResponse(void);
-		void	createCGI();
-		void	runCGI(void);
+		void	sendRedirection();
+		void	sendResponse();
+		void	writeToCgiPipe();
+		void	createCgi();
+		void	runCgi();
+		bool	isCgi();
 		
 		// Getters & Setters
 		void	setConfig(Server config);
 		void	setReadFd(int fd);
-		bool	isCgi(void);
-		int		getClientFd(void); 
-		int		getReadFd(void);
+		void	setWriteFd(int fd);
+		int		getClientFd(); 
+		int		getReadFd();
+		int		getWriteFd();
 };

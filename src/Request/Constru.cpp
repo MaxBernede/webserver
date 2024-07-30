@@ -31,10 +31,25 @@ void Request::parseBody(std::istringstream &iss, std::string &line) {
                 _request.emplace_back(create_pair(body, 4));
                 break;
             }
-            body += line;
-            body += "\n";
+            body += line + "\n";
         }
     }
+	else {
+        // Handle body when boundary is not specified
+        std::cout << "Boundary Not specified\n";
+        while (std::getline(iss, line)) {
+            body += line + "\n";
+        }
+        
+        // Remove trailing newline if necessary
+        if (!body.empty() && body.back() == '\n') {
+            body.pop_back();
+        }
+        
+        // Add the body to the _request pair
+        _request.emplace_back(create_pair(body, 4));
+    }
+	std::cout << "Body:" << body << std::endl;
 }
 
 
@@ -73,13 +88,13 @@ void Request::parseRequest(const std::string& headers) {
 
 	parseFirstLine(iss);
 	while (std::getline(iss, line)) {
-		if (line == "\r")
+		if (line == "\r" || line.empty())
 			break;
 		size_t pos = line.find(':');
 		if (pos != std::string::npos)
 			_request.emplace_back(create_pair(line, pos));
 	}
-    if (std::getline(iss, line))
+    // if (std::getline(iss, line))
         parseBody(iss, line);
 }
 
@@ -113,7 +128,7 @@ Request::~Request() {}
 
 void Request::constructRequest(){
 	Logger::log("Constructor request call", INFO);
-
+	std::cout << "Request text: \n" << _request_text << std::endl; 
 	if (_request_text.empty())
 		throw (HTTPError(BAD_REQUEST));
 	fillBoundary(_request_text);

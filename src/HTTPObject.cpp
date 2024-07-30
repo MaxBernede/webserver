@@ -8,7 +8,7 @@ HTTPObject::HTTPObject(int clientFd) :
 	_response = new Response(clientFd);
 }
 
-HTTPObject::~HTTPObject(void)
+HTTPObject::~HTTPObject()
 {
 	delete _request;
 	delete _response;
@@ -18,24 +18,44 @@ HTTPObject::~HTTPObject(void)
 	}
 }
 
-void	HTTPObject::sendRedirection(void)
+void	HTTPObject::sendRedirection()
 {
 	_response->sendRedir();
 }
 
-void	HTTPObject::createCGI()
+void	HTTPObject::createCgi()
 {
 	_cgi = new CGI(_request, _clientFd);
 }
 
-void	HTTPObject::runCGI(void)
+void	HTTPObject::writeToCgiPipe()
+{
+	std::string body = _request->getValues("Body");
+	Logger::log("Body: " + body, LogLevel::INFO);
+	if (body.length())
+	{
+		if (write(_writeFd, body.c_str(), body.length()))
+		{
+			throw(Exception("Write failed", 1));
+		}
+	}
+	_doneWritingToCgi = true; // Maybe write in chunks? For now this variable has no use...
+}
+
+
+void	HTTPObject::runCgi()
 {
 	_cgi->run();
 }
 
-void	HTTPObject::sendResponse(void)
+void	HTTPObject::sendResponse()
 {
 	_response->rSend(_request);
+}
+
+bool	HTTPObject::isCgi()
+{
+	return (_request->isCgi());
 }
 
 void	HTTPObject::setConfig(Server config)
@@ -50,17 +70,22 @@ void	HTTPObject::setReadFd(int fd)
 	_readFd = fd;
 }
 
-int	HTTPObject::getReadFd(void)
+void	HTTPObject::setWriteFd(int fd)
+{
+	_writeFd = fd;
+}
+
+int	HTTPObject::getReadFd()
 {
 	return (_readFd);
 }
 
-bool	HTTPObject::isCgi(void)
+int	HTTPObject::getWriteFd()
 {
-	return (_request->isCgi());
+	return (_writeFd);
 }
 
-int		HTTPObject::getClientFd(void)
+int		HTTPObject::getClientFd()
 {
 	return (_clientFd);
 }

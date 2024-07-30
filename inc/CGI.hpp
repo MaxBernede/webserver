@@ -24,7 +24,8 @@ I need the following from the client request parser:
 class CGI {
 	private:
 		int							_pid;
-		int							_cgiPipe[2]; // pipe where CGI sends data
+		int							_responsePipe[2]; // pipe where CGI sends data
+		int							_uploadPipe[2]; // post data to CGI child process
 		Request						*_request;
 		int							_clientFd;
 		std::vector<std::string>	_cgiEnvArr;
@@ -42,9 +43,10 @@ class CGI {
 		bool 	waitCgiChild();
 		bool	isTimeOut();
 		void	killChild();
-		
+		void	closeUploadPipe();
 		// Getters 
 		int		getReadFd();
+		int		getWriteFd();
 		int		getClientFd();
 		Request	*getRequest();
 
