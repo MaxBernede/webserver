@@ -103,12 +103,10 @@ int Response::setRedirectStr(int status, std::string from, std::list<s_redirect>
 
 void Response::setDirectoryListing(Request *request)
 {
-	std::cout << "DIRNAME\t" << request->getConfig().getBasePath() << request->getConfig().getRoot() << request->getFileName() << std::endl;
-	std::string name = request->getConfig().getBasePath() + request->getConfig().getRoot() + request->getFileName();
-	
-	std::vector<std::string> v;
-	DIR* dirp = opendir(name.c_str()); //request->getFileNameProtected()
-    struct dirent * dp;
+	std::string	name = request->getConfig().getBasePath() + request->getConfig().getRoot() + request->getFileName();
+	std::vector<std::string>	v;
+	DIR	*dirp = opendir(name.c_str());
+    struct dirent	*dp;
     while ((dp = readdir(dirp)) != NULL)
 	{
         v.push_back(dp->d_name);
@@ -116,23 +114,16 @@ void Response::setDirectoryListing(Request *request)
     closedir(dirp);
 
 	std::ostringstream oss;
-	std::string http = request->getMethod(2);
-	std::string code = std::to_string(request->getErrorCode());
-	std::string message = httpStatus[request->getErrorCode()];
-	oss << http << " " << code << " " << message ;
-	oss << "\r\nConnection: close";
-	oss << "\r\n\r\n";
+	oss << makeStrResponse(request);
 	oss << DIR_LIST_START;
-	oss << "'";
+	oss << name;
 	oss << DIR_LIST_MID;
 	for (std::string s : v)
 	{
-		std::cout << "LIST:\t" << s << std::endl;
 		std::string link = name + s;
 		if (isDirectory(link.c_str())){
 			s += '/';
 		}
-		// std::string link = name + s;
 		oss << "<li><a href=\"" << s << "\">";
 		oss << s << "</a></li>";
 	}
