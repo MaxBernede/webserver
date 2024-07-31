@@ -36,7 +36,7 @@ void CGI::run()
 	}
 	else //parent (main) process
 	{
-		_forkTime = std::chrono::steady_clock::now();
+		_forkTime = std::chrono::high_resolution_clock::now();
 		close(_responsePipe[1]); // close write-end of the response pipe (send)
 	}
 }
@@ -103,6 +103,7 @@ void	CGI::killChild()
 {
 	if (_pid > 0)
 	{
+		Logger::log("Killing child", DEBUG);
 		kill(_pid, SIGKILL);
 		waitpid(_pid, nullptr, 0); // Wait for the child process to terminate
 	}
@@ -110,7 +111,7 @@ void	CGI::killChild()
 
 bool CGI::isTimeOut()
 {
-	auto _end = std::chrono::steady_clock::now();
+	auto _end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> _timePassed = _end - _forkTime;
     if (_timePassed.count() > 10)
 		return (true);

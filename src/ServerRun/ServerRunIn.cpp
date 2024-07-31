@@ -34,7 +34,7 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 	if (fileFd < 0)
 	{
 		std::cout << "Failed opening file: " << filePath << std::endl; // TODO 404 error
-		throw (Exception("Opening static file failed", errno));
+		throw (HTTPError(PAGE_NOT_FOUND));
 	}
 	Logger::log("File correctly opened", INFO);
 	_httpObjects[clientFd]->setReadFd(fileFd);
@@ -45,7 +45,6 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 void ServerRun::redirectToError(ErrorCode ErrCode, int clientFd)
 {
 	Logger::log("Redirecting to Error...", LogLevel::WARNING);
-	// need to add file search here...
 
 	HTTPObject *obj;
 	if (_pollData[clientFd]._fdType == CLIENTFD)

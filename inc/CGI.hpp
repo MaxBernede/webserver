@@ -29,8 +29,8 @@ class CGI {
 		Request						*_request;
 		int							_clientFd;
 		std::vector<std::string>	_cgiEnvArr;
-		char*const					*_cgiEnvCStr;
-		std::chrono::time_point<std::chrono::steady_clock> _forkTime;
+		char* const					*_cgiEnvCStr;
+		std::chrono::time_point<std::chrono::high_resolution_clock> _forkTime;
 
 	public:
 		CGI(Request *request, int clientFd);

@@ -13,7 +13,7 @@ static std::vector<bool> defaultMethods(){
 }
 
 static std::string defaultIndex(){
-	return "index.html";
+	return "";
 }
 
 static std::list<s_redirect> defaultRedirect(){

@@ -168,7 +168,3 @@ bool Request::isEmptyResponse(){
 
 	return (m == "DELETE" || m == "POST" || m == "HEAD");
 }
-
-std::string	getBody()
-{
-}

@@ -2,6 +2,7 @@
 
 HTTPObject::HTTPObject(int clientFd) : 
 				_clientFd(clientFd),
+				_startTime(std::chrono::high_resolution_clock::now()),
 				_cgi(NULL)
 {
 	_request = new Request(clientFd);
@@ -88,4 +89,9 @@ int	HTTPObject::getWriteFd()
 int		HTTPObject::getClientFd()
 {
 	return (_clientFd);
+}
+
+std::chrono::time_point<std::chrono::high_resolution_clock> HTTPObject::getStartTime()
+{
+	return _startTime;
 }
