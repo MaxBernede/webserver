@@ -131,7 +131,6 @@ void Request::redirRequest404()
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 }
 
-// Not sure about this logic
 void	Request::handleDirListing()
 {
 	if (_file == "")
@@ -142,16 +141,16 @@ void	Request::handleDirListing()
 		throw (HTTPError(ErrorCode::DIRECTORY_LISTING));
 }
 
-void Request::checkRequest() // Checking for 404 and 405 Errors
+void Request::checkRequest()
 {
 	Logger::log("Checking file...", LogLevel::INFO);
 
-	if (_request_text.size() >= _config.getMaxBody())			//My function work but wrong data from config
-		throw (HTTPError(URI_TOO_LONG));
+	if (_request_text.size() >= _config.getMaxBody())
+		throw (HTTPError(PAYLOAD_TOO_LARGE));
 	redirRequest405(); // ---> throw something case error
 	redirRequest501();
 	handleRedirection();
-	handleDirListing(); // NOT WORKING YET
+	handleDirListing();
 	redirRequest404();
 }
 

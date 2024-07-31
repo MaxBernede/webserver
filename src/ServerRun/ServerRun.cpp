@@ -69,7 +69,7 @@ void ServerRun::addQueue(pollType type, int fd)
 	_pollData[fd] = newPollItem;
 }
 
-void ServerRun::serverRunLoop( void )
+void ServerRun::serverRunLoop(void)
 {
 	int nCon = -1;
 	Logger::log("Server running... ", INFO);
@@ -118,7 +118,8 @@ void ServerRun::serverRunLoop( void )
 	}
 }
 
-void ServerRun::handleHTTPError(ErrorCode err, int fd){
+void ServerRun::handleHTTPError(ErrorCode err, int fd)
+{
 	if (err == DIRECTORY_LISTING)
 	{
 		DirectoryListing(fd);
@@ -132,13 +133,13 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd){
 		_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
 	}
 	else if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
-	{
 		redirectToError(err, fd);
 }
 
 
 //return server or throw Exception
-Server ServerRun::findConfig(s_domain port){
+Server ServerRun::findConfig(s_domain port)
+{
 	for (Server server : _servers){
 		std::string name = server.getName();
 		for (s_domain p : server.getPorts()){
@@ -177,7 +178,6 @@ HTTPObject *ServerRun::findHTTPObject(int readFd)
 }
 
 /*
-
 vector requests
 vector responses (response string)
 vector cgi
@@ -187,5 +187,4 @@ CGI_PIPE_READ (read html file) --> to create the response string
 FILE_READ (read html file) --> to create the response string
 FILE_WRITE (needed for post method?)
 LISTENER_SOCKET (read to see new connection requests)
-
 */
