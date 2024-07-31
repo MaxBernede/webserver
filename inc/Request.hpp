@@ -113,6 +113,7 @@ class Request
 		std::string	getEndPath();
 		bool		methodAccepted(std::string method);
 		std::string	findFileName(std::string method);
+		void		createFile(std::string const &content, std::string path, std::string file);
 		
 		void		remove(std::string path);
 		void		removeDir(std::string path);

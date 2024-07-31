@@ -34,8 +34,9 @@ bool Request::methodAccepted(std::string method){
 std::string Request::findFileName(std::string method){
 	if (method == "DELETE")
 		return getDeleteFilename(_request_text);
-	if (method == "POST")
+	if (method == "POST"){
 		return getFileNameFromBody(getValues("Body"));
+	}
 }
 
 bool checkInsecure(std::string fileName){
