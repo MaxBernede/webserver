@@ -59,8 +59,6 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int clientFd)
 	{
 		Logger::log("Error page does not exist..Error code: " + std::to_string(ErrCode), LogLevel::WARNING);
 		obj->_response->errorResponseHTML(ErrCode);
-		// if (ErrCode == NO_CONTENT)
-		// 	obj->_response->setResponseString("HTTP/1.1 204 No Content");
 		_pollData[clientFd]._pollType = HTTP_ERROR;
 	}
 	else // if error page exists
