@@ -34,7 +34,7 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 	if (fileFd < 0)
 	{
 		std::cout << "Failed opening file: " << filePath << std::endl; // TODO 404 error
-		throw (Exception("Opening static file failed", errno));
+		throw (HTTPError(PAGE_NOT_FOUND));
 	}
 	Logger::log("File correctly opened", INFO);
 	_httpObjects[clientFd]->setReadFd(fileFd);
@@ -42,19 +42,20 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 }
 
 // Handles error code when no error file exists
-void ServerRun::redirectToError(ErrorCode ErrCode, int clientFd)
+void ServerRun::redirectToError(ErrorCode ErrCode, int Fd)
 {
 	Logger::log("Redirecting to Error...", LogLevel::WARNING);
-	// need to add file search here...
 
 	HTTPObject *obj;
-	if (_pollData[clientFd]._fdType == CLIENTFD)
-		obj = _httpObjects[clientFd];
+	if (_pollData[Fd]._fdType == CLIENTFD)
+		obj = _httpObjects[Fd];
 	else
-		obj = findHTTPObject(clientFd);
+		obj = findHTTPObject(Fd);
 	obj->_request->searchErrorPage();
+	int c = obj->_request->getErrorCode();
+	std::cout << "errorcode:\t" << c << std::endl;
 	if (ErrCode == HTTP_NOT_SUPPORT){
-		_pollData[clientFd]._pollState = HTTP_ERROR;
+		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
 	}
 	else if (obj->_request->getErrorPageStatus() == false) // if no error file does not exst
 	{
@@ -62,11 +63,11 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int clientFd)
 		obj->_response->errorResponseHTML(ErrCode);
 		// if (ErrCode == NO_CONTENT)
 		// 	obj->_response->setResponseString("HTTP/1.1 204 No Content");
-		_pollData[clientFd]._pollState = HTTP_ERROR;
+		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
 	}
 	else // if error page exists
 	{
-		handleStaticFileRequest(clientFd);
+		handleStaticFileRequest(obj->getClientFd());
 	}
 }
 

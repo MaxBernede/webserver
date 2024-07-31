@@ -76,7 +76,7 @@ class Request
 		s_domain	getRequestDomain(); //dup of getrequesthost
 		std::string	getRequestHost();
 		std::string	getRequestStr();
-		std::string	getMethod(int index);
+		std::string	getMethod(size_t index);
 		std::vector<std::pair<std::string, std::string>>	getContent();
 		std::string getFileNameProtected( void );
 		Server		getConfig();

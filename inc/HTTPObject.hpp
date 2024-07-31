@@ -4,6 +4,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "CGI.hpp"
+#include <chrono>
 
 class Response;
 
@@ -13,6 +14,7 @@ class HTTPObject {
 		int			_readFd; // fileFd or pipeFd, only for GET requests
 		int			_writeFd; // upload pipe read end to write to cgi child process
 		bool 		_doneWritingToCgi;
+		std::chrono::time_point<std::chrono::high_resolution_clock>	_startTime;
 	
 	public:
 		Server 		_config;
@@ -29,6 +31,7 @@ class HTTPObject {
 		void	createCgi();
 		void	runCgi();
 		bool	isCgi();
+		void	checkTimeOut();
 		
 		// Getters & Setters
 		void	setConfig(Server config);
@@ -37,4 +40,5 @@ class HTTPObject {
 		int		getClientFd(); 
 		int		getReadFd();
 		int		getWriteFd();
+		std::chrono::time_point<std::chrono::high_resolution_clock> getStartTime();
 };

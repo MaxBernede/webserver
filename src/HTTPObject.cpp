@@ -2,6 +2,7 @@
 
 HTTPObject::HTTPObject(int clientFd) : 
 				_clientFd(clientFd),
+				_startTime(std::chrono::high_resolution_clock::now()),
 				_cgi(NULL)
 {
 	_request = new Request(clientFd);
@@ -78,6 +79,18 @@ bool	HTTPObject::isCgi()
 	return (_request->isCgi());
 }
 
+void	HTTPObject::checkTimeOut()
+{
+	std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>
+	(std::chrono::high_resolution_clock::now() - this->getStartTime());
+	std::chrono::seconds ten(10);
+	if (sec > ten){
+		if (this->isCgi())
+			this->_cgi->killChild();
+		throw (HTTPError(GATEWAY_TIMEOUT));
+	}
+}
+
 void	HTTPObject::setConfig(Server config)
 {
 	_request->setConfig(config);
@@ -108,4 +121,9 @@ int	HTTPObject::getWriteFd()
 int		HTTPObject::getClientFd()
 {
 	return (_clientFd);
+}
+
+std::chrono::time_point<std::chrono::high_resolution_clock> HTTPObject::getStartTime()
+{
+	return _startTime;
 }

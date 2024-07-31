@@ -12,7 +12,7 @@ void ServerRun::sendResponse(int fd) // Using readFd
 
 void ServerRun::sendError(int clientFd)
 {
-	Logger::log("Sending Redir msg", INFO);
+	Logger::log("Sending Error page doe msg", INFO);
 	_httpObjects[clientFd]->sendResponse();
 	cleanUp(clientFd);
 }
@@ -65,6 +65,7 @@ void ServerRun::sendRedirect(int clientFd) // this is a clientFd!
 
 void ServerRun::cleanUp(int clientFd)
 {
+	Logger::log("Cleaning up client connection", INFO);
 	close(clientFd);
 	removeConnection(clientFd);
 	if (_httpObjects.count(clientFd))

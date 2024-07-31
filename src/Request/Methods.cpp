@@ -40,7 +40,7 @@ bool Request::isCgi()
 	// check extension x.substr(x.find_last_of("*******") + 2) == "cx")
 	std::string fileName = getFileName();
 	std::string extension = getExtension(fileName);
-	std::cout << "What is the file extension: " << extension << std::endl;
+	// std::cout << "What is the file extension: " << extension << std::endl;
 	return (extension == "cgi");
 }
 
@@ -225,13 +225,11 @@ void Request::handleDelete(){
 	return;
 }
 
-// TODO not sure if we need this function anymore
 void Request::handleRedirection(){
 	std::list<s_redirect> redirs = _config.getRedirect();
 	std::string fileName = getFileNameProtected();
 
 	for (s_redirect r : redirs){
-		// std::cout << fileName << "\t\t" << r.redirFrom << std::endl;
 		if (fileName == r.redirFrom){
 			Logger::log("Is a redirect", LogLevel::WARNING);
 			throw(HTTPError(ErrorCode(r.returnValue)));
@@ -245,9 +243,7 @@ void	Request::configConfig(){
 		temp.erase(temp.find('/', 1) + 1);
 	std::list<Location> locs = _config.getLocation();
 	for (Location loc : locs){
-		std::cout << "TEMP\t" << temp << "\tLOC\t" << loc.getName() << std::endl;
 		if (temp == loc.getName() || (temp == loc.getRoot() && loc.getRoot() != _config.getRoot())){
-			std::cout << "IS LOCATION" << std::endl;
 			_config.setRoot(loc.getRoot());
 			for (int i = GET; i <= TRACE; i++)
 				_config.setMethod(loc.getMethod(i), i);

@@ -1,5 +1,10 @@
 #include "ServerRun.hpp"
 
+#include <chrono>
+#include <iostream>
+#include <ratio>
+#include <thread>
+
 ServerRun::ServerRun(const std::list<Server> config)
 {
 	std::vector<int> listens;
@@ -86,17 +91,17 @@ void ServerRun::serverRunLoop( void )
 			int fd = _pollFds[i].fd;
 			try
 			{
+				HTTPObject *obj = findHTTPObject(fd);
+				if (obj != nullptr)
+					obj->checkTimeOut();
 				if (_pollFds[i].revents & POLLIN)
 				{
 					// Only start reading CGI once the write end of the pipe is closed
 					if ( _pollData[fd]._pollState == CGI_READ_WAITING)
 					{
-						// Logger::log("CGI write side finished writing to the pipe");
-						// if (findHTTPObject(fd)->_cgi->isTimeOut())
-						// 	throw(HTTPError(INTERNAL_SRV_ERR));
 						if (_pollFds[i].revents & POLLHUP && _pollData[fd]._pollState == CGI_READ_WAITING)
 						{
-							Logger::log("CGI did not TimedOut");
+							// Logger::log("CGI did not TimedOut");
 							_pollData[fd]._pollState = CGI_READ_READING;
 						}
 					}
@@ -106,13 +111,6 @@ void ServerRun::serverRunLoop( void )
 				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollState == CGI_READ_DONE){
 					dataOut(_pollData[fd], _pollFds[i]);					// Write to client
 				}
-
-			}
-			catch(const Exception& e)
-			{
-				;
-				//Cath of the "Throw Port not found" in the readRequest;
-				//std::cerr << e.what() << '\n';
 			}
 			catch(const HTTPError& e)
 			{ 
@@ -125,6 +123,7 @@ void ServerRun::serverRunLoop( void )
 				_pollData[fd]._pollState = CLIENT_CONNECTION_WAIT;
 				handleHTTPError(err, fd);
 			}
+			// Do we have uncaught exception?
 		}
 	}
 }
@@ -138,7 +137,6 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd){
 
 		_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
 	}
-
 	if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
 		redirectToError(err, fd);
 }

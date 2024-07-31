@@ -35,7 +35,7 @@
 			<h1>Error "
 
 #define END_HTML "</h1> \
-			<a href=\"index.html\">Back to Home</a> \
+			<a href=\"../\">Back to Home</a> \
 		</div> \
 	</body> \
 </html>"
