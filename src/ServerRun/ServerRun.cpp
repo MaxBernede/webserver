@@ -96,7 +96,7 @@ void ServerRun::serverRunLoop( void )
 				{
 					std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>
 						(std::chrono::high_resolution_clock::now() - obj->getStartTime());
-					std::chrono::seconds ten(2);
+					std::chrono::seconds ten(10);
 					if (sec > ten){
 						if (obj->isCgi())
 							obj->_cgi->killChild();

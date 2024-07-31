@@ -103,8 +103,9 @@ void	CGI::killChild()
 {
 	if (_pid > 0)
 	{
-		Logger::log("Killing child", DEBUG);
-		kill(_pid, SIGKILL);
+		// Logger::log("Killing child", DEBUG);
+		if (kill(_pid, SIGKILL) < 0)
+			// Logger::log("failed to kill", ERROR);
 		waitpid(_pid, nullptr, 0); // Wait for the child process to terminate
 	}
 }

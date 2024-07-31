@@ -42,18 +42,20 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 }
 
 // Handles error code when no error file exists
-void ServerRun::redirectToError(ErrorCode ErrCode, int clientFd)
+void ServerRun::redirectToError(ErrorCode ErrCode, int Fd)
 {
 	Logger::log("Redirecting to Error...", LogLevel::WARNING);
 
 	HTTPObject *obj;
-	if (_pollData[clientFd]._fdType == CLIENTFD)
-		obj = _httpObjects[clientFd];
+	if (_pollData[Fd]._fdType == CLIENTFD)
+		obj = _httpObjects[Fd];
 	else
-		obj = findHTTPObject(clientFd);
+		obj = findHTTPObject(Fd);
 	obj->_request->searchErrorPage();
+	int c = obj->_request->getErrorCode();
+	std::cout << "errorcode:\t" << c << std::endl;
 	if (ErrCode == HTTP_NOT_SUPPORT){
-		_pollData[clientFd]._pollState = HTTP_ERROR;
+		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
 	}
 	else if (obj->_request->getErrorPageStatus() == false) // if no error file does not exst
 	{
@@ -61,11 +63,11 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int clientFd)
 		obj->_response->errorResponseHTML(ErrCode);
 		// if (ErrCode == NO_CONTENT)
 		// 	obj->_response->setResponseString("HTTP/1.1 204 No Content");
-		_pollData[clientFd]._pollState = HTTP_ERROR;
+		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
 	}
 	else // if error page exists
 	{
-		handleStaticFileRequest(clientFd);
+		handleStaticFileRequest(obj->getClientFd());
 	}
 }
 
@@ -93,7 +95,7 @@ void ServerRun::handleRequest(int clientFd)
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
 		_httpObjects[clientFd]->_request->startConstruRequest();
-		_httpObjects[clientFd]->_request->printAllData();
+		// _httpObjects[clientFd]->_request->printAllData();
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = findConfig(Domain);
 		_httpObjects[clientFd]->setConfig(config);

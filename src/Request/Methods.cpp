@@ -40,7 +40,7 @@ bool Request::isCgi()
 	// check extension x.substr(x.find_last_of("*******") + 2) == "cx")
 	std::string fileName = getFileName();
 	std::string extension = getExtension(fileName);
-	std::cout << "What is the file extension: " << extension << std::endl;
+	// std::cout << "What is the file extension: " << extension << std::endl;
 	return (extension == "cgi");
 }
 
