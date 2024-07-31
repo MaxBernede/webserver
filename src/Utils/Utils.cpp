@@ -49,3 +49,16 @@ int isDirectory(const char *path)
        return 0;
     return S_ISDIR(path_stat.st_mode);
 }
+
+std::vector<std::string> getDirectoryContent(const char *name)
+{
+	std::vector<std::string>	v;
+	DIR	*dirp = opendir(name);
+    struct dirent	*dp;
+    while ((dp = readdir(dirp)) != NULL)
+	{
+        v.push_back(dp->d_name);
+    }
+    closedir(dirp);
+	return v;
+}

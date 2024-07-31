@@ -104,16 +104,9 @@ int Response::setRedirectStr(int status, std::string from, std::list<s_redirect>
 void Response::setDirectoryListing(Request *request)
 {
 	std::string	name = request->getConfig().getBasePath() + request->getConfig().getRoot() + request->getFileName();
-	std::vector<std::string>	v;
-	DIR	*dirp = opendir(name.c_str());
-    struct dirent	*dp;
-    while ((dp = readdir(dirp)) != NULL)
-	{
-        v.push_back(dp->d_name);
-    }
-    closedir(dirp);
-
+	std::vector<std::string>	v = getDirectoryContent(name.c_str());
 	std::ostringstream oss;
+
 	oss << makeStrResponse(request);
 	oss << DIR_LIST_START;
 	oss << name;
