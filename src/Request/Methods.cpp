@@ -144,7 +144,6 @@ void	Request::handleDirListing()
 void Request::checkRequest()
 {
 	Logger::log("Checking file...", LogLevel::INFO);
-
 	if (_request_text.size() >= _config.getMaxBody())
 		throw (HTTPError(PAYLOAD_TOO_LARGE));
 	redirRequest405(); // ---> throw something case error
@@ -154,76 +153,6 @@ void Request::checkRequest()
 	redirRequest404();
 }
 
-void Request::remove(std::string &path)
-{
-	if (access(path.c_str(), W_OK) != 0)
-		throw (HTTPError(FORBIDDEN));
-
-	if (std::remove(path.c_str()) == 0)
-	{
-		Logger::log("File deleted successfully", INFO);
-		throw (HTTPError(NO_CONTENT));
-	}
-	throw (HTTPError(OK));
-}
-
-void Request::removeDir(std::string &path){
-	try {
-		std::size_t num = std::filesystem::remove_all(path);
-		Logger::log("Removed: " + std::to_string(num) + " total files", INFO);
-	}
-	catch (const std::filesystem::filesystem_error& e) {
-		std::cerr << "Error removing directory: " << e.what() << "\n";
-		throw (HTTPError(INTERNAL_SRV_ERR));
-	}
-	throw (HTTPError(NO_CONTENT));
-}
-
-void Request::handleDirDelete(std::string &path){
-	if (path.back() != '/')
-		throw (HTTPError(CONFLICT));
-
-	if (access(path.c_str(), W_OK) != 0)
-		throw (HTTPError(FORBIDDEN));
-
-	removeDir(path);
-}
-
-void Request::handlePost()
-{
-	std::string body = getValues("Body");
-
-	if (body.empty())
-		throw (HTTPError(OK)); // check if not 422
-
-	Logger::log("Creating the file", INFO);
-	createFile(body, getPath() + "/saved_files");
-}
-
-void Request::handleDelete(){
-	std::string file = getDeleteFilename(_request_text);
-	std::string path = getPath() + "/saved_files/" + file;
-
-	if (file == "")
-		throw (HTTPError(OK));
-
-	Logger::log("File to delete is : " + file + " Path: " + path, INFO);
-	if (!exists(path))
-		throw (HTTPError(PAGE_NOT_FOUND));
-
-	if (!verifyPath(path))
-		throw (HTTPError(PAGE_NOT_FOUND));
-
-	Logger::log("File exist and will be deleted", INFO);
-
-	if (std::filesystem::is_regular_file(path))
-		return (remove(path));
-	else if (std::filesystem::is_directory(path))
-		return (handleDirDelete(path));
-	else
-		throw (HTTPError(NO_CONTENT));
-	return;
-}
 
 // TODO not sure if we need this function anymore
 void Request::handleRedirection(){
@@ -278,15 +207,4 @@ void Request::checkVersion(){
 
 void Request::checkErrors(){
 	checkVersion();
-}
-
-void Request::execAction(){
-	std::string method = getMethod(0);
-
-	Logger::log("Request exec: " + method, INFO);
-
-	if (method == "DELETE")
-		handleDelete();
-	if (method == "POST")
-		handlePost();
 }

@@ -39,6 +39,7 @@ class Server : public Config{
 		uint64_t				getMaxBody()	const;
 		std::list<s_ePage>		getErrorPages()	const;
 		std::list<Location>		getLocation() const;
+		Location				getLocationByName(const std::string& name) const;
 
 		void	setPort(s_domain port);
 		void	setName(std::string name);
