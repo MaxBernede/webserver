@@ -22,6 +22,7 @@ class HTTPObject {
 		~HTTPObject(void);
 		
 		void	sendRedirection(void);
+		void	sendAutoIndex();
 		void	sendResponse(void);
 		void	createCGI();
 		void	runCGI(void);

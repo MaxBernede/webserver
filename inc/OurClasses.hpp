@@ -22,7 +22,8 @@ enum ErrorCode {
 	URI_TOO_LONG = 414,
 	INTERNAL_SRV_ERR = 500,
 	METHOD_NOT_IMPLEMENTED = 501,
-	HTTP_NOT_SUPPORT = 505
+	HTTP_NOT_SUPPORT = 505,
+	DIRECTORY_LISTING = 90
 };
 
 class	invalidFile : public std::exception{

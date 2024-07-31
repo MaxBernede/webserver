@@ -31,11 +31,18 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 	if (fileFd < 0)
 	{
 		std::cout << "Failed opening file: " << filePath << std::endl; // TODO 404 error
-		throw (Exception("Opening static file failed", errno));
+		// throw (Exception("Opening static file failed", errno));
+		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 	}
 	Logger::log("File correctly opened", INFO);
 	_httpObjects[clientFd]->setReadFd(fileFd);
 	addQueue(FILE_READ_READING, fileFd);
+}
+
+void ServerRun::DirectoryListing(int clientFd){
+	Logger::log("Auto index on.", LogLevel::DEBUG);
+	HTTPObject *obj = _httpObjects[clientFd];
+	obj->_response->setDirectoryListing(_httpObjects[clientFd]->_request);
 }
 
 // Handles error code when no error file exists
@@ -85,6 +92,7 @@ void ServerRun::handleRequest(int clientFd)
 	}
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
+		_httpObjects[clientFd]->_request->printAllData();
 		_httpObjects[clientFd]->_request->startConstruRequest();
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = findConfig(Domain);

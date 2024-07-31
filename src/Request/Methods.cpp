@@ -138,7 +138,8 @@ void	Request::handleDirListing()
 		_file = _config.getIndex();
 	if ((_file == "" || _file.back() == '/') && !_config.getAutoIndex())
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
-	// else if ((_file == "" || _file.back() == '/') && _config.getAutoIndex())
+	else if ((_file == "" || _file.back() == '/') && _config.getAutoIndex())
+		throw (HTTPError(ErrorCode::DIRECTORY_LISTING));
 }
 
 void Request::checkRequest() // Checking for 404 and 405 Errors
@@ -150,7 +151,7 @@ void Request::checkRequest() // Checking for 404 and 405 Errors
 	redirRequest405(); // ---> throw something case error
 	redirRequest501();
 	handleRedirection();
-	handleDirListing(); // NOT WORKING
+	handleDirListing(); // NOT WORKING YET
 	redirRequest404();
 }
 
@@ -245,9 +246,9 @@ void	Request::configConfig(){
 		temp.erase(temp.find('/', 1) + 1);
 	std::list<Location> locs = _config.getLocation();
 	for (Location loc : locs){
-		std::cout << "TEMP\t" << temp << "\tLOC\t" << loc.getName() << std::endl;
+		// std::cout << "TEMP\t" << temp << "\tLOC\t" << loc.getName() << std::endl;
 		if (temp == loc.getName() || (temp == loc.getRoot() && loc.getRoot() != _config.getRoot())){
-			std::cout << "IS LOCATION" << std::endl;
+			// std::cout << "IS LOCATION" << std::endl;
 			_config.setRoot(loc.getRoot());
 			for (int i = GET; i <= TRACE; i++)
 				_config.setMethod(loc.getMethod(i), i);

@@ -43,4 +43,5 @@ class Config{
 		std::string				getIndex() const;
 		bool					getCGI() const;
 		std::string				getPath() const;
+		std::string				getBasePath() const;
 };

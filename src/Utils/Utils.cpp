@@ -35,24 +35,30 @@ bool exists (const std::string& name) {
 	return (stat (name.c_str(), &buffer) == 0); 
 }
 
-uint32_t configIP(std::string ip){
-	uint32_t host = 0;
-	while(ip != ""){
-		std::string temp = ip.substr(0, ip.find_first_of(".;"));
-		if (temp.length() > 3 || temp.length() < 1 || std::stoi(temp) > UINT8_MAX)
-			throw syntaxError();
-		host = host << 4;
-		host += std::stoi(temp);
-		ip.erase(0, temp.length() + 1);
-	}
-	if (host == 0)
-		throw syntaxError();
-	return host;
-}
-
 std::string boolstring(const bool& src){
 	if (!src)
 		return "false";
 	else
 		return "true";
+}
+
+int isDirectory(const char *path)
+{
+    struct stat path_stat;
+   if (stat(path, &path_stat) != 0)
+       return 0;
+    return S_ISDIR(path_stat.st_mode);
+}
+
+std::vector<std::string> getDirectoryContent(const char *name)
+{
+	std::vector<std::string>	v;
+	DIR	*dirp = opendir(name);
+    struct dirent	*dp;
+    while ((dp = readdir(dirp)) != NULL)
+	{
+        v.push_back(dp->d_name);
+    }
+    closedir(dirp);
+	return v;
 }

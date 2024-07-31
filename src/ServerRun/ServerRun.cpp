@@ -104,9 +104,7 @@ void ServerRun::serverRunLoop( void )
 			}
 			catch(const Exception& e)
 			{
-				;
-				//Cath of the "Throw Port not found" in the readRequest;
-				//std::cerr << e.what() << '\n';
+				std::cout << e.what() << std::endl;
 			}
 			catch(const HTTPError& e)
 			{ 
@@ -114,7 +112,6 @@ void ServerRun::serverRunLoop( void )
 				Logger::log(e.what(), LogLevel::ERROR);
 				_httpObjects[fd]->_request->setErrorCode(err);
 				_pollData[fd]._pollType = CLIENT_CONNECTION_WAIT;
-	
 				handleHTTPError(err, fd);
 			}
 		}
@@ -122,16 +119,20 @@ void ServerRun::serverRunLoop( void )
 }
 
 void ServerRun::handleHTTPError(ErrorCode err, int fd){
-	if (err >= MULTIPLE_CHOICE && err <= PERM_REDIR)
+	if (err == DIRECTORY_LISTING)
+	{
+		DirectoryListing(fd);
+		_pollData[fd]._pollType = AUTO_INDEX;
+	}
+	else if (err >= MULTIPLE_CHOICE && err <= PERM_REDIR)
 	{
 		int ErrCode = httpRedirect(err, fd);
 		if (ErrCode == err)
 			_pollData[fd]._pollType = HTTP_REDIRECT;
-
 		_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
 	}
-
-	if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
+	else if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
+	{
 		redirectToError(err, fd);
 }
 
