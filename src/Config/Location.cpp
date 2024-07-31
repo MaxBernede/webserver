@@ -167,7 +167,7 @@ void	Location::autoConfig(Server &serv){
 	_methods = serv.getMethods();
 	_root = "";
 	_autoIndex = serv.getAutoIndex();
-	_index = serv.getIndex();
+	_index = "";
 	_cgi = serv.getCGI();
 	_path = "";
 	it++;
