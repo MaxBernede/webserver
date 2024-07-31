@@ -13,6 +13,7 @@ class HTTPObject {
 		int			_readFd; // fileFd or pipeFd, only for GET requests
 		int			_writeFd; // upload pipe read end to write to cgi child process
 		bool 		_doneWritingToCgi;
+		int			_startTime;
 	
 	public:
 		Server 		_config;
