@@ -92,14 +92,8 @@ void ServerRun::serverRunLoop( void )
 					if ( _pollData[fd]._pollState == CGI_READ_WAITING)
 					{
 						// Logger::log("CGI write side finished writing to the pipe");
-						if (findHTTPObject(fd)->_cgi->isTimeOut())
-							throw(HTTPError(INTERNAL_SRV_ERR));
-						// {
-						// 	Logger::log("CGI TimedOut");
-						// 	_httpObjects[fd]->_cgi->killChild();
-						// 	cleanUp(fd);
-						// 	continue ;
-						// }
+						// if (findHTTPObject(fd)->_cgi->isTimeOut())
+						// 	throw(HTTPError(INTERNAL_SRV_ERR));
 						if (_pollFds[i].revents & POLLHUP && _pollData[fd]._pollState == CGI_READ_WAITING)
 						{
 							Logger::log("CGI did not TimedOut");

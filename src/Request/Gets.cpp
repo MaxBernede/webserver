@@ -9,7 +9,7 @@ std::vector<std::pair<std::string, std::string>> Request::getContent(){
 }
 
 std::string Request::getRequestStr(){
-	return (_request_str);
+	return (_request_text);
 }
 
 std::string Request::getFile(){
@@ -169,6 +169,7 @@ bool Request::isEmptyResponse(){
 	return (m == "DELETE" || m == "POST" || m == "HEAD");
 }
 
-std::string	getBody()
+std::string	Request::getBoundary()
 {
+	return (_boundary);
 }

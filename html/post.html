@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Send Data Without Form</title>
+</head>
+<body>
+	<h1>Send Data to CGI Script</h1>
+	<button id="sendTextData">Send Text Data</button>
+	<button id="sendFileData">Send File Data</button>
+		
+	<script>
+		document.getElementById('sendTextData').addEventListener('click', () => {
+			fetch('/cgi-bin/upload.cgi', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'text/plain'
+				},
+				body: 'This is a sample text data sent directly from JavaScript.'
+			})
+			.then(response => response.text())
+			.then(data => console.log(data))
+			.catch(error => console.error('Error:', error));
+		});
+
+		document.getElementById('sendFileData').addEventListener('click', () => {
+			const file = new Blob(["This is the content of the file"], { type: 'text/plain' });
+
+			const formData = new FormData();
+			formData.append('file', file, 'sample.txt');
+			formData.append('comment', 'This is a comment.');
+
+			fetch('/cgi-bin/upload.cgi', {
+				method: 'POST',
+				body: formData
+			})
+			.then(response => response.text())
+			.then(data => console.log(data))
+			.catch(error => console.error('Error:', error));
+		});
+	</script>
+</body>
+</html>

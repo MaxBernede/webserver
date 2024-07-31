@@ -29,13 +29,14 @@ void CGI::run()
 		char *argv[2] = {(char *)cgiFilePath.c_str(), NULL};
 		execve(cgiFilePath.c_str(), argv, _cgiEnvCStr);
 		// if execve fails
-		delete _cgiEnvCStr;
+		delete[] _cgiEnvCStr;
 		std::cout << "Running CGI script failed (execve), path: " << cgiFilePath << std::endl;
 		std::cout << "Errno: " << std::strerror(errno) << std::endl;
 		exit(1); // exit child process with 1, upon failure
 	}
 	else //parent (main) process
 	{
+		std::cout << "_pid: " <<_pid << std::endl;
 		_forkTime = std::chrono::steady_clock::now();
 		close(_responsePipe[1]); // close write-end of the response pipe (send)
 	}
@@ -49,14 +50,18 @@ bool 	CGI::waitCgiChild()
 	// 	killChild();
 	// }
 	int status = waitpid(_pid, &exitCode, WNOHANG);
+	std::cout << "status: " << status << std::endl;
 	if (status == -1)
+	{
+		 std::cerr << "waitpid failed: " << std::strerror(errno) << "_pid: " << _pid << std::endl;
 		throw(Exception("Error while waiting for cgi with pid " + std::to_string(_pid) , 1));
+	}
 	else if (status == 0) // cgi not done
 		return (false);
 	else
 	{
-		if (exitCode != 0)
-			throw(Exception("Error while running cgi with pid " + std::to_string(_pid), 1));
+		// if (exitCode != 0)
+		// 	throw(Exception("Error while running cgi with pid " + std::to_string(_pid), 1));
 		Logger::log("Cgi child process finished", LogLevel::INFO);
 		return (true);
 	}
@@ -65,8 +70,11 @@ bool 	CGI::waitCgiChild()
 
 void CGI::makeEnvArr()
 {
+	std::string	boundary = _request->getBoundary();
+	std::string	contentLen = _request->getValues("Content-Length");
+	std::cerr << "Content len: " << contentLen << std::endl;
 	std::vector<std::string> envArr {
-		"CONTENT_LENGTH=",
+		"CONTENT_LENGTH=" + contentLen,
 		"CONTENT_TYPE=multipart/form-data; boundary=",
 		"GATEWAY_INTERFACE=CGI/1.1", // fixed
 		"PATH_INFO=",
@@ -112,14 +120,15 @@ bool CGI::isTimeOut()
 {
 	auto _end = std::chrono::steady_clock::now();
 	std::chrono::duration<double> _timePassed = _end - _forkTime;
-    if (_timePassed.count() > 10)
+	if (_timePassed.count() > 10)
 		return (true);
 	return (false);
 }
 
 void	CGI::closeUploadPipe()
 {
-	close(_uploadPipe[0]); // close the read-end of the upload pipe
+	close(_uploadPipe[1]); // close write-end of the upload pipe
+	close(_uploadPipe[0]); // close read-end of the upload pipe
 }
 
 int	CGI::getReadFd()

@@ -28,18 +28,38 @@ void	HTTPObject::createCgi()
 	_cgi = new CGI(_request, _clientFd);
 }
 
+std::string	formatStrToHTML(std::string str)
+{
+	std::string	result;
+	std::string	htmlFormat;
+
+	std::istringstream	iss(str);
+
+	for (std::string line; std::getline(iss, line); )
+	{
+		htmlFormat = "<p>" + line + "</p>";
+		result += htmlFormat;
+	}
+	return (result);
+}
+
 void	HTTPObject::writeToCgiPipe()
 {
-	std::string body = _request->getValues("Body");
-	Logger::log("Body: " + body, LogLevel::INFO);
-	if (body.length())
-	{
-		if (write(_writeFd, body.c_str(), body.length()))
-		{
-			throw(Exception("Write failed", 1));
+	std::string b = _request->getValues("Body");
+	std::string body = formatStrToHTML(b);
+	if (body.length() > 0) {
+		Logger::log("Body: " + body, LogLevel::INFO);
+		size_t totalBytesWritten = 0;
+		ssize_t bytesWritten;
+		while (totalBytesWritten < body.length()) {
+			bytesWritten = write(_writeFd, body.c_str() + totalBytesWritten, body.length() - totalBytesWritten);
+			if (bytesWritten == -1) {
+				throw(Exception("Write failed", 1));
+			}
+			totalBytesWritten += bytesWritten;
 		}
 	}
-	_doneWritingToCgi = true; // Maybe write in chunks? For now this variable has no use...
+	_doneWritingToCgi = true; // Consider the purpose of this variable if it has no use yet
 }
 
 

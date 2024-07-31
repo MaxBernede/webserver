@@ -21,10 +21,10 @@ void ServerRun::uploadToCgi(int writePipe)
 {
 	HTTPObject *obj = findHTTPObject(writePipe);
 	obj->writeToCgiPipe();
-	close(writePipe); // close write side of the pipe
+	// close(writePipe); // close write side of the pipe
 	obj->_cgi->closeUploadPipe();
+	std::cout << "Closed upload pipe" << std::endl;
 	removeConnection(writePipe);
-	_pollData[writePipe]._pollState = CGI_WRITE_STOP;
 }
 
 // Sending data from the server to the client

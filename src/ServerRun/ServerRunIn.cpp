@@ -94,7 +94,7 @@ void ServerRun::handleRequest(int clientFd)
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
 		_httpObjects[clientFd]->_request->startConstruRequest();
-		_httpObjects[clientFd]->_request->printAllData();
+		// _httpObjects[clientFd]->_request->printAllData();
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = findConfig(Domain);
 		_httpObjects[clientFd]->setConfig(config);
@@ -152,11 +152,11 @@ void ServerRun::readPipe(int fd) // Pipe read-end fd
 {
 	char buffer[BUFFER_SIZE];
 
-	Logger::log("Reading the pipe read end...", LogLevel::DEBUG);
 	memset(buffer, '\0', BUFFER_SIZE);
 	HTTPObject *obj = findHTTPObject(fd);
-	if (obj->_cgi->waitCgiChild())
-	{
+	// if (obj->_cgi->waitCgiChild() == true)
+	// {
+		Logger::log("Reading the pipe read end...", LogLevel::DEBUG);
 		int readChars = read(fd, buffer, BUFFER_SIZE - 1);
 		if (readChars < 0)
 			throw(Exception("Read pipe failed!", errno));
@@ -170,7 +170,7 @@ void ServerRun::readPipe(int fd) // Pipe read-end fd
 			obj->_response->setReady();
 			close(fd);
 		}
-	}
+	// }
 }
 
 void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd)

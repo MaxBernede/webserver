@@ -87,6 +87,8 @@ class Request
 		bool		getErrorPageStatus();
 		bool		isEmptyResponse();
 		void		execAction();
+		std::string	getBoundary();
+		std::string	getBody();
 
 		// SET
 		void		setFileName(std::string newName);
