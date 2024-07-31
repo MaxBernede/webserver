@@ -5,7 +5,7 @@ void Request::requestReadTooLong(){
 	if (_request_text.length() > MAX_BODY_SIZE)
 	{
 		_doneReading = true;
-		throw HTTPError(URI_TOO_LONG);
+		throw HTTPError(PAYLOAD_TOO_LARGE);
 	}
 }
 

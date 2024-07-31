@@ -13,7 +13,7 @@
 #include <sys/stat.h>
 #include <iostream>
 
-#define MAX_BODY_SIZE 1048576
+#define MAX_BODY_SIZE 2147483648
 //#define MAX_BODY_SIZE 1048
 
 enum reqType
