@@ -86,7 +86,7 @@ void Request::parseRequest(const std::string& headers) {
 	}
     if (std::getline(iss, line)){
         parseBody(iss, line);
-		Logger::log(getValues("Body"));
+		//Logger::log(getValues("Body"));
 	}
 }
 
@@ -123,7 +123,7 @@ void Request::constructRequest(){
 
 	if (_request_text.empty())
 		throw (HTTPError(BAD_REQUEST));
-	Logger::log(_request_text, ERROR);
+	//Logger::log(_request_text, ERROR);
 	fillBoundary(_request_text);
 	parseRequest(_request_text);	
 	setFile();

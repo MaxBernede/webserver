@@ -7,6 +7,7 @@
 #include <chrono>
 #include <iomanip>
 #include <mutex>
+#include <sstream>
 #include "Colors.hpp"
 
 
