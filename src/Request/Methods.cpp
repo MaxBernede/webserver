@@ -129,12 +129,15 @@ void Request::redirRequest404()
 	bool dirListing = _config.getAutoIndex();
 	if (access(_filePath.c_str(), F_OK) == -1 && dirListing == false)
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
+	if (!exists(_filePath)){std::cout << "HERE\t" << _filePath << std::endl;
+		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));}
 }
 
 void	Request::handleDirListing()
 {
 	if (_file == "")
 		_file = _config.getIndex();
+	std::cout << _file << "\t" << boolstring(exists(_file)) << std::endl;
 	if ((_file == "" || _file.back() == '/') && !_config.getAutoIndex())
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 	else if ((_file == "" || _file.back() == '/') && _config.getAutoIndex())
@@ -150,8 +153,8 @@ void Request::checkRequest()
 	redirRequest405(); // ---> throw something case error
 	redirRequest501();
 	handleRedirection();
-	handleDirListing();
 	redirRequest404();
+	handleDirListing();
 }
 
 void Request::remove(std::string &path)

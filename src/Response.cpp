@@ -104,6 +104,8 @@ int Response::setRedirectStr(int status, std::string from, std::list<s_redirect>
 void Response::setDirectoryListing(Request *request)
 {
 	std::string	name = request->getConfig().getBasePath() + request->getConfig().getRoot() + request->getFileName();
+	if (!exists(name))
+		throw (HTTPError(PAGE_NOT_FOUND));
 	std::vector<std::string>	v = getDirectoryContent(name.c_str());
 	std::ostringstream oss;
 

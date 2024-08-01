@@ -21,11 +21,11 @@ OBJ_DIRS := $(sort $(dir $(OBJS)))
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) -Iinc $^ -o $(NAME)
+	$(CXX) $(CXXFLAGS) -I inc $^ -o $(NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(OBJ_DIRS)
-	$(CXX) $(CXXFLAGS) -Iinc -c $< -o $@
+	$(CXX) $(CXXFLAGS) -I inc -c $< -o $@
 
 clean:
 	$(RM) saved_files/*

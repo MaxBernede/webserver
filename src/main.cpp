@@ -29,13 +29,3 @@ int main(int argc, char** argv) {
 	runningServer.serverRunLoop();
 	return 0;
 }
-
-	// std::vector<std::string> v;
-	// DIR* dirp = opendir(".");
-    // struct dirent * dp;
-    // while ((dp = readdir(dirp)) != NULL) {
-    //     v.push_back(dp->d_name);
-    // }
-    // closedir(dirp);
-	// for (std::string s : v)
-	// 	std::cout << "LIST:\t" << s << std::endl;
