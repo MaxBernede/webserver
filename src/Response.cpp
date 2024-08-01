@@ -103,7 +103,9 @@ int Response::setRedirectStr(int status, std::string from, std::list<s_redirect>
 
 void Response::setDirectoryListing(Request *request)
 {
+	//make that a get ?
 	std::string	name = request->getConfig().getBasePath() + request->getConfig().getRoot() + request->getFileName();
+	//Logger::log(getPath() + "/" + name);
 	std::vector<std::string>	v = getDirectoryContent(name.c_str());
 	std::ostringstream oss;
 
