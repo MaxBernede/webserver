@@ -13,18 +13,14 @@ void Request::handlePost(std::string path, std::string file)
 }
 
 void writeBinaryDataToFile(const std::string& path, const std::string& binaryData) {
-    // Open file in binary mode
     std::ofstream file(path, std::ios::out | std::ios::binary);
 
-    // Check if the file was opened successfully
     if (!file) {
         throw std::ios_base::failure("Failed to open file for writing.");
     }
-	Logger::log("writee", WARNING);
-    // Write the binary data to the file
+	
     file.write(binaryData.data(), binaryData.size());
 
-    // Close the file
     file.close();
 }
 
@@ -43,32 +39,32 @@ std::string skipUntilEmptyLine(std::string content) {
 
 //Need to split this function. It's doing way too many things : search extension, append path etcc
 void Request::createFile(std::string const &content, std::string path, std::string file){
-	size_t i				= 1;
 	std::string extension	= getExtension(file); 				//	c, html or anything after the '.'
 	std::string name		= file.substr(0, file.find("." + extension)); // ft_strrchr
-	std::istringstream stream(content);
-	std::string line;
-	std::string result;
 
 	path += file;
 
-    // Find the empty line
-	Logger::log(content);
+	// Just for some security
+	if (file.empty())
+		throw HTTPError(BAD_REQUEST);
+
+    // Find the empty lines
     size_t pos = content.find("\r\n\r\n");
     if (pos == std::string::npos) {
         std::cerr << "Error: No empty line found in content" << std::endl;
-        return;
+        throw HTTPError(BAD_REQUEST);
     }
 
-    // Get the remaining content after the empty line
     std::string fileContent = content.substr(pos + 4); // Skip the two newlines
 
 
-    Logger::log("Write: " + fileContent, WARNING);
+    //Logger::log("Write: " + fileContent, WARNING);
     try {
         writeBinaryDataToFile(path, fileContent);
         std::cout << "File written successfully." << std::endl;
+		throw HTTPError(OK);
     } catch (const std::ios_base::failure& e) {
         std::cerr << "Error writing file: " << e.what() << std::endl;
+		throw HTTPError(INTERNAL_SRV_ERR);
     }
 }
