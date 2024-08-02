@@ -21,13 +21,11 @@ Socket::Socket(s_domain domain)
 
 	if (status != 0)
 		throw (Exception("Error with getaddrinfo()", errno));
-
 	for (tmp = res; tmp != nullptr; tmp = tmp->ai_next)
 	{
 		_fd = socket(tmp->ai_family, tmp->ai_socktype, tmp->ai_protocol);
 		if (_fd == -1)
 			continue ;
-
 		//Check the code below for opti. It makes socket reusable so no waits
 		int opt = 1;
 		if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
@@ -48,7 +46,6 @@ Socket::Socket(s_domain domain)
 	freeaddrinfo(res);
 	if (!bound)
 		throw (Exception("Socket failed to bind, port: " + std::to_string(domain.port), 1));
-
 	if (listen(_fd, SOMAXCONN))
 	{
 		close(_fd);
