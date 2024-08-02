@@ -61,7 +61,7 @@ bool Request::isBoundary(const std::string &line){
 
 void Request::printAllData(){
 	Logger::log("Application started", INFO);
-	std::cout << "Boudary: " << _boundary << std::endl;
+	std::cout << "Boundary: " << _boundary << std::endl;
 	std::cout << "Method: ";
 	for (const auto &method : _method)
 		std::cout << method << " ";

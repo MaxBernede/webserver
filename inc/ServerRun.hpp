@@ -49,7 +49,7 @@ class ServerRun
 		~ServerRun( void );
 
 	void serverRunLoop( void );
-	void createListenerSockets(std::vector<int> listens);
+	void createListenerSockets(std::vector<s_domain> listens);
 	void addQueue(pollType type, int fd);
 	
 	void	acceptNewConnection(int listenerFd);

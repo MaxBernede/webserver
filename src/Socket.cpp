@@ -9,19 +9,14 @@ void Socket::fillStruct(struct addrinfo &hints){
 	hints.ai_flags = AI_PASSIVE; // fills in your local host ip for you, saves you from having to hard code it
 }
 
-Socket::Socket(int port)
+Socket::Socket(s_domain domain)
 {
 	struct addrinfo hints, *res, *tmp;
-	std::string	port_str = std::to_string(port);
-	// std::string	ip = port.host;
-	// std::to_string(port);
+	std::string	port_str = std::to_string(domain.port);
 
 	fillStruct(hints);
 
-	// TODO add IP number as argument one. see if getaddrinfo accepts IPv4
-	// change first parameter to getPort() -> host
-	//127.0.0.1 - 127.255.255.254
-	int status = getaddrinfo(NULL, port_str.c_str(), &hints, &res);
+	int status = getaddrinfo(domain.host.c_str(), port_str.c_str(), &hints, &res);
 	bool bound = false;
 
 	if (status != 0)
@@ -51,14 +46,13 @@ Socket::Socket(int port)
 		close(_fd);
 	}
 	freeaddrinfo(res);
-
 	if (!bound)
-		throw (Exception("Socket failed to bind, port: " + std::to_string(port), 1));
+		throw (Exception("Socket failed to bind, port: " + std::to_string(domain.port), 1));
 
 	if (listen(_fd, SOMAXCONN))
 	{
 		close(_fd);
-		throw (Exception("listening failed on socketfd fd: " + std::to_string(_fd) + " on port: " + std::to_string(port), 1));
+		throw (Exception("listening failed on socketfd fd: " + std::to_string(_fd) + " on port: " + std::to_string(domain.port), 1));
 	}
 	//Logger::log("Sockets created with fd " + std::to_string(_fd) + " on port: " + std::to_string(port));
 }

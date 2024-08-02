@@ -1,23 +1,29 @@
 #include "ServerRun.hpp"
 
+std::vector<s_domain>::iterator findDomain(std::vector<s_domain>::iterator start,
+	std::vector<s_domain>::iterator end, s_domain domain)
+{
+	while (start != end && (*start).port != domain.port)
+		start++;
+	return start;
+}
+
 ServerRun::ServerRun(const std::list<Server> config)
 {
-	std::vector<int> listens;
+	std::vector<s_domain> listens;
 
 	if (config.empty())
 		throw (Exception("No servers defined in the config file", 1));
 	_servers = config;
 	// looping over the sever bloacks
-	for (auto server : _servers)
+	for (Server server : _servers)
 	{
-		for (auto port : server.getPorts())
+		for (s_domain domain : server.getPorts())
 		{
-			if (std::find(listens.begin(), listens.end(), port.port) == listens.end())
-				listens.push_back(port.port);
+			if (findDomain(listens.begin(), listens.end(), domain) == listens.end())
+				listens.push_back(domain);
 			else
-			{
-				Logger::log("Servers have the same port in config: " + std::to_string(port.port), LogLevel::WARNING);
-			}
+				Logger::log("Servers have the same port in config: " + std::to_string(domain.port), LogLevel::WARNING);
 		}
 	}
 	//create listening sockets
@@ -27,18 +33,18 @@ ServerRun::ServerRun(const std::list<Server> config)
 ServerRun::~ServerRun( void )
 {
 	// delete everything
-	for (auto it : _listenSockets)
+	for (Socket	*it : _listenSockets)
 	{
 		close(it->getFd());
 		delete it;
 	}
 }
 
-void ServerRun::createListenerSockets(std::vector<int> listens)
+void ServerRun::createListenerSockets(std::vector<s_domain> listens)
 {
 	Socket *new_socket;
 	std::cout << "Creaing listening sockets\n";
-	for (auto listen : listens)
+	for (s_domain listen : listens)
 	{
 		try
 		{

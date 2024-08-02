@@ -15,7 +15,7 @@ class Socket
 		int _fd;
 
 	public:
-		Socket(int port);
+		Socket(s_domain domain);
 		~Socket(void);
 
 		void	fillStruct(struct addrinfo &hints);
