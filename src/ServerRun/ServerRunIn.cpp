@@ -10,17 +10,20 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	if (connFd == -1)
 		throw (Exception("Error: accept() failed and returned -1", errno));
 	Logger::log("New client connection accepted at fd: " + std::to_string(connFd), LogLevel::DEBUG);
-	addQueue(CLIENT_CONNECTION_READY, connFd);
+	addQueue(CLIENT_CONNECTION_READY, CLIENTFD, connFd);
 }
 
-void ServerRun::handleCGIRequest(int clientFd)
+void ServerRun::handleCgiRequest(int clientFd)
 {
 	Logger::log("A CGI Request is being handled", LogLevel::INFO);
-	_httpObjects[clientFd]->createCGI();
-	int pipeFd = _httpObjects[clientFd]->_cgi->getReadFd();
-	_httpObjects[clientFd]->setReadFd(pipeFd);
-	addQueue(CGI_READ_WAITING, pipeFd);
-	_httpObjects[clientFd]->runCGI();
+	_httpObjects[clientFd]->createCgi();
+	int readFd = _httpObjects[clientFd]->_cgi->getReadFd();
+	int writeFd = _httpObjects[clientFd]->_cgi->getWriteFd();
+	_httpObjects[clientFd]->setReadFd(readFd);
+	_httpObjects[clientFd]->setWriteFd(writeFd);
+	addQueue(CGI_READ_WAITING, READFD, readFd);
+	addQueue(CGI_WRITE_TO_PIPE, WRITEFD, writeFd);
+	_httpObjects[clientFd]->runCgi();
 }
 
 void ServerRun::handleStaticFileRequest(int clientFd)
@@ -30,13 +33,12 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 	int fileFd = open(filePath.c_str(), O_RDONLY);
 	if (fileFd < 0)
 	{
-		std::cout << "Failed opening file: " << filePath << std::endl; // TODO 404 error
-		// throw (Exception("Opening static file failed", errno));
+		std::cout << "Failed opening file: " << filePath << std::endl;
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 	}
 	Logger::log("File correctly opened", INFO);
 	_httpObjects[clientFd]->setReadFd(fileFd);
-	addQueue(FILE_READ_READING, fileFd);
+	addQueue(FILE_READ_READING, READFD, fileFd);
 }
 
 void ServerRun::DirectoryListing(int clientFd){
@@ -46,24 +48,30 @@ void ServerRun::DirectoryListing(int clientFd){
 }
 
 // Handles error code when no error file exists
-void ServerRun::redirectToError(ErrorCode ErrCode, int clientFd)
+void ServerRun::redirectToError(ErrorCode ErrCode, int Fd)
 {
 	Logger::log("Redirecting to Error...", LogLevel::WARNING);
-	// need to add file search here...
-	HTTPObject *obj = _httpObjects[clientFd];
+
+	HTTPObject *obj;
+	if (_pollData[Fd]._fdType == CLIENTFD)
+		obj = _httpObjects[Fd];
+	else
+		obj = findHTTPObject(Fd);
 	obj->_request->searchErrorPage();
+	int c = obj->_request->getErrorCode();
+	std::cout << "errorcode:\t" << c << std::endl;
 	if (ErrCode == HTTP_NOT_SUPPORT){
-		_pollData[clientFd]._pollType = HTTP_ERROR;
+		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
 	}
 	else if (obj->_request->getErrorPageStatus() == false) // if no error file does not exst
 	{
 		Logger::log("Error page does not exist..Error code: " + std::to_string(ErrCode), LogLevel::WARNING);
 		obj->_response->errorResponseHTML(ErrCode);
-		_pollData[clientFd]._pollType = HTTP_ERROR;
+		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
 	}
 	else // if error page exists
 	{
-		handleStaticFileRequest(clientFd);
+		handleStaticFileRequest(obj->getClientFd());
 	}
 }
 
@@ -96,7 +104,7 @@ void ServerRun::handleRequest(int clientFd)
 		Server config = findConfig(Domain);
 		_httpObjects[clientFd]->setConfig(config);
 		_httpObjects[clientFd]->_request->checkRequest();
-		_pollData[clientFd]._pollType = CLIENT_CONNECTION_WAIT;
+		_pollData[clientFd]._pollState = CLIENT_CONNECTION_WAIT;
 		executeRequest(clientFd, config);
 	}
 }
@@ -104,16 +112,17 @@ void ServerRun::handleRequest(int clientFd)
 void ServerRun::executeRequest(int clientFd, Server config){
 	if (_httpObjects[clientFd]->isCgi()) // GET and POST for CGI
 	{
+		std::cout << "It is a CGI request...\n";
 		if (!config.getCGI())
 		{
 			Logger::log("CGI is not permitted for this server", LogLevel::ERROR);
 			throw (HTTPError(ErrorCode::FORBIDDEN)); // What do we do when CGI is not allowed?
 		}
-		handleCGIRequest(clientFd);
+		handleCgiRequest(clientFd);
 	}
 	else if (_httpObjects[clientFd]->_request->isEmptyResponse()) { 	// POST or DEL or HEAD
-		_pollData[clientFd]._pollType = EMPTY_RESPONSE;
 		
+		_pollData[clientFd]._pollState = EMPTY_RESPONSE;
 		_httpObjects[clientFd]->_request->execAction();
 	}
 	else // Static file
@@ -137,7 +146,7 @@ void ServerRun::readFile(int fd) // Static file fd
 	}
 	if (readChars == 0)
 	{
-		_pollData[fd]._pollType = FILE_READ_DONE;
+		_pollData[fd]._pollState = FILE_READ_DONE;
 		obj->_response->setReady();
 		close(fd);
 	}
@@ -150,8 +159,9 @@ void ServerRun::readPipe(int fd) // Pipe read-end fd
 
 	memset(buffer, '\0', BUFFER_SIZE);
 	HTTPObject *obj = findHTTPObject(fd);
-	if (obj->_cgi->waitCgiChild())
-	{
+	// if (obj->_cgi->waitCgiChild() == true)
+	// {
+		Logger::log("Reading the pipe read end...", LogLevel::DEBUG);
 		int readChars = read(fd, buffer, BUFFER_SIZE - 1);
 		if (readChars < 0)
 			throw(Exception("Read pipe failed!", errno));
@@ -161,16 +171,16 @@ void ServerRun::readPipe(int fd) // Pipe read-end fd
 		}
 		if (readChars < BUFFER_SIZE - 1)
 		{
-			_pollData[fd]._pollType = CGI_READ_DONE;
+			_pollData[fd]._pollState = CGI_READ_DONE;
 			obj->_response->setReady();
 			close(fd);
 		}
-	}
+	// }
 }
 
 void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd)
 {	
-	switch (pollData._pollType)
+	switch (pollData._pollState)
 	{
 		case LISTENER:
 			acceptNewConnection(pollFd.fd);

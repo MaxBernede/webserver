@@ -154,16 +154,16 @@ static std::string defaultName(){
 }
 
 static std::list<s_ePage> defaultErrorPages(){
-	std::list<s_ePage> erorPages;
+	std::list<s_ePage> errorPages;
 	s_ePage fofo;
 	fofo.err = 404;
 	fofo.url = "errdir/404.html";
 	s_ePage fofv;
 	fofv.err = 405;
 	fofv.url = "errdir/405.html";
-	erorPages.push_back(fofo);
-	erorPages.push_back(fofv);
-	return erorPages;
+	errorPages.push_back(fofo);
+	errorPages.push_back(fofv);
+	return errorPages;
 }
 
 Server::Server():

@@ -40,6 +40,7 @@ bool Request::isCgi()
 	// check extension x.substr(x.find_last_of("*******") + 2) == "cx")
 	std::string fileName = getFileName();
 	std::string extension = getExtension(fileName);
+	// std::cout << "What is the file extension: " << extension << std::endl;
 	return (extension == "cgi");
 }
 
@@ -98,7 +99,6 @@ void Request::redirRequest405() // If Method not Allowed, redirects to Server 40
 		return ;
 	if (index != -1 && _config.getMethod(index) == false)
 		throw(HTTPError(ErrorCode::METHOD_NOT_ALLOWED));
-
 }
 
 void Request::searchErrorPage()
@@ -129,15 +129,14 @@ void Request::redirRequest404()
 	bool dirListing = _config.getAutoIndex();
 	if (access(_filePath.c_str(), F_OK) == -1 && dirListing == false)
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
-	if (!exists(_filePath)){std::cout << "HERE\t" << _filePath << std::endl;
-		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));}
+	if (!exists(_filePath))
+		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 }
 
 void	Request::handleDirListing()
 {
 	if (_file == "")
 		_file = _config.getIndex();
-	std::cout << _file << "\t" << boolstring(exists(_file)) << std::endl;
 	if ((_file == "" || _file.back() == '/') && !_config.getAutoIndex())
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 	else if ((_file == "" || _file.back() == '/') && _config.getAutoIndex())
@@ -228,13 +227,11 @@ void Request::handleDelete(){
 	return;
 }
 
-// TODO not sure if we need this function anymore
 void Request::handleRedirection(){
 	std::list<s_redirect> redirs = _config.getRedirect();
 	std::string fileName = getFileNameProtected();
 
 	for (s_redirect r : redirs){
-		// std::cout << fileName << "\t\t" << r.redirFrom << std::endl;
 		if (fileName == r.redirFrom){
 			Logger::log("Is a redirect", LogLevel::WARNING);
 			throw(HTTPError(ErrorCode(r.returnValue)));
@@ -248,9 +245,7 @@ void	Request::configConfig(){
 		temp.erase(temp.find('/', 1) + 1);
 	std::list<Location> locs = _config.getLocation();
 	for (Location loc : locs){
-		// std::cout << "TEMP\t" << temp << "\tLOC\t" << loc.getName() << std::endl;
 		if (temp == loc.getName() || (temp == loc.getRoot() && loc.getRoot() != _config.getRoot())){
-			// std::cout << "IS LOCATION" << std::endl;
 			_config.setRoot(loc.getRoot());
 			for (int i = GET; i <= TRACE; i++)
 				_config.setMethod(loc.getMethod(i), i);
