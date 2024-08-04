@@ -27,35 +27,34 @@ std::pair<std::string, std::string> create_pair(const std::string &line, size_t 
 }
 
 void Request::parseBody(std::istringstream &iss, std::string &line) {
-    std::string body	= "Body ";
+	std::string body	= "Body ";
 
-    if (_boundary != "" && isBoundary(line)) {
-        while (std::getline(iss, line)) {
-            if (_boundary != "" && isBoundary(line)) {
-                _request.emplace_back(create_pair(body, 4));
-                break;
-            }
-            body += line;
-            body += "\n";
-        }
-    }
+	if (_boundary != "" && isBoundary(line)) {
+		while (std::getline(iss, line)) {
+			if (_boundary != "" && isBoundary(line)) {
+				_request.emplace_back(create_pair(body, 4));
+				break;
+			}
+			body += line;
+			body += "\n";
+		}
+	}
 }
-
 
 //save as well the GET request in the all datas AND the _method
 void Request::parseFirstLine(std::istringstream &iss){
 	std::string	line, arg;
 
 	std::getline(iss, line);
-    std::istringstream line_stream(line);
+	std::istringstream line_stream(line);
 	int i = 0;
-    while (std::getline(line_stream, arg, ' ')){
+	while (std::getline(line_stream, arg, ' ')){
 		if (arg == "\t" || arg == " " || arg.empty()){
 			_method[1] = "400";
 			_method[2] = "HTTP/1.1";
 			throw (HTTPError(BAD_REQUEST));
 		}
-        _method[i] = arg;
+		_method[i] = arg;
 		i++;
 	}
 
@@ -84,10 +83,8 @@ void Request::parseRequest(const std::string& headers) {
 		if (pos != std::string::npos)
 			_request.emplace_back(create_pair(line, pos));
 	}
-    if (std::getline(iss, line)){
-        parseBody(iss, line);
-		//Logger::log(getValues("Body"));
-	}
+	if (std::getline(iss, line))
+		parseBody(iss, line);
 }
 
 void Request::fillBoundary(std::string text){
@@ -104,9 +101,9 @@ void Request::fillBoundary(std::string text){
 		_boundary = "";
 		return;
 	}
-	while (text[pos] == '-')
-		++pos;
-    _boundary = text.substr(pos, endPos - pos);
+	// while (text[pos] == '-')
+	// 	++pos;
+	_boundary = text.substr(pos, endPos - pos);
 }
 
 //Constructor that parses everything
@@ -121,11 +118,36 @@ Request::~Request() {}
 void Request::constructRequest(){
 	Logger::log("Constructor request call", INFO);
 
+	Logger::log("RAW: \n" + _request_text, LogLevel::DEBUG);
 	if (_request_text.empty())
 		throw (HTTPError(BAD_REQUEST));
 	//Logger::log(_request_text, ERROR);
 	fillBoundary(_request_text);
-	parseRequest(_request_text);	
+	parseRequest(_request_text);
 	setFile();
 	checkErrors();
 }
+
+// std::string	Request::getBody()
+// {
+// 	// Find the start of the body
+// 	size_t bodyStart = _request_text.find("\r\n\r\n", _request_text.find("\r\n\r\n") + 4);
+// 	if (bodyStart == std::string::npos) {
+// 		std::cerr << "Body start not found in the request." << std::endl;
+// 		return "";
+// 	}
+// 	bodyStart += 4; // Move past the "\r\n\r\n" to the start of the body
+
+// 	// Extract the body from the request
+// 	std::string body = _request_text.substr(bodyStart);
+
+// 	// Remove the trailing boundary markers
+// 	size_t endBoundaryPos = body.find(_boundary, body.find(_boundary));
+// 	if (endBoundaryPos != std::string::npos) {
+// 		body = body.substr(0, endBoundaryPos);
+// 	} else {
+// 		std::cerr << "End boundary not found in the request body." << std::endl;
+// 	}
+
+// 	return body;
+// }

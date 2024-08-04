@@ -6,8 +6,7 @@
 date=$(date)
 html_content="<!DOCTYPE html>\
 			<html><body>\
-			<h2>It is\n</h2>
-			<h2>$date </h2>
+			<h2>$date</h2>
 			</body></html>"
 
 # body with html content

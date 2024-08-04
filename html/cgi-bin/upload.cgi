@@ -1,5 +1,9 @@
 #!/usr/bin/python3
+
+import cgi
+import os
 from os import environ
+import cgitb; cgitb.enable()
 import sys
 
 def parse_body():
@@ -13,7 +17,7 @@ def generate_html_body():
 	body_content = parse_body()
 
 	# Create the HTML body string
-	# html_body = f"<p>{body_content}</p>"
+	html_body = f"{body_content}"
 	return html_body
 
 # find username from cookies
@@ -31,8 +35,8 @@ html_content_start = (
 	"<!DOCTYPE html>\n"
 	"<html>\n"
 	"<body>\n"
-	f"<h3>Hello {username}</h3>\n"
-	"<p>This is what you posted:</p>\n"
+	f"<h1>Hello {username}</h1>\n"
+	"<h2>This is the text you posted...</h2>\n"
 	)
 
 

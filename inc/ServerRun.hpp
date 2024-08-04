@@ -11,27 +11,38 @@ class CGI;
 class HTTPObject;
 
 // For each server, you need a different listening socket for each port....
-enum pollType
+enum pollState
 {
 	LISTENER,
 	CLIENT_CONNECTION_READY,
-	CLIENT_CONNECTION_WAIT,
+	CLIENT_CONNECTION_WAIT, // waiting for reading a file or pipe
 	REQUEST_READING,
 	REQUEST_READ_DONE,
 	FILE_READ_READING,
 	FILE_READ_DONE,
-	CGI_READ_WAITING,
-	CGI_READ_READING,
-	CGI_READ_DONE,
+	CGI_WRITE_TO_PIPE, // post body to the cgi process
+	CGI_WRITE_STOP,
+	CGI_READ_WAITING, // waiting for cgi to finish running child process
+	CGI_READ_READING, // reading cgi pipe to prepare response
+	CGI_READ_DONE, // response ready to send to client
 	HTTP_ERROR,
 	HTTP_REDIRECT,
 	AUTO_INDEX,
 	EMPTY_RESPONSE
 };
 
+enum fdType
+{
+	SOCKET,
+	CLIENTFD,
+	READFD,
+	WRITEFD
+};
+
 typedef struct t_poll_data
 {
-	pollType _pollType;
+	pollState _pollState;
+	fdType	_fdType;
 } s_poll_data;
 
 
@@ -50,7 +61,7 @@ class ServerRun
 
 	void serverRunLoop( void );
 	void createListenerSockets(std::vector<s_domain> listens);
-	void addQueue(pollType type, int fd);
+	void addQueue(pollState state, fdType type, int fd);
 	
 	void	acceptNewConnection(int listenerFd);
 	void	handleRequest(int clientFd);
@@ -60,7 +71,9 @@ class ServerRun
 	void dataIn(s_poll_data pollData, struct pollfd pollFd); // read from client
 	void dataOut(s_poll_data pollData, struct pollfd pollFd); // write to client
 
-	void	handleCGIRequest(int clientFd);
+	void	uploadToCgi(int writePipe);
+	void	handleCgiRequest(int clientFd);
+
 	void 	handleStaticFileRequest(int clientFd);
 	void	DirectoryListing(int clientFd);
 	void	redirectToError(ErrorCode ErrCode, int clientFd); // Redirect to 404, 405
@@ -69,6 +82,8 @@ class ServerRun
 
 	void readFile(int fd);
 	void readPipe(int fd);
+
+	// Send functions
 	void sendResponse(int fd);
 	void sendAutoIndex(int cleintFd);
 	void sendRedirect(int clientFd);
@@ -76,6 +91,6 @@ class ServerRun
 
 	Server findConfig(s_domain port);
 
-	HTTPObject *findHTTPObject(int readFd);
+	HTTPObject *findHTTPObject(int fd);
 	void		cleanUp(int clientFd);
 };

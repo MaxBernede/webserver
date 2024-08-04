@@ -9,7 +9,7 @@ std::vector<std::pair<std::string, std::string>> Request::getContent(){
 }
 
 std::string Request::getRequestStr(){
-	return (_request_str);
+	return (_request_text);
 }
 
 std::string Request::getFile(){
@@ -62,8 +62,8 @@ std::string Request::getValues(std::string key){
 }
 
 // Method[3], 0 = Methode(Post, delete, etc..), 1 = Link (html/ cgi/ .ico), 2 = HTTP version
-std::string Request::getMethod(int index){
-	if (index < 0 || static_cast<std::vector<std::string>::size_type>(index) >= _method.size())
+std::string Request::getMethod(size_t index){
+	if (index < 0 || index >= _method.size())
 		return "";
 	return _method[index];
 }
@@ -135,4 +135,9 @@ bool Request::isEmptyResponse(){
 	std::string m = getMethod(0);
 
 	return (m == "DELETE" || m == "POST" || m == "HEAD");
+}
+
+std::string	Request::getBoundary()
+{
+	return (_boundary);
 }

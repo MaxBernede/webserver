@@ -1,5 +1,10 @@
 #include "ServerRun.hpp"
 
+#include <chrono>
+#include <iostream>
+#include <ratio>
+#include <thread>
+
 std::vector<s_domain>::iterator findDomain(std::vector<s_domain>::iterator start,
 	std::vector<s_domain>::iterator end, s_domain domain)
 {
@@ -60,17 +65,18 @@ void ServerRun::createListenerSockets(std::vector<s_domain> listens)
 		throw(Exception("No available port on the defined host", 1));
 	
 	for (int i = 0; i < (int)_listenSockets.size(); i++) {
-		addQueue(LISTENER, _listenSockets[i]->getFd()); // add listener sockets to queue
+		addQueue(LISTENER, SOCKET, _listenSockets[i]->getFd()); // add listener sockets to queue
 	}
 }
 
-void ServerRun::addQueue(pollType type, int fd)
+void ServerRun::addQueue(pollState state, fdType type, int fd)
 {
 	s_poll_data newPollItem;
 	struct pollfd newPollFd;
 
 	newPollFd = {fd, POLLIN | POLLOUT, 0};
-	newPollItem._pollType = type;
+	newPollItem._pollState = state;
+	newPollItem._fdType = type;
 	_pollFds.push_back(newPollFd);
 	_pollData[fd] = newPollItem;
 }
@@ -91,35 +97,39 @@ void ServerRun::serverRunLoop(void)
 			int fd = _pollFds[i].fd;
 			try
 			{
+				HTTPObject *obj = findHTTPObject(fd);
+				if (obj != nullptr)
+					obj->checkTimeOut();
 				if (_pollFds[i].revents & POLLIN)
 				{
 					// Only start reading CGI once the write end of the pipe is closed
-					if ((_pollFds[i].revents & POLLHUP) && _pollData[fd]._pollType == CGI_READ_WAITING)
+					if ( _pollData[fd]._pollState == CGI_READ_WAITING)
 					{
-						Logger::log("CGI write side finished writing to the pipe");
-						_pollData[fd]._pollType = CGI_READ_READING;
+						if (_pollFds[i].revents & POLLHUP && _pollData[fd]._pollState == CGI_READ_WAITING)
+						{
+							// Logger::log("CGI did not TimedOut");
+							_pollData[fd]._pollState = CGI_READ_READING;
+						}
 					}
-
 					dataIn(_pollData[fd], _pollFds[i]);						//Read from client
 				}
 
-				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollType == CGI_READ_DONE){
+				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollState == CGI_READ_DONE){
 					dataOut(_pollData[fd], _pollFds[i]);					// Write to client
 				}
-
-			}
-			catch(const Exception& e)
-			{
-				std::cout << e.what() << std::endl;
 			}
 			catch(const HTTPError& e)
 			{ 
 				ErrorCode err = e.getErrorCode();
 				Logger::log(e.what(), LogLevel::ERROR);
-				_httpObjects[fd]->_request->setErrorCode(err);
-				_pollData[fd]._pollType = CLIENT_CONNECTION_WAIT;
+				if (_pollData[fd]._fdType == CLIENTFD)
+					_httpObjects[fd]->_request->setErrorCode(err);
+				else
+					findHTTPObject(fd)->_request->setErrorCode(err);
+				_pollData[fd]._pollState = CLIENT_CONNECTION_WAIT;
 				handleHTTPError(err, fd);
 			}
+			// Do we have uncaught exception?
 		}
 	}
 }
@@ -129,13 +139,14 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd)
 	if (err == DIRECTORY_LISTING)
 	{
 		DirectoryListing(fd);
-		_pollData[fd]._pollType = AUTO_INDEX;
+		_pollData[fd]._pollState = AUTO_INDEX;
 	}
 	else if (err >= MULTIPLE_CHOICE && err <= PERM_REDIR)
 	{
 		int ErrCode = httpRedirect(err, fd);
 		if (ErrCode == err)
-			_pollData[fd]._pollType = HTTP_REDIRECT;
+			_pollData[fd]._pollState = HTTP_REDIRECT;
+
 		_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
 	}
 	else if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
@@ -171,15 +182,20 @@ void ServerRun::removeConnection(int fd)
 		_pollData.erase(fd);
 }
 
-HTTPObject *ServerRun::findHTTPObject(int readFd)
+HTTPObject *ServerRun::findHTTPObject(int fd)
 {
 	for (auto& pair : _httpObjects)
 	{
-		if (pair.second->getReadFd() == readFd) {
+		if (pair.second->getReadFd() == fd) {
 		    return pair.second;
 		}
 	}
-
+	for (auto& pair : _httpObjects)
+	{
+		if (pair.second->getWriteFd() == fd) {
+		    return pair.second;
+		}
+	}
 	return nullptr; // Return nullptr if not found
 }
 
