@@ -107,12 +107,16 @@ class Request
 		void		requestReadTooLong();
 
 		void		searchErrorPage();
-		void		handleDelete();
-		void		handlePost();
-		void		handleDirDelete(std::string & path);
+		void		handleDelete(std::string, std::string);
+		void		handlePost(std::string, std::string);
+		void		handleDirDelete(std::string path);
+		std::string	getEndPath();
+		bool		methodAccepted(std::string method);
+		std::string	findFileName(std::string method);
+		void		createFile(std::string const &content, std::string path, std::string file);
 		
-		void		remove(std::string & path);
-		void		removeDir(std::string & path);
+		void		remove(std::string path);
+		void		removeDir(std::string path);
 
 		void		checkErrors();
 		void		checkVersion();

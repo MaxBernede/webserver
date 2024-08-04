@@ -72,6 +72,7 @@ void Request::parseFirstLine(std::istringstream &iss){
 // it works as : get the first line based on space
 // then check for the ':' however if there is a boundary and its found, keep everything between as body
 void Request::parseRequest(const std::string& headers) {
+	//Logger::log(headers, ERROR);
 	std::istringstream	iss(headers);
 	std::string			line;
 
@@ -83,8 +84,10 @@ void Request::parseRequest(const std::string& headers) {
 		if (pos != std::string::npos)
 			_request.emplace_back(create_pair(line, pos));
 	}
-    if (std::getline(iss, line))
+    if (std::getline(iss, line)){
         parseBody(iss, line);
+		//Logger::log(getValues("Body"));
+	}
 }
 
 void Request::fillBoundary(std::string text){
@@ -120,6 +123,7 @@ void Request::constructRequest(){
 
 	if (_request_text.empty())
 		throw (HTTPError(BAD_REQUEST));
+	//Logger::log(_request_text, ERROR);
 	fillBoundary(_request_text);
 	parseRequest(_request_text);	
 	setFile();

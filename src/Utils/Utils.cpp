@@ -1,5 +1,6 @@
 #include "Utils.hpp"
 #include <sys/stat.h>
+#include "Logger.hpp"
 
 //Return the first word after GET (usually the html)
 //Check the scalability in case of different parsing ways to do
@@ -54,6 +55,10 @@ std::vector<std::string> getDirectoryContent(const char *name)
 {
 	std::vector<std::string>	v;
 	DIR	*dirp = opendir(name);
+    if (dirp == nullptr) {
+        Logger::log("Error opening dir: " + std::string(name), WARNING);
+        return v; // Return an empty vector or handle the error as needed
+    }
     struct dirent	*dp;
     while ((dp = readdir(dirp)) != NULL)
 	{

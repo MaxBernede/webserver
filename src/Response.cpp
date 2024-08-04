@@ -103,6 +103,7 @@ int Response::setRedirectStr(int status, std::string from, std::list<s_redirect>
 
 void Response::setDirectoryListing(Request *request)
 {
+	//make that a get ?
 	std::string	name = request->getConfig().getBasePath() + request->getConfig().getRoot() + request->getFileName();
 	if (!exists(name))
 		throw (HTTPError(PAGE_NOT_FOUND));

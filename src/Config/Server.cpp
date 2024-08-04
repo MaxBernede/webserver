@@ -223,6 +223,16 @@ std::list<Location> Server::getLocation() const{
 	return _location;
 }
 
+Location Server::getLocationByName(const std::string& name) const {
+	for (const auto& location : _location) {
+		//Logger::log(location.getName());
+		if (location.getName() == name) {
+			return location;
+		}
+	}
+	throw std::runtime_error("Location not found: " + name);
+}
+
 void Server::clearPort(){
 	_ports.clear();
 }
