@@ -29,6 +29,7 @@ bool Request::methodAccepted(std::string method){
 		if (method == "POST")
 			return _config.getMethod(POST);
 	}
+	return false;
 }
 
 std::string Request::findFileName(std::string method){
@@ -37,6 +38,7 @@ std::string Request::findFileName(std::string method){
 	if (method == "POST"){
 		return getFileNameFromBody(getValues("Body"));
 	}
+	return "";
 }
 
 bool checkInsecure(std::string fileName){
