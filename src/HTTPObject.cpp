@@ -20,13 +20,14 @@ HTTPObject::~HTTPObject()
 }
 void	HTTPObject::sendAutoIndex()
 {
-	_response->sendRedir();
+	_response->rSend();
 }
 
-void	HTTPObject::sendRedirection()
-{
-	_response->sendRedir();
-}
+// UNUSED
+// void	HTTPObject::sendRedirection()
+// {
+// 	_response->sendRedir();
+// }
 
 void	HTTPObject::createCgi()
 {
@@ -50,10 +51,8 @@ std::string	formatStrToHTML(std::string str)
 
 void	HTTPObject::writeToCgiPipe()
 {
-	std::string b = _request->getValues("Body");
-	std::string body = formatStrToHTML(b);
-	if (body.length() > 0) {
-		Logger::log("Body: " + body, LogLevel::INFO);
+	std::string body = _request->getRawBody(); // Raw body with boundary strings
+	if (body.length()) {
 		size_t totalBytesWritten = 0;
 		ssize_t bytesWritten;
 		while (totalBytesWritten < body.length()) {
@@ -64,7 +63,6 @@ void	HTTPObject::writeToCgiPipe()
 			totalBytesWritten += bytesWritten;
 		}
 	}
-	_doneWritingToCgi = true; // Consider the purpose of this variable if it has no use yet
 }
 
 
@@ -73,9 +71,10 @@ void	HTTPObject::runCgi()
 	_cgi->run();
 }
 
-void	HTTPObject::sendResponse()
+void	HTTPObject::sendResponseWithHeaders()
 {
-	_response->rSend(_request);
+	_response->addHeaders(_request);
+	_response->rSend();
 }
 
 bool	HTTPObject::isCgi()
@@ -127,7 +126,7 @@ int		HTTPObject::getClientFd()
 	return (_clientFd);
 }
 
-std::chrono::time_point<std::chrono::high_resolution_clock> HTTPObject::getStartTime()
+TimePoint HTTPObject::getStartTime()
 {
 	return _startTime;
 }

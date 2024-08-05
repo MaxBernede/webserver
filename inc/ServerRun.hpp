@@ -6,7 +6,6 @@
 #include <sys/poll.h>
 #include <algorithm>
 
-
 class CGI;
 class HTTPObject;
 
@@ -59,38 +58,40 @@ class ServerRun
 		ServerRun(const std::list<Server> config);
 		~ServerRun( void );
 
-	void serverRunLoop( void );
-	void createListenerSockets(std::vector<s_domain> listens);
-	void addQueue(pollState state, fdType type, int fd);
-	
-	void	acceptNewConnection(int listenerFd);
-	void	handleRequest(int clientFd);
-	void	executeRequest(int clientFd);
-	void	removeConnection(int fd);
+		void	serverRunLoop( void );
+		void	createListenerSockets(std::vector<s_domain> listens);
+		void	addQueue(pollState state, fdType type, int fd);
 
-	void dataIn(s_poll_data pollData, struct pollfd pollFd); // read from client
-	void dataOut(s_poll_data pollData, struct pollfd pollFd); // write to client
+		void	acceptNewConnection(int listenerFd);
+		void	handleRequest(int clientFd);
+		void	executeRequest(int clientFd);
+		void	removeConnection(int fd);
 
-	void	uploadToCgi(int writePipe);
-	void	handleCgiRequest(int clientFd);
+		void	dataIn(s_poll_data pollData, struct pollfd pollFd); // read from client
+		void	dataOut(s_poll_data pollData, struct pollfd pollFd); // write to client
 
-	void 	handleStaticFileRequest(int clientFd);
-	void	DirectoryListing(int clientFd);
-	void	redirectToError(ErrorCode ErrCode, int clientFd); // Redirect to 404, 405
-	int 	httpRedirect(ErrorCode status, int clientfd);
-	void	handleHTTPError(ErrorCode err, int fd);
+		void 	handleStaticFileRequest(int clientFd);
+		void	DirectoryListing(int clientFd);
+		void	redirectToError(ErrorCode ErrCode, int clientFd); // Redirect to 404, 405
+		int 	httpRedirect(ErrorCode status, int clientfd);
+		void	handleHTTPError(ErrorCode err, int fd);
+		void	uploadToCgi(int writePipe);
+		void	handleCgiRequest(int clientFd);
 
-	void readFile(int fd);
-	void readPipe(int fd);
 
 	// Send functions
-	void sendResponse(int fd);
 	void sendAutoIndex(int cleintFd);
-	void sendRedirect(int clientFd);
-	void sendError(int clietnFd);
+		void	readFile(int fd);
+		void	readPipe(int fd);
 
-	Server findConfig(s_domain port);
+		// Send functions
+		void	sendResponse(int readFd);
+		void	sendCgiResponse(int pipeFd);
+		void	sendRedirect(int clientFd);
+		void	sendError(int clietnFd);
 
-	HTTPObject *findHTTPObject(int fd);
-	void		cleanUp(int clientFd);
+		Server	findConfig(s_domain port);
+
+		void	cleanUp(int clientFd);
+		HTTPObject	*findHTTPObject(int fd);
 };

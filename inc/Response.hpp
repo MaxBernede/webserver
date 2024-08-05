@@ -21,19 +21,20 @@ class Response {
 
 		//Members functions
 		std::string makeStrResponse(Request *request);
+		void		addHeaders(Request *request);
 		void 		addToBuffer(std::string buffer);
 		void		setResponseString(std::string response);
 		void 		setReady( void );
 		void 		rSend(Request *request);
+		void 		rSend();
 		void		sendRedir();
 		void		setDirectoryListing(Request *request);
 		int			setRedirectStr(int status, std::string from, std::list<s_redirect> redirs);
-
 		void		errorResponseHTML(ErrorCode);
-	 
+
 	private:
 		int			_clientFd;
 		std::string _file;
 		std::string _response_text;
-		bool 		_ready;
+		bool		_ready;
 };

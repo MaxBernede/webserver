@@ -8,6 +8,8 @@
 <body>
 	<h1>Send Data to CGI Script</h1>
 	<button id="sendTextData">Send Text Data</button>
+	<br><br>
+	<input type="file" id="fileInput">
 	<button id="sendFileData">Send File Data</button>
 		
 	<script>
@@ -25,19 +27,24 @@
 		});
 
 		document.getElementById('sendFileData').addEventListener('click', () => {
-			const file = new Blob(["This is the content of the file"], { type: 'text/plain' });
+			const fileInput = document.getElementById('fileInput');
+			const file = fileInput.files[0];
 
-			const formData = new FormData();
-			formData.append('file', file, 'sample.txt');
-			formData.append('comment', 'This is a comment.');
+			if (file) {
+				const formData = new FormData();
+				formData.append('file', file);
+				formData.append('comment', 'This is a comment.');
 
-			fetch('/cgi-bin/upload.cgi', {
-				method: 'POST',
-				body: formData
-			})
-			.then(response => response.text())
-			.then(data => console.log(data))
-			.catch(error => console.error('Error:', error));
+				fetch('/cgi-bin/upload.cgi', {
+					method: 'POST',
+					body: formData
+				})
+				.then(response => response.text())
+				.then(data => console.log(data))
+				.catch(error => console.error('Error:', error));
+			} else {
+				console.error('No file selected.');
+			}
 		});
 	</script>
 </body>

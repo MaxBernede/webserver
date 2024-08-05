@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index Page</title>
+	<link rel="stylesheet" href="style.css">
+    <title>flash</title>
 </head>
 <body>
-    <h1>Welcome to our Webserv project</h1>
-    <p>Try the following:</p>
+    <h1>Welcome to our webserver</h1>
+    <h2>Try the following:</h2>
     <ul>
         <li>What shall we call you?</li>
         <form id="cookieForm" onsubmit="setCookie(event)">
@@ -15,16 +16,15 @@
             <input type="text" id="username" name="username" required>
             <button type="submit">Set Nickname</button>
         </form>
-        <li><a href="page1.html">Page 1 with image</a></li>
-        <li><a href="page2.html">Page 2, plain text</a></li>
-        <li><a href="test.html">Test methods</a></li>
-        <li><a href="cgi/python.cgi">Test CGI-Python</a></li>
-        <li><a href="cgi/bash.cgi">Test CGI-Bash</a></li>
-        <li><a href="cgi/pyp.cgi">CGI Infinite</a></li>
-		<li><a href="post.html">CGI Upload File</a></li>
+        <li><a href="page1.html">Test GET method</a></li>
+        <li><a href="page2.html">Test POST and DELETE (without CGI)</a></li>
+		<li><a href="upload.html">Upload a file with CGI</a></li>
+        <!-- <li><a href="test.html">Test methods</a></li> -->
+        <li><a href="cgi/python.cgi">Test CGI Python Script with Cookies</a></li>
+        <li><a href="cgi/bash.cgi">Test CGI Bash Script</a></li>
+        <li><a href="cgi/infinite.cgi">CGI Infinite Loop - Timeout Check</a></li>
+		<li><a href="random/random!">Page Not Found</a></li>
     </ul>
-    <p>Note: Some pages don't exist yet, that's why there is a redirection to the error page.</p>
-    <p>The pages are only accessible if they are found in the html folder.</p>
 </body>
 <script>
     function setCookie(event) {

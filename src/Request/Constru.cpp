@@ -101,8 +101,8 @@ void Request::fillBoundary(std::string text){
 		_boundary = "";
 		return;
 	}
-	// while (text[pos] == '-')
-	// 	++pos;
+	while (text[pos] == '-')
+			++pos;
 	_boundary = text.substr(pos, endPos - pos);
 }
 
@@ -116,9 +116,7 @@ Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false), _erro
 Request::~Request() {}
 
 void Request::constructRequest(){
-	Logger::log("Constructor request call", INFO);
-
-	Logger::log("RAW: \n" + _request_text, LogLevel::DEBUG);
+	Logger::log("Request is being parsed...", INFO);
 	if (_request_text.empty())
 		throw (HTTPError(BAD_REQUEST));
 	//Logger::log(_request_text, ERROR);
@@ -128,26 +126,23 @@ void Request::constructRequest(){
 	checkErrors();
 }
 
-// std::string	Request::getBody()
-// {
-// 	// Find the start of the body
-// 	size_t bodyStart = _request_text.find("\r\n\r\n", _request_text.find("\r\n\r\n") + 4);
-// 	if (bodyStart == std::string::npos) {
-// 		std::cerr << "Body start not found in the request." << std::endl;
-// 		return "";
-// 	}
-// 	bodyStart += 4; // Move past the "\r\n\r\n" to the start of the body
+std::string	Request::getRawBody()
+{
+ 	std::istringstream	stream(_request_text);
+	std::string			line;
+    std::string			body;
+    bool				bodyStarted = false;
 
-// 	// Extract the body from the request
-// 	std::string body = _request_text.substr(bodyStart);
-
-// 	// Remove the trailing boundary markers
-// 	size_t endBoundaryPos = body.find(_boundary, body.find(_boundary));
-// 	if (endBoundaryPos != std::string::npos) {
-// 		body = body.substr(0, endBoundaryPos);
-// 	} else {
-// 		std::cerr << "End boundary not found in the request body." << std::endl;
-// 	}
-
-// 	return body;
-// }
+	while (std::getline(stream, line))
+	{
+		if (!line.empty() && line.back() == '\r') // Remove the newline character from the end of the line
+			line.pop_back();
+		if (bodyStarted)
+		{
+			body += line + "\n";
+		}
+		else if (line.empty()) // An empty line indicates the end of headers and start of the body
+			bodyStarted = true;
+	}
+	return body;
+}

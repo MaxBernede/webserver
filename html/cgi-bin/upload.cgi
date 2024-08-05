@@ -1,51 +1,58 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
-import cgi
-import os
+import cgi, os, sys
 from os import environ
 import cgitb; cgitb.enable()
-import sys
 
-def parse_body():
-	# Read all input from stdin
-	body = sys.stdin.read()
-	return (body)
+message = ""
 
+def handle_post():
+	form = cgi.FieldStorage()
+	if 'file' in form:
+		file_item = form['file']
+		if file_item.filename:
+			file_name = os.path.basename(file_item.filename) #get the filename
+			upload_dir = os.path.join(os.getcwd(), 'html/upload')
+			file_path = os.path.join(upload_dir, file_name)
+			# Check if the upload directory exists
+			if os.path.exists(file_path):
+				message = "Upload failed: a file with the same name already exists on the server."
+				status_code = "409 Conflict"
+			else:
+				if not os.path.exists(upload_dir): #if the uploaddir doesnt exist creat it
+					os.makedirs(upload_dir)
+				# Write the file to the specified directory
+				with open(file_path, 'wb') as fd:
+					fd.write(file_item.file.read())
+				message = f"Uploaded '{file_name}'"
+				status_code = "201 Created"
+		else:
+			message = "No file was specified in the request"
+			status_code = " 400 Bad Request"
+	else:
+		message = "No file was specified in the request"
+		status_code = "400 Bad Request"
 
-def generate_html_body():
-	# Get the body content from stdin
-	body_content = parse_body()
-
-	# Create the HTML body string
-	html_body = f"{body_content}"
-	return html_body
-
-# find username from cookies
-username = ""
-if 'HTTP_COOKIE' in environ and environ['HTTP_COOKIE']:
-	# Split the cookies string by ';' to get individual cookies
-	cookies = environ['HTTP_COOKIE'].split(';')
-	for cookie in cookies:
-		key, value = map(str.strip, cookie.split('=', 1))  # Limit split to 1 to handle values with '='
-		if key == "username":
-			username = value
-
-# prepare the html content
-html_content_start = (
-	"<!DOCTYPE html>\n"
-	"<html>\n"
-	"<body>\n"
-	f"<h1>Hello {username}</h1>\n"
-	"<h2>This is the text you posted...</h2>\n"
+	html_content = (
+		"<!DOCTYPE html>\n"
+		"<html>\n"
+		"<body>\n"
+		f"<h3>{message}</h3>\n"
+		"<p><a href='../index.html'>Go to Homepage</a></p>\n"
+		"</body>\n"
+		"</html>\n"
 	)
+	html_headers = (
+		"HTTP/1.1 " + status_code + "\r\n"
+		"Content-Type: text/html\r\n"
+		"Connection: close\r\n"
+		f"Content-Length: {len(html_content)}\r\n\r"
+	)
+	print(html_headers)
+	print(html_content)
 
+def main():
+	handle_post()
 
-
-html_content_end = (
-	"</body>\n"
-	"</html>\n"
-)
-
-print(html_content_start)
-print(generate_html_body())
-print(html_content_end)
+if __name__ == "__main__":
+	main()

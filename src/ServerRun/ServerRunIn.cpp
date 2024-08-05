@@ -88,7 +88,7 @@ void ServerRun::handleRequest(int clientFd)
 {
 	if (_httpObjects.find(clientFd) == _httpObjects.end())
 	{
-		Logger::log("Creating HTTP Obj", LogLevel::INFO);
+		Logger::log("Creating a new HTTPObject", LogLevel::INFO);
 		HTTPObject *newObj = new HTTPObject(clientFd);
 		_httpObjects[clientFd] = newObj;
 	}
@@ -98,7 +98,7 @@ void ServerRun::handleRequest(int clientFd)
 	}
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
-		//_httpObjects[clientFd]->_request->printAllData();
+		_httpObjects[clientFd]->_request->printAllData();
 		_httpObjects[clientFd]->_request->startConstruRequest();
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = findConfig(Domain);
@@ -120,7 +120,7 @@ void ServerRun::executeRequest(int clientFd){
 		}
 		handleCgiRequest(clientFd);
 	}
-	else if (_httpObjects[clientFd]->_request->isEmptyResponse()) { 	// POST or DEL or HEAD
+	else if (_httpObjects[clientFd]->_request->isEmptyResponse()) { // POST or DEL or HEAD
 		
 		_pollData[clientFd]._pollState = EMPTY_RESPONSE;
 		_httpObjects[clientFd]->_request->execAction();

@@ -9,9 +9,9 @@
 
 class Location;
 
-//main confic block, the program will loop through these to search for the right config
+// main confic block, the program will loop through these to search for the right config
 // based on the recieved request
-class Server : public Config{
+class Server : public Config {
 
 	private:
 		// what host::port this config should be listening to
@@ -68,5 +68,5 @@ class Server : public Config{
 std::ostream & operator<< (std::ostream &out, const Server& src);
 
 Server	pushBlock(std::list<std::string> block);
-bool servBlockStart(std::string buf);
+bool	servBlockStart(std::string buf);
 std::list<Server>	init_serv(std::ifstream &conf);

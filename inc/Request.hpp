@@ -78,7 +78,7 @@ class Request
 		std::string	getRequestStr();
 		std::string	getMethod(size_t index);
 		std::vector<std::pair<std::string, std::string>>	getContent();
-		std::string getFileNameProtected( void );
+		std::string	getFileNameProtected( void );
 		Server		getConfig();
 		std::string	getDeleteFilename(const std::string& httpRequest);
 		ErrorCode	getErrorCode();
@@ -88,7 +88,7 @@ class Request
 		bool		isEmptyResponse();
 		void		execAction();
 		std::string	getBoundary();
-		std::string	getBody();
+		std::string	getRawBody(); // for CGI Pipe
 
 		// SET
 		void		setFileName(std::string newName);
@@ -130,7 +130,7 @@ class Request
 		void		startConstruRequest();
 
 	private:
-		std::vector<std::string> _method;
+		std::vector<std::string>	_method;
 		std::vector<std::pair<std::string, std::string>>	_request;
 		std::string	_request_str; // parsed request string
 		std::string	_boundary;
