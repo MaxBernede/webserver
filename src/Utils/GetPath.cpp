@@ -9,7 +9,7 @@ std::string getPath() {
     if (len != -1) {
         buffer[len] = '\0';
         std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-        return std::string(buffer).substr(0, pos);
+        return std::string(buffer).substr(0, pos) + '/';
     }
     return "";
 }
@@ -21,7 +21,7 @@ std::string getPath() {
     uint32_t size = sizeof(buffer);
     if (_NSGetExecutablePath(buffer, &size) == 0) {
         std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-        return std::string(buffer).substr(0, pos);
+        return std::string(buffer).substr(0, pos) + '/';
     }
     return "";
 }

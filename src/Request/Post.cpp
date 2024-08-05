@@ -62,7 +62,7 @@ void Request::createFile(std::string const &content, std::string path, std::stri
     try {
         writeBinaryDataToFile(path, fileContent);
         std::cout << "File written successfully." << std::endl;
-		throw HTTPError(OK);
+		throw HTTPError(NO_CONTENT);
     } catch (const std::ios_base::failure& e) {
         std::cerr << "Error writing file: " << e.what() << std::endl;
 		throw HTTPError(INTERNAL_SRV_ERR);

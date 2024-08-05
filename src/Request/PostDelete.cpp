@@ -73,8 +73,14 @@ void Request::execAction(){
 	if (checkInsecure(fileName) || checkInsecure(path))
 		throw HTTPError(BAD_REQUEST); //Dangerous request
 
-	if (method == "POST" && exists(path + fileName))
-		throw HTTPError(CONFLICT);
+	if (method == "POST" && exists(path + fileName)){
+		size_t i = 0;
+		std::string temp = fileName;
+		while (exists(path + fileName) == true){
+			fileName = temp + '(' + std::to_string(i) + ')';
+			i++;
+		}
+	}
 
 	createDirIfNoExist(path);
 
