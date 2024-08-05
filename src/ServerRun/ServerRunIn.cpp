@@ -105,18 +105,18 @@ void ServerRun::handleRequest(int clientFd)
 		_httpObjects[clientFd]->setConfig(config);
 		_httpObjects[clientFd]->_request->checkRequest();
 		_pollData[clientFd]._pollState = CLIENT_CONNECTION_WAIT;
-		executeRequest(clientFd, config);
+		executeRequest(clientFd);
 	}
 }
 
-void ServerRun::executeRequest(int clientFd, Server config){
+void ServerRun::executeRequest(int clientFd){
 	if (_httpObjects[clientFd]->isCgi()) // GET and POST for CGI
 	{
 		std::cout << "It is a CGI request...\n";
-		if (!config.getCGI())
+		if (!_httpObjects[clientFd]->_config.getCGI())
 		{
 			Logger::log("CGI is not permitted for this server", LogLevel::ERROR);
-			throw (HTTPError(ErrorCode::FORBIDDEN)); // What do we do when CGI is not allowed?
+			throw (HTTPError(ErrorCode::FORBIDDEN));
 		}
 		handleCgiRequest(clientFd);
 	}

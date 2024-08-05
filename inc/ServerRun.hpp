@@ -65,7 +65,7 @@ class ServerRun
 	
 	void	acceptNewConnection(int listenerFd);
 	void	handleRequest(int clientFd);
-	void	executeRequest(int clientFd, Server config);
+	void	executeRequest(int clientFd);
 	void	removeConnection(int fd);
 
 	void dataIn(s_poll_data pollData, struct pollfd pollFd); // read from client
