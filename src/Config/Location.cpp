@@ -21,6 +21,7 @@ Location &Location::operator=(const Location &obj){
 	this->_index = obj.getIndex();
 	this->_cgi = obj.getCGI();
 	this->_path = obj.getPath();
+	this->_basePath = obj.getBasePath();
 	return *this;
 }
 

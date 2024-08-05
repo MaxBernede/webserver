@@ -1,27 +1,33 @@
 #include "Request.hpp"
 
 std::string Request::getEndPath(){
-	std::string path = getPath();
-	try {
-		Location loc = _config.getLocationByName("upload/");
-		path += "/" + loc.getRoot();
-	}
-	catch (const std::runtime_error& e) {
-		std::cerr << e.what() << std::endl;
-		path += "/" + _config.getRoot();
-	}
-	//Logger::log("Total path is : " + path);
+	std::string path = getPath() + _config.getPath();
+	// try {
+	// 	Location loc = _config.getLocationByName("upload/");
+	// 	std::cout << "path:\t" << path << std::endl;
+	// 	std::cout << _config.getBasePath() << std::endl;
+	// 	std::cout << _config.getRoot() << std::endl;
+	// 	std::cout << _config.getPath() << std::endl;
+	// 	path += "/" + loc.getRoot();
+	// 	path += "/" + _config.getPath();
+	// 	std::cout << "path:\t" << path << std::endl;
+	// }
+	// catch (const std::runtime_error& e) {
+	// 	std::cerr << e.what() << std::endl;
+	// 	path += "/" + _config.getRoot();
+	// }
+	// Logger::log("Total path is : " + path);
 	return path;
 }
 
 //check if location, then return true or false
 bool Request::methodAccepted(std::string method){
 	try {
-		Location loc = _config.getLocationByName("upload/");
+		// Location loc = _config.getLocationByName("upload/");
 		if (method == "DELETE")
-			return loc.getMethod(DELETE);
+			return _config.getMethod(DELETE);
 		if (method == "POST")
-			return loc.getMethod(POST);
+			return _config.getMethod(POST);
 	}
 	catch (const std::runtime_error& e) {
 		if (method == "DELETE")

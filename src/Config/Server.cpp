@@ -192,6 +192,7 @@ Server &Server::operator=(const Server &obj) {
 	this->_redirect = obj.getRedirect();
 	this->_location = obj.getLocation();
 	this->_path = obj.getPath();
+	this->_basePath = obj.getBasePath();
 	return *this;
 }
 
