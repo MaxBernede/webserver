@@ -143,10 +143,12 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd){
 
 
 //return server or throw Exception
+// TODO function needs editing!
 Server ServerRun::findConfig(s_domain port){
 	for (Server server : _servers){
 		std::string name = server.getName();
 		for (s_domain p : server.getPorts()){
+			std::cout << "Port: 1. " << p.host << "2. " << port.host << std::endl;
 			if (p.port == port.port && (p.host == port.host || name == port.host)){
 				return (server);
 			}

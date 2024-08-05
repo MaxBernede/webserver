@@ -9,7 +9,7 @@ Response::Response(int clientFd) : _clientFd(clientFd), _ready(false)
 Response::~Response() {}
 
 //! check the fck is going on with the 204 No response 2 headers?
-std::string Response::makeStrResponse(Request *request)
+void Response::addHeaders(Request *request)
 {
 	std::ostringstream oss;
 	std::string http= request->getMethod(2);
@@ -20,12 +20,13 @@ std::string Response::makeStrResponse(Request *request)
 	oss << "\r\n\r\n";
 	oss << _response_text;
 
-	return oss.str();
+	_response_text = oss.str();
 }
 
 void Response::errorResponseHTML(ErrorCode error) {
 	std::string text = httpStatus[int(error)];
 	_response_text = START_HTML + std::to_string(error) + ", " + text + END_HTML;
+	// std::cout << "Resonponse text:" << _response_text << std::endl;
 }
 
 //Read from the FD and fill the buffer with a max of 1024, then get the html out of it
@@ -35,28 +36,18 @@ void Response::addToBuffer(std::string buffer)
 	_response_text += buffer;
 }
 
-void Response::rSend( Request *request )
+void Response::rSend()
 {
 	Logger::log("Sending Response to client");
-	std::string response = _response_text;
-	response = makeStrResponse(request);
-	// std::cout << "_______________________________________________\n";
-	// std::cout << "Message to send =>\n" << response << std::endl;
-	// std::cout << "_______________________________________________\n";
-	if (send(_clientFd, response.c_str(), response.length(), 0) == -1)
-	{
-		std::cout << "ERROR with SEND " << _clientFd << std::endl;
-		std::cerr << std::strerror(errno) << std::endl;
-		// throw(Exception("Error sending response", errno));
-	}
+	if (send(_clientFd, _response_text.c_str(), _response_text.length(), 0) == -1)
+		Logger::log("Error with sending response", LogLevel::ERROR);
 }
 
-void Response::sendRedir()
-{
-	if (send(_clientFd, _response_text.c_str(), _response_text.length(), 0) == -1)
-		Logger::log("Error with send!", LogLevel::ERROR);
-	Logger::log("Redirection sent successfully", LogLevel::INFO);
-}
+// void Response::sendRedir()
+// {
+// 	if (send(_clientFd, _response_text.c_str(), _response_text.length(), 0) == -1)
+// 		Logger::log("Error with send!", LogLevel::ERROR);
+// }
 
 void Response::setReady( void )
 {

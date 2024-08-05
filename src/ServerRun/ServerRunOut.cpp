@@ -1,19 +1,30 @@
 #include "ServerRun.hpp"
 
-void ServerRun::sendResponse(int fd) // Using readFd
+void ServerRun::sendResponse(int readFd) // Using readFd
 {
-		Logger::log("Sending response to fd: " + std::to_string(fd), WARNING);
-		HTTPObject *obj = findHTTPObject(fd);
-		obj->sendResponse();
-		removeConnection(fd);
+		Logger::log("Sending response", INFO);
+		HTTPObject *obj = findHTTPObject(readFd);
+		obj->sendResponseWithHeaders();
+		removeConnection(readFd);
+		int clientFd = obj->getClientFd();
+		cleanUp(clientFd);
+}
+
+// Cgi response does not add header as this is done in the CGI script
+void ServerRun::sendCgiResponse(int pipeFd) // Using pipeFd read side
+{
+		Logger::log("Sending response from CGI", INFO);
+		HTTPObject *obj = findHTTPObject(pipeFd);
+		obj->_response->rSend();
+		removeConnection(pipeFd);
 		int clientFd = obj->getClientFd();
 		cleanUp(clientFd);
 }
 
 void ServerRun::sendError(int clientFd)
 {
-	Logger::log("Sending Error page doe msg", INFO);
-	_httpObjects[clientFd]->sendResponse();
+	Logger::log("Sending error page", INFO);
+	_httpObjects[clientFd]->sendResponseWithHeaders();
 	cleanUp(clientFd);
 }
 
@@ -21,47 +32,45 @@ void ServerRun::uploadToCgi(int writePipe)
 {
 	HTTPObject *obj = findHTTPObject(writePipe);
 	obj->writeToCgiPipe();
-	// close(writePipe); // close write side of the pipe
 	obj->_cgi->closeUploadPipe();
-	std::cout << "Closed upload pipe" << std::endl;
 	removeConnection(writePipe);
+}
+
+void ServerRun::sendRedirect(int clientFd) // this is a clientFd
+{
+	Logger::log("Sending redirection page", INFO);
+	_httpObjects[clientFd]->_response->rSend();
+	cleanUp(clientFd);
 }
 
 // Sending data from the server to the client
 void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 {
-	// std::cout << "PollState: " << pollData._pollState << std::endl;
-	// exit(1);
 	switch (pollData._pollState)
 	{
 		case CGI_READ_DONE:
-			sendResponse(pollFd.fd);
+			sendCgiResponse(pollFd.fd);
 			break ;
 		case FILE_READ_DONE:
-			sendResponse(pollFd.fd); // combine cgi_read_done & file_read_done
+			sendResponse(pollFd.fd);
 			break ;
 		case EMPTY_RESPONSE:
 			sendError(pollFd.fd);
 			break;
 		case HTTP_ERROR:
 			sendError(pollFd.fd);
-			break ;
+			break;
 		case HTTP_REDIRECT:
 			sendRedirect(pollFd.fd);
 			break ;
 		case CGI_WRITE_TO_PIPE:
-			uploadToCgi(pollFd.fd);
+			uploadToCgi(pollFd.fd); // write to cgi pipe
 			break ;
 		default:
 			break ;
 	}
 }
 
-void ServerRun::sendRedirect(int clientFd) // this is a clientFd!
-{
-	_httpObjects[clientFd]->sendRedirection();
-	cleanUp(clientFd);
-}
 
 void ServerRun::cleanUp(int clientFd)
 {

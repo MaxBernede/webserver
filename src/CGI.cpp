@@ -44,12 +44,7 @@ void CGI::run()
 bool 	CGI::waitCgiChild()
 {
 	int exitCode;
-	// if (isTimeOut())
-	// {
-	// 	killChild();
-	// }
 	int status = waitpid(_pid, &exitCode, WNOHANG);
-	std::cout << "status: " << status << std::endl;
 	if (status == -1)
 	{
 		 std::cerr << "waitpid failed: " << std::strerror(errno) << "_pid: " << _pid << std::endl;
@@ -69,12 +64,9 @@ bool 	CGI::waitCgiChild()
 
 void CGI::makeEnvArr()
 {
-	std::string	boundary = _request->getBoundary();
-	std::string	contentLen = _request->getValues("Content-Length");
-	std::cerr << "Content len: " << contentLen << std::endl;
 	std::vector<std::string> envArr {
-		"CONTENT_LENGTH=" + contentLen,
-		"CONTENT_TYPE=multipart/form-data; boundary=",
+		"CONTENT_LENGTH=" + _request->getValues("Content-Length"),
+		"CONTENT_TYPE=" +  _request->getValues("Content-Type"),
 		"GATEWAY_INTERFACE=CGI/1.1", // fixed
 		"PATH_INFO=",
 		"PATH_TRANSLATED=",
@@ -110,9 +102,8 @@ void	CGI::killChild()
 {
 	if (_pid > 0)
 	{
-		// Logger::log("Killing child", DEBUG);
 		if (kill(_pid, SIGKILL) < 0)
-			// Logger::log("failed to kill", ERROR);
+			Logger::log("failed to kill child", ERROR);
 		waitpid(_pid, nullptr, 0); // Wait for the child process to terminate
 	}
 }

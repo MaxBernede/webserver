@@ -9,9 +9,9 @@
 
 class Location;
 
-//main confic block, the program will loop through these to search for the right config
+// main confic block, the program will loop through these to search for the right config
 // based on the recieved request
-class Server : public Config{
+class Server : public Config {
 
 	private:
 		// what host::port this config should be listening to
@@ -34,11 +34,11 @@ class Server : public Config{
 		Server &operator=(const Server &obj);
 
 		std::list<s_domain>		getPorts()	const;
+		std::list<s_ePage>		getErrorPages()	const;
+		std::list<Location>		getLocation() const;
 		std::string				getName()	const;
 		std::string				getRoot()	const;
 		uint64_t				getMaxBody()	const;
-		std::list<s_ePage>		getErrorPages()	const;
-		std::list<Location>		getLocation() const;
 
 		void	setPort(s_domain port);
 		void	setName(std::string name);
@@ -67,5 +67,5 @@ class Server : public Config{
 std::ostream & operator<< (std::ostream &out, const Server& src);
 
 Server	pushBlock(std::list<std::string> block);
-bool servBlockStart(std::string buf);
+bool	servBlockStart(std::string buf);
 std::list<Server>	init_serv(std::ifstream &conf);

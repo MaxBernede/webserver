@@ -8,18 +8,9 @@
 
 #define ENV_SIZE 18
 
+typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
+
 class Request;
-/*
-I need the following from the client request parser:
-- file name
-- file path
-- request header data
-- method type
-- script name (aka same as file path for example, var/www/python.cgi )
-- port (if possible)
-- server name (if possible)
-- remove address / host (?) not sure what these are
-*/
 
 class CGI {
 	private:
@@ -30,7 +21,7 @@ class CGI {
 		int							_clientFd;
 		std::vector<std::string>	_cgiEnvArr;
 		char* const					*_cgiEnvCStr;
-		std::chrono::time_point<std::chrono::high_resolution_clock> _forkTime;
+		TimePoint					_forkTime;
 
 	public:
 		CGI(Request *request, int clientFd);
