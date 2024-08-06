@@ -118,6 +118,10 @@ void ServerRun::serverRunLoop(void)
 					dataOut(_pollData[fd], _pollFds[i]);					// Write to client
 				}
 			}
+			catch(const Exception& e)
+			{
+				Logger::log(e.what(), LogLevel::ERROR);
+			}
 			catch(const HTTPError& e)
 			{ 
 				ErrorCode err = e.getErrorCode();
@@ -160,7 +164,6 @@ Server ServerRun::findConfig(s_domain port)
 	for (Server server : _servers){
 		std::string name = server.getName();
 		for (s_domain p : server.getPorts()){
-			std::cout << "Port: 1. " << p.host << "2. " << port.host << std::endl;
 			if (p.port == port.port && (p.host == port.host || name == port.host)){
 				return (server);
 			}

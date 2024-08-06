@@ -9,7 +9,7 @@ std::vector<std::pair<std::string, std::string>> Request::getContent(){
 }
 
 std::string Request::getRequestStr(){
-	return (_request_text);
+	return (_requestText);
 }
 
 std::string Request::getFile(){

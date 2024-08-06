@@ -3,7 +3,7 @@
 
 Response::Response(int clientFd) : _clientFd(clientFd), _ready(false)
 {
-	_response_text = "";
+	_responseText = "";
 }
 
 Response::~Response() {}
@@ -18,34 +18,34 @@ void Response::addHeaders(Request *request)
 	oss << http << " " << code << " " << message ;
 	oss << "\nConnection: close";
 	oss << "\r\n\r\n";
-	oss << _response_text;
+	oss << _responseText;
 
-	_response_text = oss.str();
+	_responseText = oss.str();
 }
 
 void Response::errorResponseHTML(ErrorCode error) {
 	std::string text = httpStatus[int(error)];
-	_response_text = START_HTML + std::to_string(error) + ", " + text + END_HTML;
+	_responseText = START_HTML + std::to_string(error) + ", " + text + END_HTML;
 }
 
 //Read from the FD and fill the buffer with a max of 1024, then get the html out of it
 //read the HTML and return it as a string
 void Response::addToBuffer(std::string buffer)
 {
-	_response_text += buffer;
+	_responseText += buffer;
 }
 
 void Response::rSend()
 {
 	Logger::log("Sending Response to client...");
-	Logger::log("TEXT:\n" + _response_text, LogLevel::DEBUG);
-	if (send(_clientFd, _response_text.c_str(), _response_text.length(), 0) == -1)
+	Logger::log("TEXT:\n" + _responseText, LogLevel::DEBUG);
+	if (send(_clientFd, _responseText.c_str(), _responseText.length(), 0) == -1)
 		Logger::log("Error with sending response", LogLevel::ERROR);
 }
 
 void Response::sendRedir()
 {
-	if (send(_clientFd, _response_text.c_str(), _response_text.length(), 0) == -1)
+	if (send(_clientFd, _responseText.c_str(), _responseText.length(), 0) == -1)
 		Logger::log("Error with send!", LogLevel::ERROR);
 }
 
@@ -56,7 +56,7 @@ void Response::setReady( void )
 
 void Response::setResponseString(std::string response)
 {
-	_response_text = response;
+	_responseText = response;
 }
 
 int Response::setRedirectStr(int status, std::string from, std::list<s_redirect> redirs)
@@ -84,7 +84,7 @@ int Response::setRedirectStr(int status, std::string from, std::list<s_redirect>
 	oss << to << "\r\n\r\n";
 	oss << REDIR_START << "<a href=\"" << to << "\">" << to << "</a>" << REDIR_END;
 	std::cout << oss.str() << std::endl;
-	_response_text = oss.str();
+	_responseText = oss.str();
 	return (status);
 }
 
@@ -96,7 +96,7 @@ void Response::setDirectoryListing(Request *request)
 	std::vector<std::string>	v = getDirectoryContent(name.c_str());
 	std::ostringstream oss;
 	 addHeaders(request);
-	oss << _response_text;
+	oss << _responseText;
 	oss << DIR_LIST_START;
 	oss << name;
 	oss << DIR_LIST_MID;
@@ -110,5 +110,5 @@ void Response::setDirectoryListing(Request *request)
 		oss << s << "</a></li>";
 	}
 	oss << DIR_LIST_END;
-	_response_text = oss.str();
+	_responseText = oss.str();
 }

@@ -35,6 +35,6 @@ class Response {
 	private:
 		int			_clientFd;
 		std::string _file;
-		std::string _response_text;
+		std::string _responseText;
 		bool		_ready;
 };

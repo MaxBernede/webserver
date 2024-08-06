@@ -2,7 +2,7 @@
 
 // Throw HTTPError if the request at this moment is bigger than MAX BODY SIZE
 void Request::requestReadTooLong(){
-	if (_request_text.length() > MAX_BODY_SIZE)
+	if (_requestText.length() > MAX_BODY_SIZE)
 	{
 		_doneReading = true;
 		throw HTTPError(PAYLOAD_TOO_LARGE);
@@ -21,13 +21,12 @@ void Request::readRequest()
 
 	if (rb < 0){
 		_doneReading = true;
-		std::cerr << "Error reading request fd: " << _clientFd << " : " << std::strerror(errno) << std::endl;
-
+		Logger::log("Error reading request", LogLevel::ERROR);
 		throw (HTTPError(ErrorCode::BAD_REQUEST));
 	}
 	buffer[rb] = '\0';
-	_recv_bytes += rb;
-	_request_text += std::string(buffer, rb);
+	_recvBytes += rb;
+	_requestText += std::string(buffer, rb);
 	
 	requestReadTooLong();
 	
@@ -123,9 +122,12 @@ void Request::searchErrorPage()
 // Void or throw HTTPError 404
 void Request::redirRequest404()
 {
+	if (getMethod(0) == "DELETE")
+		return ;
 	if (_file == "")
 		_file = _config.getIndex();
 	_filePath = _config.getRoot() + _file;
+	Logger::log("file: " + _filePath, LogLevel::INFO);
 	bool dirListing = _config.getAutoIndex();
 	if (access(_filePath.c_str(), F_OK) == -1 && dirListing == false)
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
@@ -146,7 +148,7 @@ void	Request::handleDirListing()
 void Request::checkRequest()
 {
 	Logger::log("Checking file...", LogLevel::INFO);
-	if (_request_text.size() >= _config.getMaxBody())
+	if (_requestText.size() >= _config.getMaxBody())
 		throw (HTTPError(PAYLOAD_TOO_LARGE));
 	redirRequest405(); // ---> throw something case error
 	redirRequest501();

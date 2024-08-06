@@ -47,15 +47,14 @@ bool 	CGI::waitCgiChild()
 	int status = waitpid(_pid, &exitCode, WNOHANG);
 	if (status == -1)
 	{
-		 std::cerr << "waitpid failed: " << std::strerror(errno) << "_pid: " << _pid << std::endl;
 		throw(Exception("Error while waiting for cgi with pid " + std::to_string(_pid) , 1));
 	}
 	else if (status == 0) // cgi not done
 		return (false);
 	else
 	{
-		// if (exitCode != 0)
-		// 	throw(Exception("Error while running cgi with pid " + std::to_string(_pid), 1));
+		if (exitCode != 0)
+	 		throw(Exception("Error while running cgi with pid " + std::to_string(_pid), 1));
 		Logger::log("Cgi child process finished", LogLevel::INFO);
 		return (true);
 	}

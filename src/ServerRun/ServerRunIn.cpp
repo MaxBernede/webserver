@@ -8,7 +8,7 @@ void ServerRun::acceptNewConnection(int listenerFd)
 
 	connFd = accept(listenerFd, (struct sockaddr *)cli_addr, &len);
 	if (connFd == -1)
-		throw (Exception("Error: accept() failed and returned -1", errno));
+		throw (Exception("Error: accept() failed and returned -1", 1));
 	Logger::log("New client connection accepted at fd: " + std::to_string(connFd), LogLevel::DEBUG);
 	addQueue(CLIENT_CONNECTION_READY, CLIENTFD, connFd);
 }
@@ -29,14 +29,14 @@ void ServerRun::handleCgiRequest(int clientFd)
 void ServerRun::handleStaticFileRequest(int clientFd)
 {
 	std::string filePath = _httpObjects[clientFd]->_request->getFilePath();
-	std::cout << "Opening static file: " << filePath << std::endl;
+	Logger::log("Opening static file: " + filePath, LogLevel::INFO);
 	int fileFd = open(filePath.c_str(), O_RDONLY);
 	if (fileFd < 0)
 	{
-		std::cout << "Failed opening file: " << filePath << std::endl;
+		Logger::log("Failed opening file: " + filePath, LogLevel::ERROR);
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 	}
-	Logger::log("File correctly opened", INFO);
+	Logger::log("File successfully opened", INFO);
 	_httpObjects[clientFd]->setReadFd(fileFd);
 	addQueue(FILE_READ_READING, READFD, fileFd);
 }
@@ -59,7 +59,6 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int Fd)
 		obj = findHTTPObject(Fd);
 	obj->_request->searchErrorPage();
 	int c = obj->_request->getErrorCode();
-	std::cout << "errorcode:\t" << c << std::endl;
 	if (ErrCode == HTTP_NOT_SUPPORT){
 		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
 	}
@@ -112,7 +111,7 @@ void ServerRun::handleRequest(int clientFd)
 void ServerRun::executeRequest(int clientFd){
 	if (_httpObjects[clientFd]->isCgi()) // GET and POST for CGI
 	{
-		std::cout << "It is a CGI request...\n";
+		Logger::log("CGI Request received...", LogLevel::INFO);
 		if (!_httpObjects[clientFd]->_config.getCGI())
 		{
 			Logger::log("CGI is not permitted for this server", LogLevel::ERROR);
@@ -139,7 +138,7 @@ void ServerRun::readFile(int fd) // Static file fd
 	HTTPObject *obj = findHTTPObject(fd);
 	int readChars = read(fd, buffer, BUFFER_SIZE - 1);
 	if (readChars < 0)
-		throw(Exception("Read file failed", errno));
+		throw(Exception("Read file failed", 1));
 	if (readChars > 0)
 	{
 		obj->_response->addToBuffer(std::string(buffer, readChars));
@@ -164,7 +163,7 @@ void ServerRun::readPipe(int fd) // Pipe read-end fd
 		Logger::log("Reading the pipe read end...", LogLevel::DEBUG);
 		int readChars = read(fd, buffer, BUFFER_SIZE - 1);
 		if (readChars < 0)
-			throw(Exception("Read pipe failed!", errno));
+			throw(Exception("Read pipe failed!", 1));
 		if (readChars > 0)
 		{
 			obj->_response->addToBuffer(std::string(buffer, readChars));

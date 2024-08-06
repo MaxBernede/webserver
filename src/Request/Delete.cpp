@@ -66,6 +66,7 @@ void Request::handleDelete(std::string path, std::string file){
 		throw (HTTPError(OK));
 
 	std::string fullPath = path + file;
+	std::cout << "Handilng delete: ... " << fullPath << std::endl;
 
 	if (!exists(fullPath))
 		throw (HTTPError(PAGE_NOT_FOUND));

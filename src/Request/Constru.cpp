@@ -117,18 +117,18 @@ Request::~Request() {}
 
 void Request::constructRequest(){
 	Logger::log("Request is being parsed...", INFO);
-	if (_request_text.empty())
+	if (_requestText.empty())
 		throw (HTTPError(BAD_REQUEST));
-	//Logger::log(_request_text, ERROR);
-	fillBoundary(_request_text);
-	parseRequest(_request_text);
+	//Logger::log(_requestText, ERROR);
+	fillBoundary(_requestText);
+	parseRequest(_requestText);
 	setFile();
 	checkErrors();
 }
 
 std::string	Request::getRawBody()
 {
- 	std::istringstream	stream(_request_text);
+ 	std::istringstream	stream(_requestText);
 	std::string			line;
     std::string			body;
     bool				bodyStarted = false;
