@@ -90,16 +90,14 @@ ErrorCode Request::getErrorCode(){
 
 std::string Request::getErrorString(){
 	auto it = httpStatus.find(_errorCode);
-	if (it != httpStatus.end()) {
+	if (it != httpStatus.end())
 		return it->second;
-	}
 	return "Unknown Error";
 }
 
 s_domain Request::getRequestDomain(){
 	s_domain Domain;
 	std::string host = this->getValues("Host");
-	//std::cout << "HOST: " << host << std::endl;
 	size_t colonIndex = host.find_last_of(":");
 	if (colonIndex != std::string::npos)
 	{
@@ -109,7 +107,6 @@ s_domain Request::getRequestDomain(){
 		Domain.port = std::stoi(port);
 		std::string ip = host.substr(0, colonIndex);
 		std::cout << "ip: " << ip << std::endl;
-		// std::cout << "HOST\t"  << ip << "\tPORT\t" << port << std::endl;
 		if (ip == "localhost")
 			ip = "127.0.0.1";
 		Domain.host = ip;
@@ -136,7 +133,6 @@ std::string	Request::getServerName()
 //True or False, HEAD included so no read after from serverRun
 bool Request::isEmptyResponse(){
 	std::string m = getMethod(0);
-
 	return (m == "DELETE" || m == "POST" || m == "HEAD");
 }
 

@@ -15,6 +15,7 @@ class Socket
 		int _fd;
 
 	public:
+		Socket(std::string name);
 		Socket(s_domain domain);
 		~Socket(void);
 

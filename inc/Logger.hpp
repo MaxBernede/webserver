@@ -12,26 +12,26 @@
 
 
 enum LogLevel {
-    INFO,			//Blue
-    WARNING,		//Yellow
-    ERROR,			//Red
-    DEBUG			//White
+	INFO,			//Blue
+	WARNING,		//Yellow
+	ERROR,			//Red
+	DEBUG			//White
 };
 
 class Logger {
 public:
-    static void log(const std::string& message, LogLevel level = INFO);
+	static void log(const std::string& message, LogLevel level = INFO);
 
-    static void setLogFile(const std::string& filename);
-    static void setLogLevel(LogLevel level);
+	static void setLogFile(const std::string& filename);
+	static void setLogLevel(LogLevel level);
 
 private:
-    Logger() = default;
+	Logger() = default;
 
-    static std::string getTimestamp();
-    static std::string levelToString(LogLevel level);
+	static std::string getTimestamp();
+	static std::string levelToString(LogLevel level);
 
-    static std::ofstream logFile;
-    static LogLevel logLevel;
-    static std::mutex mtx;
+	static std::ofstream logFile;
+	static LogLevel logLevel;
+	static std::mutex mtx;
 };

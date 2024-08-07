@@ -2,23 +2,23 @@
 
 void ServerRun::sendResponse(int readFd) // Using readFd
 {
-		Logger::log("Sending response", INFO);
-		HTTPObject *obj = findHTTPObject(readFd);
-		obj->sendResponseWithHeaders();
-		removeConnection(readFd);
-		int clientFd = obj->getClientFd();
-		cleanUp(clientFd);
+	Logger::log("Sending response", INFO);
+	HTTPObject *obj = findHTTPObject(readFd);
+	obj->sendResponseWithHeaders();
+	removeConnection(readFd);
+	int clientFd = obj->getClientFd();
+	cleanUp(clientFd);
 }
 
 // Cgi response does not add header as this is done in the CGI script
 void ServerRun::sendCgiResponse(int pipeFd) // Using pipeFd read side
 {
-		Logger::log("Sending response from CGI", INFO);
-		HTTPObject *obj = findHTTPObject(pipeFd);
-		obj->_response->rSend();
-		removeConnection(pipeFd);
-		int clientFd = obj->getClientFd();
-		cleanUp(clientFd);
+	Logger::log("Sending response from CGI", INFO);
+	HTTPObject *obj = findHTTPObject(pipeFd);
+	obj->_response->rSend();
+	removeConnection(pipeFd);
+	int clientFd = obj->getClientFd();
+	cleanUp(clientFd);
 }
 
 void ServerRun::sendError(int clientFd)

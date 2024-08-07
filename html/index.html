@@ -1,44 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="style.css">
-    <title>flash</title>
+	<title>flash</title>
 </head>
 <body>
-    <h1>Welcome to our webserver</h1>
-    <h2>Try the following:</h2>
-    <ul>
-        <li>What shall we call you?</li>
-        <form id="cookieForm" onsubmit="setCookie(event)">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <button type="submit">Set Nickname</button>
-        </form>
-        <li><a href="page1.html">Test GET method</a></li>
-        <li><a href="page2.html">Test POST and DELETE (without CGI)</a></li>
+	<h1>Welcome to our webserver</h1>
+	<h2>Try the following:</h2>
+	<ul>
+		<li>What shall we call you?</li>
+		<form id="cookieForm" onsubmit="setCookie(event)">
+			<label for="username">Username:</label>
+			<input type="text" id="username" name="username" required>
+			<button type="submit">Set Nickname</button>
+		</form>
+		<li><a href="page1.html">Test GET method</a></li>
+		<li><a href="page2.html">Test POST and DELETE (without CGI)</a></li>
 		<li><a href="upload.html">Upload a file with CGI</a></li>
-        <!-- <li><a href="test.html">Test methods</a></li> -->
-        <li><a href="cgi/python.cgi">Test CGI Python Script with Cookies</a></li>
-        <li><a href="cgi/bash.cgi">Test CGI Bash Script</a></li>
-        <li><a href="cgi/infiniteloop.cgi">CGI Infinite Loop - Timeout Check</a></li>
+		<!-- <li><a href="test.html">Test methods</a></li> -->
+		<li><a href="cgi/python.cgi">Test CGI Python Script with Cookies</a></li>
+		<li><a href="cgi/bash.cgi">Test CGI Bash Script</a></li>
+		<li><a href="cgi/infiniteloop.cgi">CGI Infinite Loop - Timeout Check</a></li>
 		<li><a href="random/random!">Page Not Found</a></li>
-    </ul>
+	</ul>
 </body>
 <script>
-    function setCookie(event) {
-        event.preventDefault(); // Prevent the default form submission
-        const username = document.getElementById('username').value;
-        if (username) {
-            const expires = new Date();
-            expires.setTime(expires.getTime() + (3600 * 1000)); // 1 hour
-            const expiresString = "expires=" + expires.toUTCString();
-            document.cookie = `username=${username}; ${expiresString}; path=/`;
-            alert('Cookie has been set!');
-        } else {
-            alert('Please enter a username.');
-        }
-    }
+	function setCookie(event) {
+		event.preventDefault(); // Prevent the default form submission
+		const username = document.getElementById('username').value;
+		if (username) {
+			const expires = new Date();
+			expires.setTime(expires.getTime() + (3600 * 1000)); // 1 hour
+			const expiresString = "expires=" + expires.toUTCString();
+			document.cookie = `username=${username}; ${expiresString}; path=/`;
+			alert('Cookie has been set!');
+		} else {
+			alert('Please enter a username.');
+		}
+	}
 </script>
 </html>

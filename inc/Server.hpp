@@ -49,6 +49,7 @@ class Server : public Config {
 		void	setLocation(Location &locaiton);
 
 		void	configLocation();
+		void	confErr();
 
 		void	clearPort();
 		void	clearName();

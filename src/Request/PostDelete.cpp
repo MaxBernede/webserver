@@ -41,9 +41,8 @@ bool Request::methodAccepted(std::string method){
 std::string Request::findFileName(std::string method){
 	if (method == "DELETE")
 		return getDeleteFilename(_requestText);
-	if (method == "POST"){
+	if (method == "POST")
 		return getFileNameFromBody(getValues("Body"));
-	}
 	return "";
 }
 
@@ -55,24 +54,19 @@ bool checkInsecure(std::string fileName){
 
 void Request::execAction(){
 	std::string method = getMethod(0);
-	Logger::log("Request exec: " + method, INFO);
 
+	Logger::log("Request exec: " + method, INFO);
 	if (method != "DELETE" && method != "POST")
 		return;
-
 	if (!methodAccepted(method)) //check if method not accepted
 		throw HTTPError(METHOD_NOT_ALLOWED);
-
 	std::string path = getEndPath(); // the path before filename 
 	Logger::log("endpath is : " + path, WARNING);
-
 	std::string fileName = findFileName(method);
 	Logger::log("filename is : " + fileName, WARNING);
-
 	//Check size should have been already be done
 	if (checkInsecure(fileName) || checkInsecure(path))
 		throw HTTPError(BAD_REQUEST); //Dangerous request
-
 	if (method == "POST" && exists(path + fileName)){
 		size_t i = 0;
 		std::string temp = fileName;
@@ -81,9 +75,7 @@ void Request::execAction(){
 			i++;
 		}
 	}
-
 	createDirIfNoExist(path);
-
 	if (method == "DELETE")
 		handleDelete(path, fileName);
 	if (method == "POST")

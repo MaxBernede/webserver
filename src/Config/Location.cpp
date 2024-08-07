@@ -202,7 +202,7 @@ void	Location::autoConfig(Server &serv){
 		it++;
 	}
 	// temp == root of serv + _root here if find in location
-	_root = temp + _root;										// ....path/upload/
+	// _root = temp + _root;										// ....path/upload/
 	_path = _root + _path;										// .../path/upload/data/
 	// std::cout << "LOCATION OK" << std::endl;
 }

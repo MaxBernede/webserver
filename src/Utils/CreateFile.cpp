@@ -11,7 +11,6 @@ std::string getFileNameFromBody(std::string const &content){
 }
 
 void createDirIfNoExist(std::string path) {
-	if (!std::filesystem::exists(path)) {
+	if (!std::filesystem::exists(path))
 		std::filesystem::create_directories(path);
-	}
 }

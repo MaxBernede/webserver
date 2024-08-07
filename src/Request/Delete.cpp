@@ -7,7 +7,6 @@ void Request::handleDirDelete(std::string path){
 
 	if (access(path.c_str(), W_OK) != 0)
 		throw (HTTPError(FORBIDDEN));
-
 	removeDir(path);
 }
 
@@ -15,7 +14,6 @@ void Request::remove(std::string path)
 {
 	if (access(path.c_str(), W_OK) != 0)
 		throw (HTTPError(FORBIDDEN));
-
 	if (std::remove(path.c_str()) == 0)
 	{
 		Logger::log("File deleted successfully", INFO);
@@ -37,40 +35,34 @@ void Request::removeDir(std::string path){
 }
 
 std::string Request::getDeleteFilename(const std::string& httpRequest) {
-    // Find the start of the JSON body
+	// Find the start of the JSON body
 	//Logger::log(httpRequest);
-    std::size_t jsonStart = httpRequest.find("\r\n\r\n");
-    if (jsonStart == std::string::npos)
-        throw HTTPError(BAD_REQUEST);
-    jsonStart += 4; // Move past the "\r\n\r\n"
+	std::size_t jsonStart = httpRequest.find("\r\n\r\n");
+	if (jsonStart == std::string::npos)
+		throw HTTPError(BAD_REQUEST);
+	jsonStart += 4; // Move past the "\r\n\r\n"
 
-    std::string jsonBody = httpRequest.substr(jsonStart);
+	std::string jsonBody = httpRequest.substr(jsonStart);
+	// Find the position of the filename in the JSON body
+	std::size_t filenamePos = jsonBody.find("\"filename\":\"");
+	if (filenamePos == std::string::npos)
+		throw HTTPError(BAD_REQUEST); 
 
-    // Find the position of the filename in the JSON body
-    std::size_t filenamePos = jsonBody.find("\"filename\":\"");
-    if (filenamePos == std::string::npos)
-        throw HTTPError(BAD_REQUEST); 
+	filenamePos += 12; // Move past "\"filename\":\""
+	std::size_t endQuotePos = jsonBody.find("\"", filenamePos);
+	if (endQuotePos == std::string::npos)
+		throw HTTPError(BAD_REQUEST); 
 
-    filenamePos += 12; // Move past "\"filename\":\""
-
-    std::size_t endQuotePos = jsonBody.find("\"", filenamePos);
-    if (endQuotePos == std::string::npos)
-        throw HTTPError(BAD_REQUEST); 
-
-    return jsonBody.substr(filenamePos, endQuotePos - filenamePos);
+	return jsonBody.substr(filenamePos, endQuotePos - filenamePos);
 }
 
 void Request::handleDelete(std::string path, std::string file){
-
 	if (file == "")
 		throw (HTTPError(OK));
-
 	std::string fullPath = path + file;
-	std::cout << "Handilng delete: ... " << fullPath << std::endl;
-
+	std::cout << "Handling delete: ... " << fullPath << std::endl;
 	if (!exists(fullPath))
 		throw (HTTPError(PAGE_NOT_FOUND));
-
 	Logger::log("File exist and will be deleted", INFO);
 	try {
 		if (std::filesystem::is_regular_file(fullPath))
@@ -81,7 +73,7 @@ void Request::handleDelete(std::string path, std::string file){
 			throw (HTTPError(NO_CONTENT));
 	}
 	catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << "\n";
-        throw HTTPError(INTERNAL_SRV_ERR);
-    }
+		std::cerr << "Error: " << e.what() << "\n";
+		throw HTTPError(INTERNAL_SRV_ERR);
+	}
 }

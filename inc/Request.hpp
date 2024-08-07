@@ -32,21 +32,21 @@ enum methodField {
 
 class RequestException : public std::exception {
 private:
-    std::string _message;
+	std::string _message;
 	LogLevel _lvl;
 
 public:
-    // Constructor that takes a message
+	// Constructor that takes a message
 	explicit RequestException(const std::string& message) : _message(message){
 		_lvl = LogLevel::INFO;
 	}
-    explicit RequestException(const std::string& message, LogLevel lvl) : _message(message), _lvl(lvl){}
+	explicit RequestException(const std::string& message, LogLevel lvl) : _message(message), _lvl(lvl){}
 
-    // Override the what() method to provide the error message
-    const char* what() const noexcept override {
+	// Override the what() method to provide the error message
+	const char* what() const noexcept override {
 		Logger::log("[EXCEP] " + _message, _lvl);
-        return _message.c_str();
-    }
+		return _message.c_str();
+	}
 };
 
 //TODO getter for port and host

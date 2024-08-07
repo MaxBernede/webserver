@@ -14,9 +14,7 @@ HTTPObject::~HTTPObject()
 	delete _request;
 	delete _response;
 	if (_cgi != NULL)
-	{
 		delete _cgi;
-	}
 }
 void	HTTPObject::sendAutoIndex()
 {
@@ -51,9 +49,8 @@ void	HTTPObject::writeToCgiPipe()
 		ssize_t bytesWritten;
 		while (totalBytesWritten < body.length()) {
 			bytesWritten = write(_writeFd, body.c_str() + totalBytesWritten, body.length() - totalBytesWritten);
-			if (bytesWritten == -1) {
+			if (bytesWritten == -1)
 				throw(Exception("Write failed", 1));
-			}
 			totalBytesWritten += bytesWritten;
 		}
 	}

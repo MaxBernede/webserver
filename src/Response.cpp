@@ -19,7 +19,6 @@ void Response::addHeaders(Request *request)
 	oss << "\nConnection: close";
 	oss << "\r\n\r\n";
 	oss << _responseText;
-
 	_responseText = oss.str();
 }
 
@@ -62,21 +61,16 @@ void Response::setResponseString(std::string response)
 int Response::setRedirectStr(int status, std::string from, std::list<s_redirect> redirs)
 {
 	std::string to = "";
-	// std::string val = "";
 	for (s_redirect r : redirs){
 		if (r.redirFrom == from){
 			to = r.redirTo;
-			// val = std::to_string(r.returnValue);
 			break ;
 		}
 	}
 	if (to == "")
-	{
 		return (INTERNAL_SRV_ERR);
-	}
 	std::ostringstream oss;
 	oss << "HTTP/1.1 ";
-	// oss << val;
 	oss << status;
 	oss << " Redirection\r\n";
 	oss << "Content-Type: text; charset=utf-8\r\n";

@@ -14,13 +14,12 @@ void Request::setFile() {
 
 //Create a pair out of the line and the int pos of the delimiter (: for every lines or space for the first line)
 std::pair<std::string, std::string> create_pair(const std::string &line, size_t pos){
-	std::string key		= line.substr(0, pos);
-	std::string value	= line.substr(pos + 1); // Skip the delimiter
+	std::string	key		= line.substr(0, pos);
+	std::string	value	= line.substr(pos + 1); // Skip the delimiter
+	size_t		sp		= key.find(' ');
 
-	size_t sp = key.find(' ');
 	if (sp != std::string::npos)
 		throw (HTTPError(ErrorCode::BAD_REQUEST));
-
 	if (!value.empty() && value[0] == ' ')
 		value = value.substr(1); // Remove leading space if present
 	return std::make_pair(key, value);
@@ -57,12 +56,9 @@ void Request::parseFirstLine(std::istringstream &iss){
 		_method[i] = arg;
 		i++;
 	}
-
 	setFile();								//change link with config one if error
-
 	if (getMethod(2).size() > 2)			//pop the \r
-		_method[2].pop_back();
-	
+		_method[2].pop_back();	
 	size_t pos = line.find(' ');
 	if (pos != std::string::npos)
 		_request.emplace_back(create_pair(line, pos));
@@ -130,17 +126,15 @@ std::string	Request::getRawBody()
 {
  	std::istringstream	stream(_requestText);
 	std::string			line;
-    std::string			body;
-    bool				bodyStarted = false;
+	std::string			body;
+	bool				bodyStarted = false;
 
 	while (std::getline(stream, line))
 	{
 		if (!line.empty() && line.back() == '\r') // Remove the newline character from the end of the line
 			line.pop_back();
 		if (bodyStarted)
-		{
 			body += line + "\n";
-		}
 		else if (line.empty()) // An empty line indicates the end of headers and start of the body
 			bodyStarted = true;
 	}

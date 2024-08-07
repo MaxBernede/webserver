@@ -15,7 +15,6 @@ std::vector<s_domain>::iterator findDomain(std::vector<s_domain>::iterator start
 
 ServerRun::ServerRun(const std::list<Server> config)
 {
-	std::vector<s_domain> listens;
 
 	if (config.empty())
 		throw (Exception("No servers defined in the config file", 1));
@@ -23,6 +22,7 @@ ServerRun::ServerRun(const std::list<Server> config)
 	// looping over the sever bloacks
 	for (Server server : _servers)
 	{
+		std::vector<s_domain> listens;
 		for (s_domain domain : server.getPorts())
 		{
 			if (findDomain(listens.begin(), listens.end(), domain) == listens.end())
@@ -30,9 +30,9 @@ ServerRun::ServerRun(const std::list<Server> config)
 			else
 				Logger::log("Servers have the same port in config: " + std::to_string(domain.port), LogLevel::WARNING);
 		}
+		//create listening sockets
+		createListenerSockets(listens, server.getName());
 	}
-	//create listening sockets
-	createListenerSockets(listens);
 }
 
 ServerRun::~ServerRun( void )
@@ -45,7 +45,7 @@ ServerRun::~ServerRun( void )
 	}
 }
 
-void ServerRun::createListenerSockets(std::vector<s_domain> listens)
+void ServerRun::createListenerSockets(std::vector<s_domain> listens, std::string name)
 {
 	Socket *new_socket;
 	std::cout << "Creaing listening sockets\n";
@@ -55,18 +55,24 @@ void ServerRun::createListenerSockets(std::vector<s_domain> listens)
 		{
 			new_socket = new Socket(listen);
 			_listenSockets.push_back(new_socket);
-		}
-		catch (const Exception &e)
+		} catch (const Exception &e)
 		{
 			std::cout << e.what() << std::endl;
 		}
 	}
+	try
+	{
+		new_socket = new Socket(name);
+		_listenSockets.push_back(new_socket);
+	} catch (const Exception &e)
+	{
+		std::cout << e.what() << std::endl;
+	}
 	if (_listenSockets.empty())
 		throw(Exception("No available port on the defined host", 1));
 	
-	for (int i = 0; i < (int)_listenSockets.size(); i++) {
+	for (int i = 0; i < (int)_listenSockets.size(); i++)
 		addQueue(LISTENER, SOCKET, _listenSockets[i]->getFd()); // add listener sockets to queue
-	}
 }
 
 void ServerRun::addQueue(pollState state, fdType type, int fd)
@@ -106,17 +112,12 @@ void ServerRun::serverRunLoop(void)
 					if ( _pollData[fd]._pollState == CGI_READ_WAITING)
 					{
 						if (_pollFds[i].revents & POLLHUP && _pollData[fd]._pollState == CGI_READ_WAITING)
-						{
-							// Logger::log("CGI did not TimedOut");
 							_pollData[fd]._pollState = CGI_READ_READING;
-						}
 					}
 					dataIn(_pollData[fd], _pollFds[i]);						//Read from client
 				}
-
-				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollState == CGI_READ_DONE){
+				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollState == CGI_READ_DONE)
 					dataOut(_pollData[fd], _pollFds[i]);					// Write to client
-				}
 			}
 			catch(const Exception& e)
 			{
@@ -133,7 +134,6 @@ void ServerRun::serverRunLoop(void)
 				_pollData[fd]._pollState = CLIENT_CONNECTION_WAIT;
 				handleHTTPError(err, fd);
 			}
-			// Do we have uncaught exception?
 		}
 	}
 }
@@ -164,9 +164,8 @@ Server ServerRun::findConfig(s_domain port)
 	for (Server server : _servers){
 		std::string name = server.getName();
 		for (s_domain p : server.getPorts()){
-			if (p.port == port.port && (p.host == port.host || name == port.host)){
+			if (p.port == port.port && (p.host == port.host || name == port.host))
 				return (server);
-			}
 		}
 	}
 	throw (HTTPError(INTERNAL_SRV_ERR));
@@ -190,15 +189,13 @@ HTTPObject *ServerRun::findHTTPObject(int fd)
 {
 	for (auto& pair : _httpObjects)
 	{
-		if (pair.second->getReadFd() == fd) {
-		    return pair.second;
-		}
+		if (pair.second->getReadFd() == fd)
+			return pair.second;
 	}
 	for (auto& pair : _httpObjects)
 	{
-		if (pair.second->getWriteFd() == fd) {
-		    return pair.second;
-		}
+		if (pair.second->getWriteFd() == fd)
+			return pair.second;
 	}
 	return nullptr; // Return nullptr if not found
 }

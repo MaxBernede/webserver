@@ -15,9 +15,8 @@ void Request::startConstruRequest(){
 
 void Request::readRequest()
 {
-	char buffer[BUFFER_SIZE];
-
-	int rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
+	char	buffer[BUFFER_SIZE];
+	int		rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
 
 	if (rb < 0){
 		_doneReading = true;
@@ -27,9 +26,7 @@ void Request::readRequest()
 	buffer[rb] = '\0';
 	_recvBytes += rb;
 	_requestText += std::string(buffer, rb);
-	
 	requestReadTooLong();
-	
 	if (rb < BUFFER_SIZE - 1) // Finished reading
 		_doneReading = true;
 }
@@ -83,8 +80,8 @@ void Request::redirRequest501()
 // Void or Throw HTTPError
 void Request::redirRequest405() // If Method not Allowed, redirects to Server 405
 {
-	std::string method = getMethod(0);
-	int index = -1;
+	std::string	method	= getMethod(0);
+	int			index	= -1;
 	
 	if (method == "GET")
 		index = GET;
@@ -112,11 +109,9 @@ void Request::searchErrorPage()
 			_file = item.url; // redir to error page on Server
 		}
 	}
-	_filePath = _config.getRoot() + _file;
+	_filePath = _file;
 	if (access(_filePath.c_str(), F_OK) == -1 || !found)
-	{
 		_errorPageFound = false;
-	}
 }
 
 // Void or throw HTTPError 404
@@ -176,8 +171,10 @@ void	Request::configConfig(){
 		temp.erase(temp.find('/', 1) + 1);
 	std::list<Location> locs = _config.getLocation();
 	for (Location loc : locs){
+			std::cout << "LOCATION CHECK\t" << temp << "\t" << loc.getRoot() << "\t" << _config.getRoot() << std::endl;
 		if (temp == loc.getName() || (temp == loc.getRoot() && loc.getRoot() != _config.getRoot())){
-			_config.setRoot(loc.getRoot());
+			// std::cout << "LOCATION FOUND" << temp << "\t" << loc.getRoot() << "\t" << _config.getRoot() << std::endl;
+			_config.setRoot(_config.getRoot() + loc.getRoot());
 			for (int i = GET; i <= TRACE; i++)
 				_config.setMethod(loc.getMethod(i), i);
 			_config.setRedirect(loc.getRedirect());
@@ -197,8 +194,6 @@ void	Request::configConfig(){
 void Request::checkVersion(){
 	std::string v = getMethod(2);
 
-	// std::cout << getMethod(0) << getMethod(1) << getMethod(2) <<std::endl;
-	// std::cout << v << " " << v[5] << "<-- version" << std::endl;
 	if (v[5] != '1' && v[5] != '2'){
 		_method[2] = "HTTP/1.1";
 		throw (HTTPError(HTTP_NOT_SUPPORT));

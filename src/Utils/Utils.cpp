@@ -14,9 +14,8 @@ std::string firstWord(const std::string& str) {
 
 //Check if the first string end with the second
 bool endsWith(const std::string& str, const std::string& suffix) {
-	if (str.length() < suffix.length()) {
+	if (str.length() < suffix.length())
 		return false;
-	}
 	return str.compare(str.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
 
@@ -29,9 +28,7 @@ std::string getExtension(std::string fileName)
 		std::string extension = fileName.substr(dotIndex + 1);
 		size_t queryIndex = extension.find('?');
 		if (queryIndex != std::string::npos)
-		{
 			extension = extension.substr(0, queryIndex);
-		}
 		return extension;
 	}
 	return "";
@@ -51,25 +48,23 @@ std::string boolstring(const bool& src){
 
 int isDirectory(const char *path)
 {
-    struct stat path_stat;
+	struct stat path_stat;
    if (stat(path, &path_stat) != 0)
-       return 0;
-    return S_ISDIR(path_stat.st_mode);
+	   return 0;
+	return S_ISDIR(path_stat.st_mode);
 }
 
 std::vector<std::string> getDirectoryContent(const char *name)
 {
 	std::vector<std::string>	v;
 	DIR	*dirp = opendir(name);
-    if (dirp == nullptr) {
-        Logger::log("Error opening dir: " + std::string(name), WARNING);
-        return v; // Return an empty vector or handle the error as needed
-    }
-    struct dirent	*dp;
-    while ((dp = readdir(dirp)) != NULL)
-	{
-        v.push_back(dp->d_name);
-    }
-    closedir(dirp);
+	if (dirp == nullptr) {
+		Logger::log("Error opening dir: " + std::string(name), WARNING);
+		return v; // Return an empty vector or handle the error as needed
+	}
+	struct dirent	*dp;
+	while ((dp = readdir(dirp)) != NULL)
+		v.push_back(dp->d_name);
+	closedir(dirp);
 	return v;
 }

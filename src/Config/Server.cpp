@@ -23,6 +23,13 @@ static std::string findKey(std::string str){
 		return str.substr(0, (str.length() - 1));
 }
 
+void	Server::confErr(){
+	for (std::list<s_ePage>::iterator i = _errorPages.begin();
+		i != _errorPages.end(); i++){
+			i->url = _root + i->url;
+	}
+}
+
 Server	pushBlock(std::list<std::string> block){
 	Server serv;
 	void (*ptr[11])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
@@ -86,6 +93,7 @@ Server	pushBlock(std::list<std::string> block){
 		it++;
 	}
 	serv.setPath(serv.getRoot() + serv.getPath());
+	serv.confErr();
 	serv.configLocation();
 	// std::cout << "SERVER LOCATION OK" << std::endl;
 	return serv;

@@ -59,9 +59,8 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int Fd)
 		obj = findHTTPObject(Fd);
 	obj->_request->searchErrorPage();
 	// int c = obj->_request->getErrorCode(); < not sure what this is for?
-	if (ErrCode == HTTP_NOT_SUPPORT){
+	if (ErrCode == HTTP_NOT_SUPPORT)
 		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
-	}
 	else if (obj->_request->getErrorPageStatus() == false) // if no error file does not exst
 	{
 		Logger::log("Error page does not exist..Error code: " + std::to_string(ErrCode), LogLevel::WARNING);
@@ -69,9 +68,7 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int Fd)
 		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
 	}
 	else // if error page exists
-	{
 		handleStaticFileRequest(obj->getClientFd());
-	}
 }
 
 int ServerRun::httpRedirect(ErrorCode status, int clientFd)
@@ -92,9 +89,7 @@ void ServerRun::handleRequest(int clientFd)
 		_httpObjects[clientFd] = newObj;
 	}
 	if (_httpObjects[clientFd]->_request->isDoneReading() == false)
-	{
 		_httpObjects[clientFd]->_request->readRequest();
-	}
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
 		_httpObjects[clientFd]->_request->printAllData();
@@ -125,9 +120,7 @@ void ServerRun::executeRequest(int clientFd){
 		_httpObjects[clientFd]->_request->execAction();
 	}
 	else // Static file
-	{
 		handleStaticFileRequest(clientFd);
-	}
 }
 
 void ServerRun::readFile(int fd) // Static file fd
@@ -140,16 +133,13 @@ void ServerRun::readFile(int fd) // Static file fd
 	if (readChars < 0)
 		throw(HTTPError(ErrorCode::PAGE_NOT_FOUND));
 	if (readChars > 0)
-	{
 		obj->_response->addToBuffer(std::string(buffer, readChars));
-	}
 	if (readChars == 0)
 	{
 		_pollData[fd]._pollState = FILE_READ_DONE;
 		obj->_response->setReady();
 		close(fd);
 	}
-
 }
 
 void ServerRun::readPipe(int fd) // Pipe read-end fd
@@ -158,23 +148,18 @@ void ServerRun::readPipe(int fd) // Pipe read-end fd
 
 	memset(buffer, '\0', BUFFER_SIZE);
 	HTTPObject *obj = findHTTPObject(fd);
-	// if (obj->_cgi->waitCgiChild() == true)
-	// {
-		Logger::log("Reading the pipe read end...", LogLevel::DEBUG);
-		int readChars = read(fd, buffer, BUFFER_SIZE - 1);
-		if (readChars < 0)
-			throw(Exception("Read pipe failed!", 1));
-		if (readChars > 0)
-		{
-			obj->_response->addToBuffer(std::string(buffer, readChars));
-		}
-		if (readChars < BUFFER_SIZE - 1)
-		{
-			_pollData[fd]._pollState = CGI_READ_DONE;
-			obj->_response->setReady();
-			close(fd);
-		}
-	// }
+	Logger::log("Reading the pipe read end...", LogLevel::DEBUG);
+	int readChars = read(fd, buffer, BUFFER_SIZE - 1);
+	if (readChars < 0)
+		throw(Exception("Read pipe failed!", 1));
+	if (readChars > 0)
+		obj->_response->addToBuffer(std::string(buffer, readChars));
+	if (readChars < BUFFER_SIZE - 1)
+	{
+		_pollData[fd]._pollState = CGI_READ_DONE;
+		obj->_response->setReady();
+		close(fd);
+	}
 }
 
 void ServerRun::dataIn(s_poll_data pollData, struct pollfd pollFd)

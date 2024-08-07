@@ -46,9 +46,7 @@ bool 	CGI::waitCgiChild()
 	int exitCode;
 	int status = waitpid(_pid, &exitCode, WNOHANG);
 	if (status == -1)
-	{
 		throw(Exception("Error while waiting for cgi with pid " + std::to_string(_pid) , 1));
-	}
 	else if (status == 0) // cgi not done
 		return (false);
 	else
@@ -58,7 +56,6 @@ bool 	CGI::waitCgiChild()
 		Logger::log("Cgi child process finished", LogLevel::INFO);
 		return (true);
 	}
-
 }
 
 void CGI::makeEnvArr()
@@ -90,9 +87,7 @@ void CGI::makeEnvCStr()
 {
 	char **env = new char*[_cgiEnvArr.size() + 1];
 	for (size_t i = 0; i < _cgiEnvArr.size(); ++i)
-	{
 		env[i] = (char *)this->_cgiEnvArr[i].c_str(); // setting strings, but not allocated so _cgiEnvArr must remain
-	}
 	env[_cgiEnvArr.size()] = NULL;
 	_cgiEnvCStr = env;
 }
