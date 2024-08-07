@@ -128,6 +128,11 @@ bool Request::getErrorPageStatus()
 	return (_errorPageFound);
 }
 
+void Request::setErrorPageStatus(bool b)
+{
+	_errorPageFound = b;
+}
+
 std::string	Request::getServerName()
 {
 	return (_config.getName());

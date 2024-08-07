@@ -18,9 +18,7 @@ void Request::readRequest()
 	char buffer[BUFFER_SIZE];
 
 	int rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
-
 	if (rb < 0){
-		_doneReading = true;
 		Logger::log("Error reading request", LogLevel::ERROR);
 		throw (HTTPError(ErrorCode::BAD_REQUEST));
 	}
@@ -113,6 +111,7 @@ void Request::searchErrorPage()
 		}
 	}
 	_filePath = _config.getRoot() + _file;
+	std::cout << "FILE ROOT: " << _config.getRoot() << std::endl;
 	if (access(_filePath.c_str(), F_OK) == -1 || !found)
 	{
 		_errorPageFound = false;
@@ -172,8 +171,10 @@ void Request::handleRedirection(){
 
 void	Request::configConfig(){
 	std::string temp = getFileNameProtected();
+	std::cout << "TEMP 1: " << temp << std::endl;
 	if (temp.find('/', 1) != std::string::npos)
 		temp.erase(temp.find('/', 1) + 1);
+	std::cout << "TEMP 2: " << temp << std::endl;
 	std::list<Location> locs = _config.getLocation();
 	for (Location loc : locs){
 		if (temp == loc.getName() || (temp == loc.getRoot() && loc.getRoot() != _config.getRoot())){
@@ -187,6 +188,7 @@ void	Request::configConfig(){
 			_config.setPath(loc.getPath());
 			std::string newName = getFileNameProtected();
 			newName.erase(0, temp.length());
+			std::cout << "FILENAME NEW: " << newName << std::endl;
 			std::cout << newName << std::endl;
 			_file = newName;
 			break ;

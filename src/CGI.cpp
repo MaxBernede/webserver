@@ -101,8 +101,13 @@ void	CGI::killChild()
 {
 	if (_pid > 0)
 	{
-		if (kill(_pid, SIGKILL) < 0)
-			Logger::log("failed to kill child", ERROR);
+		kill(_pid, SIGKILL);
+		// if (kill(_pid, SIGKILL) < 0)
+		// {
+		// 	std::cout << "Errno: " << std::string(strerror(errno)) << std::endl;
+		// 	Logger::log("failed to kill child", ERROR);
+		// 	// exit(1);
+		// }
 		waitpid(_pid, nullptr, 0); // Wait for the child process to terminate
 	}
 }

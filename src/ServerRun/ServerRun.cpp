@@ -188,16 +188,27 @@ void ServerRun::removeConnection(int fd)
 
 HTTPObject *ServerRun::findHTTPObject(int fd)
 {
-	for (auto& pair : _httpObjects)
+	fdType pollType = _pollData[fd]._fdType;
+	if (pollType == CLIENTFD)
 	{
-		if (pair.second->getReadFd() == fd) {
-		    return pair.second;
+		return (_httpObjects[fd]);
+	}
+	else if (pollType == READFD)
+	{
+		for (auto& pair : _httpObjects)
+		{
+			if (pair.second->getReadFd() == fd) {
+				return pair.second;
+			}
 		}
 	}
-	for (auto& pair : _httpObjects)
+	else if (pollType == WRITEFD)
 	{
-		if (pair.second->getWriteFd() == fd) {
-		    return pair.second;
+		for (auto& pair : _httpObjects)
+		{
+			if (pair.second->getWriteFd() == fd) {
+				return pair.second;
+			}
 		}
 	}
 	return nullptr; // Return nullptr if not found

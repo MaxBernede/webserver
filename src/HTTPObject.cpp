@@ -91,6 +91,8 @@ void	HTTPObject::checkTimeOut()
 void	HTTPObject::setConfig(Server config)
 {
 	_request->setConfig(config);
+	_config = _request->getConfig();
+	std::cout << "Config before config: " << _config.getRoot() << std::endl;
 	_request->configConfig();
 	_config = _request->getConfig();
 }

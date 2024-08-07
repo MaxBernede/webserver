@@ -95,6 +95,7 @@ class Request
 		void		setFile();
 		void		setConfig(Server config);
 		void		setErrorCode(ErrorCode);
+		void		setErrorPageStatus(bool);
 
 		//Methods
 		void		handleRedirection();

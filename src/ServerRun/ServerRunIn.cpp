@@ -26,6 +26,21 @@ void ServerRun::handleCgiRequest(int clientFd)
 	_httpObjects[clientFd]->runCgi();
 }
 
+void ServerRun::handleErrorFile(int clientFd)
+{
+	std::string filePath = _httpObjects[clientFd]->_request->getFilePath();
+	Logger::log("Opening static file: " + filePath, LogLevel::INFO);
+	int fileFd = open(filePath.c_str(), O_RDONLY);
+	if (fileFd < 0)
+	{
+		HTTPObject *obj = findHTTPObject(clientFd);
+		obj->_request->setErrorPageStatus(false);
+		return ;
+	}
+	_httpObjects[clientFd]->setReadFd(fileFd);
+	addQueue(FILE_READ_READING, READFD, fileFd);
+}
+
 void ServerRun::handleStaticFileRequest(int clientFd)
 {
 	std::string filePath = _httpObjects[clientFd]->_request->getFilePath();
@@ -33,6 +48,7 @@ void ServerRun::handleStaticFileRequest(int clientFd)
 	int fileFd = open(filePath.c_str(), O_RDONLY);
 	if (fileFd < 0)
 	{
+		std::cout << "ERRNO: " << std::string(strerror(errno)) << std::endl;
 		Logger::log("Failed opening file: " + filePath, LogLevel::ERROR);
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 	}
@@ -57,20 +73,21 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int Fd)
 		obj = _httpObjects[Fd];
 	else
 		obj = findHTTPObject(Fd);
+	std::cout << "FIle root: " << obj->_config.getRoot();
 	obj->_request->searchErrorPage();
 	// int c = obj->_request->getErrorCode(); < not sure what this is for?
 	if (ErrCode == HTTP_NOT_SUPPORT){
 		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
 	}
-	else if (obj->_request->getErrorPageStatus() == false) // if no error file does not exst
+	else if (obj->_request->getErrorPageStatus() == true) // if no error file does not exst
+	{
+		handleErrorFile(obj->getClientFd());
+	}
+	else if (obj->_request->getErrorPageStatus() == false)
 	{
 		Logger::log("Error page does not exist..Error code: " + std::to_string(ErrCode), LogLevel::WARNING);
 		obj->_response->errorResponseHTML(ErrCode);
 		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
-	}
-	else // if error page exists
-	{
-		handleStaticFileRequest(obj->getClientFd());
 	}
 }
 
@@ -85,24 +102,25 @@ int ServerRun::httpRedirect(ErrorCode status, int clientFd)
 // Only continue after reading the whole request
 void ServerRun::handleRequest(int clientFd)
 {
-	if (_httpObjects.find(clientFd) == _httpObjects.end())
+	HTTPObject *obj = findHTTPObject(clientFd);
+	if (_httpObjects.find(clientFd) == _httpObjects.end() || obj == nullptr)
 	{
 		Logger::log("Creating a new HTTPObject", LogLevel::INFO);
 		HTTPObject *newObj = new HTTPObject(clientFd);
 		_httpObjects[clientFd] = newObj;
 	}
-	if (_httpObjects[clientFd]->_request->isDoneReading() == false)
+	if (obj->_request->isDoneReading() == false)
 	{
-		_httpObjects[clientFd]->_request->readRequest();
+		obj->_request->readRequest();
 	}
-	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
+	if (obj->_request->isDoneReading() == true)
 	{
-		_httpObjects[clientFd]->_request->printAllData();
-		_httpObjects[clientFd]->_request->startConstruRequest();
-		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
+		obj->_request->printAllData();
+		obj->_request->startConstruRequest();
+		s_domain Domain = obj->_request->getRequestDomain();
 		Server config = findConfig(Domain);
-		_httpObjects[clientFd]->setConfig(config);
-		_httpObjects[clientFd]->_request->checkRequest();
+		obj->setConfig(config);
+		obj->_request->checkRequest();
 		_pollData[clientFd]._pollState = CLIENT_CONNECTION_WAIT;
 		executeRequest(clientFd);
 	}

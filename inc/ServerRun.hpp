@@ -77,6 +77,7 @@ class ServerRun
 		void	handleHTTPError(ErrorCode err, int fd);
 		void	uploadToCgi(int writePipe);
 		void	handleCgiRequest(int clientFd);
+		void	handleErrorFile(int clientFd);
 
 
 	// Send functions
