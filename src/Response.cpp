@@ -38,7 +38,7 @@ void Response::addToBuffer(std::string buffer)
 void Response::rSend()
 {
 	Logger::log("Sending Response to client...");
-	Logger::log("TEXT:\n" + _responseText, LogLevel::DEBUG);
+	// Logger::log("TEXT:\n" + _responseText, LogLevel::DEBUG);
 	if (send(_clientFd, _responseText.c_str(), _responseText.length(), 0) == -1)
 		Logger::log("Error with sending response", LogLevel::ERROR);
 }

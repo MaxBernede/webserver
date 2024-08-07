@@ -23,12 +23,6 @@ void	HTTPObject::sendAutoIndex()
 	_response->rSend();
 }
 
-// UNUSED
-// void	HTTPObject::sendRedirection()
-// {
-// 	_response->sendRedir();
-// }
-
 void	HTTPObject::createCgi()
 {
 	_cgi = new CGI(_request, _clientFd);
@@ -85,7 +79,7 @@ bool	HTTPObject::isCgi()
 void	HTTPObject::checkTimeOut()
 {
 	std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>
-	(std::chrono::high_resolution_clock::now() - this->getStartTime());
+		(std::chrono::high_resolution_clock::now() - _startTime);
 	std::chrono::seconds ten(10);
 	if (sec > ten){
 		if (this->isCgi())

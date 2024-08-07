@@ -58,7 +58,7 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int Fd)
 	else
 		obj = findHTTPObject(Fd);
 	obj->_request->searchErrorPage();
-	int c = obj->_request->getErrorCode();
+	// int c = obj->_request->getErrorCode(); < not sure what this is for?
 	if (ErrCode == HTTP_NOT_SUPPORT){
 		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
 	}
@@ -138,7 +138,7 @@ void ServerRun::readFile(int fd) // Static file fd
 	HTTPObject *obj = findHTTPObject(fd);
 	int readChars = read(fd, buffer, BUFFER_SIZE - 1);
 	if (readChars < 0)
-		throw(Exception("Read file failed", 1));
+		throw(HTTPError(ErrorCode::PAGE_NOT_FOUND));
 	if (readChars > 0)
 	{
 		obj->_response->addToBuffer(std::string(buffer, readChars));
