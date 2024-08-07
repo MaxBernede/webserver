@@ -7,6 +7,7 @@ HTTPObject::HTTPObject(int clientFd) :
 {
 	_request = new Request(clientFd);
 	_response = new Response(clientFd);
+	_timeOut = false;
 }
 
 HTTPObject::~HTTPObject()
@@ -82,6 +83,7 @@ void	HTTPObject::checkTimeOut()
 		(std::chrono::high_resolution_clock::now() - _startTime);
 	std::chrono::seconds ten(10);
 	if (sec > ten){
+		_timeOut = true;
 		if (this->isCgi())
 			this->_cgi->killChild();
 		throw (HTTPError(GATEWAY_TIMEOUT));
@@ -92,7 +94,6 @@ void	HTTPObject::setConfig(Server config)
 {
 	_request->setConfig(config);
 	_config = _request->getConfig();
-	std::cout << "Config before config: " << _config.getRoot() << std::endl;
 	_request->configConfig();
 	_config = _request->getConfig();
 }
@@ -125,4 +126,9 @@ int		HTTPObject::getClientFd()
 TimePoint HTTPObject::getStartTime()
 {
 	return _startTime;
+}
+
+bool	HTTPObject::getTimeOut()
+{
+	return (_timeOut);
 }

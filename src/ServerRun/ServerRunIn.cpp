@@ -64,17 +64,15 @@ void ServerRun::DirectoryListing(int clientFd){
 }
 
 // Handles error code when no error file exists
-void ServerRun::redirectToError(ErrorCode ErrCode, int Fd)
+void ServerRun::redirectToError(ErrorCode ErrCode, int fd)
 {
 	Logger::log("Redirecting to Error...", LogLevel::WARNING);
 
-	HTTPObject *obj;
-	if (_pollData[Fd]._fdType == CLIENTFD)
-		obj = _httpObjects[Fd];
-	else
-		obj = findHTTPObject(Fd);
+	HTTPObject *obj = findHTTPObject(fd);
 	std::cout << "FIle root: " << obj->_config.getRoot();
 	obj->_request->searchErrorPage();
+	// if (_pollData[fd]._fdType == WRITEFD || _pollData[fd]._fdType == READFD)
+	// 	removeConnection(fd);
 	// int c = obj->_request->getErrorCode(); < not sure what this is for?
 	if (ErrCode == HTTP_NOT_SUPPORT){
 		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
@@ -87,7 +85,7 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int Fd)
 	{
 		Logger::log("Error page does not exist..Error code: " + std::to_string(ErrCode), LogLevel::WARNING);
 		obj->_response->errorResponseHTML(ErrCode);
-		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
+		_pollData[obj->getClientFd()]._pollState = EMPTY_RESPONSE;
 	}
 }
 
@@ -102,25 +100,24 @@ int ServerRun::httpRedirect(ErrorCode status, int clientFd)
 // Only continue after reading the whole request
 void ServerRun::handleRequest(int clientFd)
 {
-	HTTPObject *obj = findHTTPObject(clientFd);
-	if (_httpObjects.find(clientFd) == _httpObjects.end() || obj == nullptr)
+	if (_httpObjects.find(clientFd) == _httpObjects.end())
 	{
 		Logger::log("Creating a new HTTPObject", LogLevel::INFO);
-		HTTPObject *newObj = new HTTPObject(clientFd);
-		_httpObjects[clientFd] = newObj;
+		HTTPObject *obj = new HTTPObject(clientFd);
+		_httpObjects[clientFd] = obj;
 	}
-	if (obj->_request->isDoneReading() == false)
+	if (_httpObjects.find(clientFd) != _httpObjects.end() && _httpObjects[clientFd]->_request->isDoneReading() == false)
 	{
-		obj->_request->readRequest();
+		_httpObjects[clientFd]->_request->readRequest();
 	}
-	if (obj->_request->isDoneReading() == true)
+	if (_httpObjects.find(clientFd) != _httpObjects.end() && _httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
-		obj->_request->printAllData();
-		obj->_request->startConstruRequest();
-		s_domain Domain = obj->_request->getRequestDomain();
+		_httpObjects[clientFd]->_request->printAllData();
+		_httpObjects[clientFd]->_request->startConstruRequest();
+		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = findConfig(Domain);
-		obj->setConfig(config);
-		obj->_request->checkRequest();
+		_httpObjects[clientFd]->setConfig(config);
+		_httpObjects[clientFd]->_request->checkRequest();
 		_pollData[clientFd]._pollState = CLIENT_CONNECTION_WAIT;
 		executeRequest(clientFd);
 	}

@@ -16,7 +16,8 @@ class HTTPObject {
 		int			_readFd; // fileFd or pipeFd, only for get requests
 		int			_writeFd; // upload pipe write-end to write to child process running cgi script
 		TimePoint	_startTime;
-	
+		bool		_timeOut;
+
 	public:
 		Server 		_config;
 		Request		*_request;
@@ -47,4 +48,5 @@ class HTTPObject {
 		int			getReadFd();
 		int			getWriteFd();
 		TimePoint	getStartTime();
-};
+		bool		getTimeOut();
+};	

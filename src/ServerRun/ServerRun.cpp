@@ -98,8 +98,8 @@ void ServerRun::serverRunLoop(void)
 			try
 			{
 				HTTPObject *obj = findHTTPObject(fd);
-				if (obj != nullptr)
-					obj->checkTimeOut();
+				if (obj != nullptr && !obj->getTimeOut())
+						obj->checkTimeOut();
 				if (_pollFds[i].revents & POLLIN)
 				{
 					// Only start reading CGI once the write end of the pipe is closed
@@ -107,8 +107,8 @@ void ServerRun::serverRunLoop(void)
 					{
 						if (_pollFds[i].revents & POLLHUP && _pollData[fd]._pollState == CGI_READ_WAITING)
 						{
-							// Logger::log("CGI did not TimedOut");
-							_pollData[fd]._pollState = CGI_READ_READING;
+							if (obj != nullptr && !obj->getTimeOut())
+									_pollData[fd]._pollState = CGI_READ_READING;
 						}
 					}
 					dataIn(_pollData[fd], _pollFds[i]);						//Read from client
@@ -125,15 +125,13 @@ void ServerRun::serverRunLoop(void)
 			catch(const HTTPError& e)
 			{ 
 				ErrorCode err = e.getErrorCode();
+				HTTPObject *obj = findHTTPObject(fd);
 				Logger::log(e.what(), LogLevel::ERROR);
-				if (_pollData[fd]._fdType == CLIENTFD)
-					_httpObjects[fd]->_request->setErrorCode(err);
-				else
-					findHTTPObject(fd)->_request->setErrorCode(err);
+				if (obj != nullptr)
+					obj->_request->setErrorCode(err);
 				_pollData[fd]._pollState = CLIENT_CONNECTION_WAIT;
 				handleHTTPError(err, fd);
 			}
-			// Do we have uncaught exception?
 		}
 	}
 }
@@ -150,8 +148,8 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd)
 		int ErrCode = httpRedirect(err, fd);
 		if (ErrCode == err)
 			_pollData[fd]._pollState = HTTP_REDIRECT;
-
-		_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
+		HTTPObject *obj = findHTTPObject(fd);
+		obj->_request->setErrorCode(ErrorCode(ErrCode));
 	}
 	else if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
 		redirectToError(err, fd);
@@ -191,14 +189,16 @@ HTTPObject *ServerRun::findHTTPObject(int fd)
 	fdType pollType = _pollData[fd]._fdType;
 	if (pollType == CLIENTFD)
 	{
+		std::cout << "its a clientfd!\n";
 		return (_httpObjects[fd]);
 	}
 	else if (pollType == READFD)
 	{
+		std::cout << "its a readfd!\n";
 		for (auto& pair : _httpObjects)
 		{
 			if (pair.second->getReadFd() == fd) {
-				return pair.second;
+				return (pair.second);
 			}
 		}
 	}
@@ -207,7 +207,7 @@ HTTPObject *ServerRun::findHTTPObject(int fd)
 		for (auto& pair : _httpObjects)
 		{
 			if (pair.second->getWriteFd() == fd) {
-				return pair.second;
+				return (pair.second);
 			}
 		}
 	}

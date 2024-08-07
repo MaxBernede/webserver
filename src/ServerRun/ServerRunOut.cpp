@@ -58,6 +58,7 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 			sendError(pollFd.fd);
 			break;
 		case HTTP_ERROR:
+			std::cout << "COMES HERE!\n";
 			sendError(pollFd.fd);
 			break;
 		case HTTP_REDIRECT:
