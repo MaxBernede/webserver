@@ -104,14 +104,14 @@ void ServerRun::serverRunLoop(void)
 			try
 			{
 				HTTPObject *obj = findHTTPObject(fd);
-				if (obj != nullptr)
+				if (obj != nullptr && !obj->getTimeOut())
 					obj->checkTimeOut();
 				if (_pollFds[i].revents & POLLIN)
 				{
 					// Only start reading CGI once the write end of the pipe is closed
-					if ( _pollData[fd]._pollState == CGI_READ_WAITING)
+					if (_pollFds[i].revents & POLLHUP && _pollData[fd]._pollState == CGI_READ_WAITING)
 					{
-						if (_pollFds[i].revents & POLLHUP && _pollData[fd]._pollState == CGI_READ_WAITING)
+						if (obj != nullptr && !obj->getTimeOut())
 							_pollData[fd]._pollState = CGI_READ_READING;
 					}
 					dataIn(_pollData[fd], _pollFds[i]);						//Read from client
