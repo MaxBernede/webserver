@@ -122,21 +122,20 @@ void Request::constructRequest(){
 	checkErrors();
 }
 
-std::string	Request::getRawBody()
+std::string Request::getRawBody()
 {
- 	std::istringstream	stream(_requestText);
-	std::string			line;
-	std::string			body;
-	bool				bodyStarted = false;
+    std::string delimiter = "\r\n\r\n";
+    size_t pos = _requestText.find(delimiter);
 
-	while (std::getline(stream, line))
-	{
-		if (!line.empty() && line.back() == '\r') // Remove the newline character from the end of the line
-			line.pop_back();
-		if (bodyStarted)
-			body += line + "\n";
-		else if (line.empty()) // An empty line indicates the end of headers and start of the body
-			bodyStarted = true;
-	}
-	return body;
+    if (pos == std::string::npos)
+    {
+        // Delimiter not found, which implies no body or incorrectly formatted input
+        return "";
+    }
+
+    // Skip past the delimiter
+    pos += delimiter.length();
+
+    // Return the body starting right after the delimiter
+    return _requestText.substr(pos);
 }
