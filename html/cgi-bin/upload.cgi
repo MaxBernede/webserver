@@ -23,7 +23,11 @@ def handle_post():
 					os.makedirs(upload_dir)
 				# Write the file to the specified directory
 				with open(file_path, 'wb') as fd:
-					fd.write(file_item.file.read())
+					while True:
+						chunk = file_item.file.read(1024)  # Read in chunks of 1024 bytes
+						if not chunk:
+							break  # EOF reached
+						fd.write(chunk)
 				message = f"Uploaded '{file_name}'"
 				status_code = "201 Created"
 		else:
