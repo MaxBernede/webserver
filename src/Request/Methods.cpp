@@ -70,10 +70,8 @@ void Request::printAllData(){
 void Request::redirRequest501()
 {
 	std::string method = getMethod(0);
-	if (method != "GET" && method != "POST" && method != "DELETE" && method != "HEAD"){
-		_errorCode = METHOD_NOT_IMPLEMENTED;
-		throw(HTTPError(ErrorCode::METHOD_NOT_IMPLEMENTED));
-	}
+	if (method != "GET" && method != "POST" && method != "DELETE")
+		throw (HTTPError(ErrorCode::METHOD_NOT_IMPLEMENTED));
 }
 
 // Void or Throw HTTPError

@@ -1,34 +1,28 @@
 #include "Request.hpp"
 
+
+//Explain that path is root + path in config
 std::string Request::getEndPath(){
 	std::string path = getPath();
-	try {
-		Location loc = _config.getLocationByName("upload/");
-		path += loc.getRoot();
-	}
-	catch (const std::runtime_error& e) {
-		std::cerr << e.what() << std::endl;
-		path += _config.getRoot();
-	}
+	// try {
+	// 	Location loc = _config.getLocationByName("upload/");
+	// 	path += loc.getPath();
+	// }
+	// catch (const std::runtime_error& e) {
+	// 	std::cerr << e.what() << std::endl;
+	// 	path += _config.getPath();
+	// }
 	//Logger::log("Total path is : " + path);
+	path += _config.getPath();
 	return path;
 }
 
 //check if location, then return true or false
 bool Request::methodAccepted(std::string method){
-	try {
-		Location loc = _config.getLocationByName("upload/");
-		if (method == "DELETE")
-			return loc.getMethod(DELETE);
-		if (method == "POST")
-			return loc.getMethod(POST);
-	}
-	catch (const std::runtime_error& e) {
-		if (method == "DELETE")
-			return _config.getMethod(DELETE);
-		if (method == "POST")
-			return _config.getMethod(POST);
-	}
+	if (method == "DELETE")
+		return _config.getMethod(DELETE);
+	if (method == "POST")
+		return _config.getMethod(POST);
 	return false;
 }
 
