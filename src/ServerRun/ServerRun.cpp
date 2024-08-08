@@ -158,19 +158,6 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd)
 }
 
 
-//return server or throw Exception
-Server ServerRun::findConfig(s_domain port)
-{
-	for (Server server : _servers){
-		std::string name = server.getName();
-		for (s_domain p : server.getPorts()){
-			if (p.port == port.port && (p.host == port.host || name == port.host))
-				return (server);
-		}
-	}
-	throw (HTTPError(INTERNAL_SRV_ERR));
-}
-
 void ServerRun::removeConnection(int fd)
 {
 	for (int i = 0; i < (int)_pollFds.size(); i++)

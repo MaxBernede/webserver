@@ -90,10 +90,8 @@ void	HTTPObject::checkTimeOut()
 	}
 }
 
-void	HTTPObject::setConfig(Server config)
+void	HTTPObject::setConfig()
 {
-	_request->setConfig(config);
-	_request->configConfig();
 	_config = _request->getConfig();
 }
 

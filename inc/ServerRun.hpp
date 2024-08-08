@@ -90,8 +90,6 @@ class ServerRun
 		void	sendRedirect(int clientFd);
 		void	sendError(int clietnFd);
 
-		Server	findConfig(s_domain port);
-
 		void	cleanUp(int clientFd);
 		HTTPObject	*findHTTPObject(int fd);
 };

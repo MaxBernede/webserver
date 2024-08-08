@@ -43,7 +43,7 @@ class HTTPObject {
 		// void	sendRedirection()
 
 		// Getters & Setters
-		void		setConfig(Server config);
+		void		setConfig();
 		void		setReadFd(int fd);
 		void		setWriteFd(int fd);
 		int			getClientFd(); 

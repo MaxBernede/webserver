@@ -74,11 +74,6 @@ Server	Request::getConfig(){
 
 // Setters
 
-void	Request::setConfig(Server config)
-{
-	_config = config;
-}
-
 void Request::setErrorCode(ErrorCode err)
 {
 	_errorCode = err;
@@ -95,25 +90,25 @@ std::string Request::getErrorString(){
 	return "Unknown Error";
 }
 
-s_domain Request::getRequestDomain(){
-	s_domain Domain;
-	std::string host = this->getValues("Host");
-	size_t colonIndex = host.find_last_of(":");
-	if (colonIndex != std::string::npos)
-	{
-		// std::cout << "HOST: " << host << std::endl;
-		std::string port = host.substr(colonIndex + 1);
-		// std::cout << "port: " << port << std::endl;
-		Domain.port = std::stoi(port);
-		std::string ip = host.substr(0, colonIndex);
-		// std::cout << "ip: " << ip << std::endl;
-		if (ip == "localhost")
-			ip = "127.0.0.1";
-		Domain.host = ip;
-		return (Domain);
-	}
-	throw (HTTPError(INTERNAL_SRV_ERR));
-}
+// s_domain Request::getRequestDomain(){
+// 	s_domain Domain;
+// 	std::string host = this->getValues("Host");
+// 	size_t colonIndex = host.find_last_of(":");
+// 	if (colonIndex != std::string::npos)
+// 	{
+// 		// std::cout << "HOST: " << host << std::endl;
+// 		std::string port = host.substr(colonIndex + 1);
+// 		// std::cout << "port: " << port << std::endl;
+// 		Domain.port = std::stoi(port);
+// 		std::string ip = host.substr(0, colonIndex);
+// 		// std::cout << "ip: " << ip << std::endl;
+// 		if (ip == "localhost")
+// 			ip = "127.0.0.1";
+// 		Domain.host = ip;
+// 		return (Domain);
+// 	}
+// 	throw (HTTPError(INTERNAL_SRV_ERR));
+// }
 
 s_domain Request::getRequestDomain(std::string host_val){
 	s_domain Domain;

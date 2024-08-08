@@ -231,7 +231,7 @@ void	Request::configConfig(){
 		temp.erase(temp.find('/', 1) + 1);
 	std::list<Location> locs = _config.getLocation();
 	for (Location loc : locs){
-			// std::cout << "LOCATION CHECK\t" << temp << "\t" << loc.getRoot() << "\t" << _config.getRoot() << std::endl;
+			std::cout << "LOCATION CHECK\t" << temp << "\t" << loc.getRoot() << "\t" << _config.getRoot() << std::endl;
 		if (temp == loc.getName() || (temp == loc.getRoot() && loc.getRoot() != _config.getRoot())){
 			// std::cout << "LOCATION FOUND" << temp << "\t" << loc.getRoot() << "\t" << _config.getRoot() << std::endl;
 			_config.setRoot(_config.getRoot() + loc.getRoot());

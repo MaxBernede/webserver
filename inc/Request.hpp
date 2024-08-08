@@ -80,7 +80,6 @@ class Request
 		std::string	getServerName();
 		int			getClientFd();
 		int			getRequestPort();
-		s_domain	getRequestDomain(); //dup of getrequesthost
 		s_domain	getRequestDomain(std::string host_val);
 		std::string	getRequestHost();
 		std::string	getRequestStr();
@@ -103,7 +102,6 @@ class Request
 		// SET
 		void		setFileName(std::string newName);
 		void		setFile();
-		void		setConfig(Server config);
 		void		setErrorCode(ErrorCode);
 
 		//Methods
