@@ -49,7 +49,6 @@ void	Request::checkHeaders(std::list<Server> _servers)
 	if (!contentLength.empty())
 		_contentLength = strToSizeT(contentLength);
 	std::string host = findHeaderValue("Host");
-	std::cout << "HOST!!! " << host << std::endl;
 	if (!host.empty())
 	{
 		s_domain Domain = this->getRequestDomain(host);
@@ -83,9 +82,12 @@ void Request::readRequest(std::list<Server> _servers)
 	if (finishedReadingHeader())
 		checkHeaders(_servers);
 	if (finishedReadingHeader() && _contentLength == 0)
-		_doneReading = true;
+	{
+			_doneReading = true;
+	}
 	if (_contentLength > 0 && checkBoundary())
 	{
+		Logger::log("POST Request finished reading", LogLevel::INFO);
 		_doneReading = true;
 	}
 	// requestReadTooLong();	
@@ -229,7 +231,7 @@ void	Request::configConfig(){
 		temp.erase(temp.find('/', 1) + 1);
 	std::list<Location> locs = _config.getLocation();
 	for (Location loc : locs){
-			std::cout << "LOCATION CHECK\t" << temp << "\t" << loc.getRoot() << "\t" << _config.getRoot() << std::endl;
+			// std::cout << "LOCATION CHECK\t" << temp << "\t" << loc.getRoot() << "\t" << _config.getRoot() << std::endl;
 		if (temp == loc.getName() || (temp == loc.getRoot() && loc.getRoot() != _config.getRoot())){
 			// std::cout << "LOCATION FOUND" << temp << "\t" << loc.getRoot() << "\t" << _config.getRoot() << std::endl;
 			_config.setRoot(_config.getRoot() + loc.getRoot());
