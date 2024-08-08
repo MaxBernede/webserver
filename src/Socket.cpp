@@ -14,9 +14,11 @@ Socket::Socket(std::string name)
 	struct addrinfo hints, *res, *tmp;
 	fillStruct(hints);
 	int status = getaddrinfo(name.c_str(), "http", &hints, &res);
-	if (status != 0){
-		std::cout << "http\t" << name.c_str() << std::endl;
-		throw (Exception("Error with getaddrinfo()", errno));}
+	if (status != 0)
+	{
+		throw (Exception("Error with getaddrinfo()", errno));
+	}
+
 
 	bool bound = false;
 	for (tmp = res; tmp != nullptr; tmp = tmp->ai_next)
