@@ -101,12 +101,12 @@ s_domain Request::getRequestDomain(){
 	size_t colonIndex = host.find_last_of(":");
 	if (colonIndex != std::string::npos)
 	{
-		std::cout << "HOST: " << host << std::endl;
+		// std::cout << "HOST: " << host << std::endl;
 		std::string port = host.substr(colonIndex + 1);
-		std::cout << "port: " << port << std::endl;
+		// std::cout << "port: " << port << std::endl;
 		Domain.port = std::stoi(port);
 		std::string ip = host.substr(0, colonIndex);
-		std::cout << "ip: " << ip << std::endl;
+		// std::cout << "ip: " << ip << std::endl;
 		if (ip == "localhost")
 			ip = "127.0.0.1";
 		Domain.host = ip;

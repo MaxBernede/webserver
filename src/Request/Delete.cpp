@@ -5,16 +5,26 @@ void Request::handleDirDelete(std::string path){
 	if (path.back() != '/')
 		throw (HTTPError(PAGE_NOT_FOUND));
 
-	if (access(path.c_str(), W_OK) != 0)
-		throw (HTTPError(FORBIDDEN));
+	try {
+		if (access(path.c_str(), W_OK) != 0)
+			throw (HTTPError(FORBIDDEN));
+	}
+	catch (const std::exception& e) {
+		throw HTTPError(FORBIDDEN);
+	}
 
 	removeDir(path);
 }
 
 void Request::remove(std::string path)
 {
-	if (access(path.c_str(), W_OK) != 0)
-		throw (HTTPError(FORBIDDEN));
+	try {
+		if (access(path.c_str(), W_OK) != 0)
+			throw (HTTPError(FORBIDDEN));
+	}
+	catch (const std::exception& e) {
+		throw HTTPError(FORBIDDEN);
+	}
 
 	if (std::remove(path.c_str()) == 0)
 	{
@@ -68,16 +78,10 @@ void Request::handleDelete(std::string path, std::string file){
 		throw (HTTPError(PAGE_NOT_FOUND));
 
 	Logger::log("File exist and will be deleted", INFO);
-	try {
-		if (std::filesystem::is_regular_file(fullPath))
-			remove(fullPath);
-		else if (std::filesystem::is_directory(fullPath))
-			handleDirDelete(fullPath);
-		else
-			throw (HTTPError(NO_CONTENT));
-	}
-	catch (const std::exception& e) {
-		std::cerr << "Error: " << e.what() << "\n";
-		throw HTTPError(INTERNAL_SRV_ERR);
-	}
+	if (std::filesystem::is_regular_file(fullPath))
+		remove(fullPath);
+	else if (std::filesystem::is_directory(fullPath))
+		handleDirDelete(fullPath);
+	else
+		throw (HTTPError(NO_CONTENT));
 }

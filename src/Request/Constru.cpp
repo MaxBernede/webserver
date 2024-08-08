@@ -124,18 +124,16 @@ void Request::constructRequest(){
 
 std::string Request::getRawBody()
 {
-    std::string delimiter = "\r\n\r\n";
-    size_t pos = _requestText.find(delimiter);
+	std::string delimiter = "\r\n\r\n";
+	size_t pos = _requestText.find(delimiter);
 
-    if (pos == std::string::npos)
-    {
-        // Delimiter not found, which implies no body or incorrectly formatted input
-        return "";
-    }
-
-    // Skip past the delimiter
-    pos += delimiter.length();
-
-    // Return the body starting right after the delimiter
-    return _requestText.substr(pos);
+	if (pos == std::string::npos)
+	{
+		// Delimiter not found, which implies no body or incorrectly formatted input
+		return "";
+	}
+	// Skip past the delimiter
+	pos += delimiter.length();
+	// Return the body starting right after the delimiter
+	return _requestText.substr(pos);
 }

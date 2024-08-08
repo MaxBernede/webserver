@@ -45,7 +45,6 @@ std::string	formatStrToHTML(std::string str)
 void	HTTPObject::writeToCgiPipe()
 {
 	std::string body = _request->getRawBody(); // Raw body with boundary strings
-	std::cout << "RAW BODY!\n" << body << std::endl;
 	if (body.length()) {
 		size_t totalBytesWritten = 0;
 		ssize_t bytesWritten;

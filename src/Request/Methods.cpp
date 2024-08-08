@@ -140,7 +140,6 @@ void	Request::handleDirListing()
 void Request::checkRequest()
 {
 	Logger::log("Checking file...", LogLevel::INFO);
-	std::cout << "REQUEST:\n" << _requestText << std::endl;
 	if (_requestText.size() >= _config.getMaxBody())
 		throw (HTTPError(PAYLOAD_TOO_LARGE));
 	redirRequest405(); // ---> throw something case error
