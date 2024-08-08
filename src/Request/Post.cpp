@@ -29,15 +29,22 @@ void Request::handlePost(const std::string &path, const std::string &file)
 }
 
 void writeBinaryDataToFile(const std::string& path, const std::string& binaryData) {
-    std::ofstream file(path, std::ios::binary);
+	std::ofstream file(path, std::ios::binary);
 
-    if (!file) {
-        throw std::ios_base::failure("Failed to open file for writing.");
-    }
-	
-    file.write(binaryData.data(), binaryData.size());
+	if (!file) {
+		throw std::ios_base::failure("Failed to open file for writing.");
+	}
 
-    file.close();
+	std::string boundaryIndicator = "\r\n--";
+	size_t boundaryPos = binaryData.rfind(boundaryIndicator);
+
+	if (boundaryPos != std::string::npos) {
+		file.write(binaryData.data(), boundaryPos);
+	} else {
+		file.write(binaryData.data(), binaryData.size());
+	}
+
+	file.close();
 }
 
 //Need to split this function. It's doing way too many things : search extension, append path etcc
