@@ -69,7 +69,6 @@ class Request
 		void 		parseRequest(const std::string& headers);
 		void		checkRequest();
 		bool		finishedReadingHeader();
-		std::string	findHeaderValue(std::string key);
 		void		checkHeaders(std::list<Server> _servers);
 		Server		findConfig(s_domain port, std::list<Server> _servers);
 		void 		findBoundary();
@@ -114,7 +113,6 @@ class Request
 		void		redirRequest405();
 		void		redirRequest404();
 		void		handleDirListing();
-		void		requestReadTooLong();
 
 		void		searchErrorPage();
 		void		handleDelete(std::string, std::string);
@@ -143,7 +141,6 @@ class Request
 		std::string	_requestText;
 		bool		_doneReading;
 		std::string	_file;
-		uint32_t	_recvBytes;
 		Server		_config;
 		ErrorCode	_errorCode;
 		std::string	_filePath;

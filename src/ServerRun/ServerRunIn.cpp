@@ -94,7 +94,6 @@ void ServerRun::handleRequest(int clientFd)
 	{
 		// _httpObjects[clientFd]->_request->printAllData();
 		_httpObjects[clientFd]->setConfig();
-		_httpObjects[clientFd]->_request->checkRequest();
 		_pollData[clientFd]._pollState = CLIENT_CONNECTION_WAIT;
 		executeRequest(clientFd);
 	}

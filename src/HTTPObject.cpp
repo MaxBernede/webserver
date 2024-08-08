@@ -47,19 +47,18 @@ std::string	formatStrToHTML(std::string str)
 void	HTTPObject::writeToCgiPipe()
 {
 	std::string body = _request->getRawBody(); // Raw body with boundary strings
-	if (body.length()) {
-		ssize_t bytesWritten;
-		if (_totalBytesWritten < body.length()) {
-			bytesWritten = write(_writeFd, body.c_str() + _totalBytesWritten, body.length() - _totalBytesWritten);
-			if (bytesWritten == -1)
-				throw(Exception("Write failed", 1));
-			_totalBytesWritten += bytesWritten;
-		}
-		if (_totalBytesWritten == body.length())
-			_writeFinished = true;
+	ssize_t bytesWritten;
+	if (_totalBytesWritten < body.length())
+	{
+		bytesWritten = write(_writeFd, body.c_str() + _totalBytesWritten, body.length() - _totalBytesWritten);
+		if (bytesWritten == -1)
+			throw(Exception("Writing to pipe failed", 1));
+		_totalBytesWritten += bytesWritten;
 	}
-	else
+	else if (_totalBytesWritten == body.length())
+	{
 		_writeFinished = true;
+	}
 }
 
 void	HTTPObject::runCgi()

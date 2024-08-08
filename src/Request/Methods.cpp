@@ -1,30 +1,8 @@
 #include "Request.hpp"
 
-// Throw HTTPError if the request at this moment is bigger than MAX BODY SIZE
-void Request::requestReadTooLong(){
-	if (_requestText.length() > MAX_BODY_SIZE)
-	{
-		_doneReading = true;
-		throw HTTPError(PAYLOAD_TOO_LARGE);
-	}
-}
-
 bool Request::finishedReadingHeader()
 {
 	return (_requestText.find("\r\n\r\n") != std::string::npos);
-}
-
-std::string	Request::findHeaderValue(std::string key) {
-	std::size_t filenamePos = _requestText.find(key + ":");                          // Find the position of the filename in the JSON body
-	if (filenamePos == std::string::npos)
-		return "";
-
-	filenamePos += key.size() + 2;                                                                  // Move past "filename=\"" to get to the start of the actual filename
-	std::size_t endQuotePos = _requestText.find("\r", filenamePos);
-	if (endQuotePos == std::string::npos)
-		return "";                                                 // Closing quote not found, throw an HTTP error
-
-	return _requestText.substr(filenamePos, endQuotePos - filenamePos);                  // Extract and return the filename
 }
 
 Server Request::findConfig(s_domain port, std::list<Server> _servers)
@@ -41,22 +19,23 @@ Server Request::findConfig(s_domain port, std::list<Server> _servers)
 
 void	Request::checkHeaders(std::list<Server> _servers)
 {
+	// parse headers
 	constructRequest();
-	std::string contentLength = findHeaderValue("Content-Length");
+	// set config based on host
+	s_domain Domain = getRequestDomain(getValues("Host"));
+	_config = findConfig(Domain, _servers);
+	configConfig();
+	// error checking, redirection, dir listing
+	std::string contentLength = getValues("Content-Length");
 	if (!contentLength.empty())
 		_contentLength = strToSizeT(contentLength);
-	// This may not be needed
-	std::string host = findHeaderValue("Host");
-	if (!host.empty())
-	{
-		s_domain Domain = this->getRequestDomain(host);
-		_config = findConfig(Domain, _servers);
-		configConfig();
-		if (_contentLength > _config.getMaxBody())
-			throw(HTTPError(PAYLOAD_TOO_LARGE));
-	}
-	redirRequest405(); // ---> throw something case error
+	if (_contentLength > _config.getMaxBody())
+		throw(HTTPError(PAYLOAD_TOO_LARGE));
+	redirRequest405();
 	redirRequest501();
+	handleRedirection();
+	redirRequest404();
+	handleDirListing();
 }
 
 bool	Request::checkBoundary()
@@ -75,33 +54,26 @@ void Request::readRequest(std::list<Server> _servers)
 		throw (HTTPError(ErrorCode::BAD_REQUEST));
 	}
 	buffer[rb] = '\0';
-	_recvBytes += rb;
 	_requestText += std::string(buffer, rb);
 	if (finishedReadingHeader())
 		checkHeaders(_servers);
-	if (finishedReadingHeader() && _contentLength == 0)
-	{
-			_doneReading = true;
-	}
-	if (_contentLength > 0 && checkBoundary())
+	if (finishedReadingHeader() && _contentLength == 0) // if request without body (e.g. GET)
+		_doneReading = true;
+	if (_contentLength > 0 && checkBoundary()) // if request with body (e.g. POST)
 	{
 		Logger::log("POST Request finished reading", LogLevel::INFO);
 		_doneReading = true;
 	}
 	if (getMethod(0) == "DELETE" && rb < BUFFER_SIZE - 1)
 		_doneReading = true;
-	// requestReadTooLong();	
 }
 
 bool Request::isCgi()
 {
-	// check extension x.substr(x.find_last_of("*******") + 2) == "cx")
 	std::string fileName = getFileName();
 	std::string extension = getExtension(fileName);
-	// std::cout << "What is the file extension: " << extension << std::endl;
 	return (extension == "cgi");
 }
-
 
 bool Request::isDoneReading()
 {
@@ -202,9 +174,6 @@ void	Request::handleDirListing()
 void Request::checkRequest()
 {
 	Logger::log("Checking file...", LogLevel::INFO);
-	std::cout << "REQUEST! " << _requestText << std::endl;
-	if (_requestText.size() >= _config.getMaxBody())
-		throw (HTTPError(PAYLOAD_TOO_LARGE));
 	handleRedirection();
 	redirRequest404();
 	handleDirListing();
