@@ -86,6 +86,8 @@ void Request::readRequest(std::list<Server> _servers)
 		Logger::log("POST Request finished reading", LogLevel::INFO);
 		_doneReading = true;
 	}
+	if (getMethod(0) == "DELETE" && rb < BUFFER_SIZE - 1)
+		_doneReading = true;
 	// requestReadTooLong();	
 }
 
