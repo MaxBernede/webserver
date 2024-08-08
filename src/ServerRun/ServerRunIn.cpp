@@ -93,7 +93,6 @@ void ServerRun::handleRequest(int clientFd)
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
 		// _httpObjects[clientFd]->_request->printAllData();
-		_httpObjects[clientFd]->_request->startConstruRequest();
 		_httpObjects[clientFd]->setConfig();
 		// Server config = findConfig(Domain);
 		// _httpObjects[clientFd]->setConfig(config);

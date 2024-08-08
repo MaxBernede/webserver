@@ -130,12 +130,10 @@ class Request
 
 		void		checkErrors();
 		void		checkVersion();
-		void		tooLong();
 
 		void		configConfig();
 
 		void		printAllData();
-		void		startConstruRequest();
 
 	private:
 		std::vector<std::string>	_method;
