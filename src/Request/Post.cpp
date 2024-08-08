@@ -1,19 +1,35 @@
 #include "Request.hpp"
 
 
+std::string Request::getOtherFilename() {
+	Logger::log(_requestText, WARNING);
+
+	std::size_t filenamePos = _requestText.find("filename=\"");                          // Find the position of the filename in the JSON body
+	if (filenamePos == std::string::npos)
+		throw HTTPError(BAD_REQUEST); 
+
+	filenamePos += 10;                                                                  // Move past "filename=\"" to get to the start of the actual filename
+	std::size_t endQuotePos = _requestText.find("\"", filenamePos);
+	if (endQuotePos == std::string::npos) {
+		throw HTTPError(BAD_REQUEST);                                                   // Closing quote not found, throw an HTTP error
+	}
+
+	return _requestText.substr(filenamePos, endQuotePos - filenamePos);                  // Extract and return the filename
+}
+
 void Request::handlePost(const std::string &path, const std::string &file)
 {
-	std::string body = getValues("Body");
+	// std::string body = getValues("Body");
 
-	if (body.empty())
-		throw (HTTPError(UNPROCESSABLE));
+	// if (body.empty())
+	// 	throw (HTTPError(UNPROCESSABLE));
 
 	Logger::log("Creating the file", INFO);
-	createFile(body, path, file);
+	createFile(_requestText, path, file);
 }
 
 void writeBinaryDataToFile(const std::string& path, const std::string& binaryData) {
-    std::ofstream file(path, std::ios::out | std::ios::binary);
+    std::ofstream file(path, std::ios::binary);
 
     if (!file) {
         throw std::ios_base::failure("Failed to open file for writing.");
@@ -43,6 +59,14 @@ void Request::createFile(const std::string &content, std::string path, std::stri
     }
 
     std::string fileContent = content.substr(pos + 4); // Skip the two newlines
+
+   pos = fileContent.find("\r\n\r\n");
+    if (pos == std::string::npos) {
+        std::cerr << "Error: No empty line found in content" << std::endl;
+        throw HTTPError(BAD_REQUEST);
+    }
+
+    fileContent = fileContent.substr(pos + 4); // Skip the two newlines
 
 
     //Logger::log("Write: " + fileContent, WARNING);

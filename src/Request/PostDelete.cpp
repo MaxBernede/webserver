@@ -30,7 +30,7 @@ std::string Request::findFileName(std::string method){
 	if (method == "DELETE")
 		return getDeleteFilename(_requestText);
 	if (method == "POST")
-		return getFileNameFromBody(getValues("Body"));
+		return getOtherFilename();
 	return "";
 }
 

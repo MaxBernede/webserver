@@ -48,7 +48,7 @@ void Request::removeDir(std::string path){
 
 std::string Request::getDeleteFilename(const std::string& httpRequest) {
 	// Find the start of the JSON body
-	//Logger::log(httpRequest);
+	Logger::log(httpRequest, WARNING);
 	std::size_t jsonStart = httpRequest.find("\r\n\r\n");
 	if (jsonStart == std::string::npos)
 		throw HTTPError(BAD_REQUEST);

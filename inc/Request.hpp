@@ -81,6 +81,7 @@ class Request
 		std::string	getFileNameProtected( void );
 		Server		getConfig();
 		std::string	getDeleteFilename(const std::string& httpRequest);
+		std::string getOtherFilename();
 		ErrorCode	getErrorCode();
 		std::string	getErrorString();
 		std::string	getFilePath();

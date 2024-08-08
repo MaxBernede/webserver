@@ -1,0 +1,23 @@
+c++ -std=c++20 -Wall -Wextra -g  -fsanitize=address -Iinc -c src/Request/Methods.cpp -o obj/Request/Methods.o
+c++ -std=c++20 -Wall -Wextra -g  -fsanitize=address -Iinc obj/Request/PostDelete.o obj/Request/Post.o obj/Request/Constru.o obj/Request/Delete.o obj/Request/Gets.o obj/Request/Methods.o obj/Utils/CreateFile.o obj/Utils/GetPath.o obj/Utils/Utils.o obj/ServerRun/ServerRunOut.o obj/ServerRun/ServerRun.o obj/ServerRun/ServerRunIn.o obj/Config/Config.o obj/Config/ConfigClass.o obj/Config/Location.o obj/Config/Server.o obj/FileHandling/Methods.o obj/HTTPObject.o obj/Logger.o obj/Response.o obj/Socket.o obj/main.o obj/CGI.o -o webserv
+./webserv template.conf
+[1;34m17:51:13 [INFO] Creaing listening sockets
+[0m
+Socket failed to bind :(	f1r6s18.codam.nl - error 1: Operation not permitted
+[1;34m17:51:13 [INFO] Creaing listening sockets
+[0m
+Error with getaddrinfo() - error 0: Success
+[1;34m17:51:13 [INFO] Server running... [0m
+[37m17:51:16 [DEBUG] New client connection accepted at fd: 8[0m
+[37m17:51:16 [DEBUG] New client connection accepted at fd: -1[0m
+[1;34m17:51:16 [INFO] Creating a new HTTPObject[0m
+[37m17:51:18 [DEBUG] New client connection accepted at fd: 9[0m
+[37m17:51:18 [DEBUG] New client connection accepted at fd: -1[0m
+[1;34m17:51:23 [INFO] Creating a new HTTPObject[0m
+[1;34m17:51:23 [INFO] Request is being parsed...[0m
+[1;31m17:51:23 [ERROR] Bad Request - error 400[0m
+[1;33m17:51:23 [WARNING] Redirecting to Error...[0m
+[1;33m17:51:23 [WARNING] Error page does not exist..Error code: 400[0m
+[1;34m17:51:23 [INFO] Sending error page[0m
+[1;34m17:51:23 [INFO] Sending Response to client...[0m
+[1;34m17:51:23 [INFO] Cleaning up client connection[0m
