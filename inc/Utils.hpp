@@ -14,7 +14,6 @@
 std::string	firstWord(const std::string& str);
 bool		endsWith(const std::string& str, const std::string& suffix);
 bool 		exists (const std::string& name);
-void		createFile(std::string const &body, std::string path, std::string file);
 std::string	getExtension(std::string fileName);
 std::string	getPath();
 std::string	boolstring(const bool& src);

@@ -22,21 +22,23 @@ bool Request::methodAccepted(std::string method){
 			return loc.getMethod(DELETE);
 		if (method == "POST")
 			return loc.getMethod(POST);
+		return false;
 	}
 	catch (const std::runtime_error& e) {
 		if (method == "DELETE")
 			return _config.getMethod(DELETE);
 		if (method == "POST")
 			return _config.getMethod(POST);
+		return false;
 	}
 }
 
-std::string Request::findFileName(std::string method){
+std::string Request::findFileName(const std::string &method){
 	if (method == "DELETE")
 		return getDeleteFilename(_request_text);
-	if (method == "POST"){
+	if (method == "POST")
 		return getFileNameFromBody(getValues("Body"));
-	}
+	return ""; // this line is impossible
 }
 
 bool checkInsecure(std::string fileName){

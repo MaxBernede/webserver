@@ -108,12 +108,12 @@ class Request
 
 		void		searchErrorPage();
 		void		handleDelete(std::string, std::string);
-		void		handlePost(std::string, std::string);
+		void		handlePost(const std::string &, const std::string &);
 		void		handleDirDelete(std::string path);
 		std::string	getEndPath();
 		bool		methodAccepted(std::string method);
-		std::string	findFileName(std::string method);
-		void		createFile(std::string const &content, std::string path, std::string file);
+		std::string	findFileName(const std::string &method);
+		void		createFile(const std::string&content, std::string path, std::string file);
 		
 		void		remove(std::string path);
 		void		removeDir(std::string path);
