@@ -17,6 +17,8 @@ class HTTPObject {
 		int			_writeFd; // upload pipe write-end to write to child process running cgi script
 		TimePoint	_startTime;
 		bool		_timeOut;
+		size_t		_totalBytesWritten; // to child process
+		bool		_writeFinished;
 	
 	public:
 		Server 		_config;
@@ -49,4 +51,5 @@ class HTTPObject {
 		int			getWriteFd();
 		TimePoint	getStartTime();
 		bool		getTimeOut();
+		bool		getWriteFinished();
 };

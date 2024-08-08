@@ -66,6 +66,7 @@ class Request
 		void		parseBody(std::istringstream &iss, std::string &line);
 		void 		parseRequest(const std::string& headers);
 		void		checkRequest();
+		bool		finishedReadingHeader();
 
 		//GET
 		std::string	getFile();

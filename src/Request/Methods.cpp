@@ -13,6 +13,12 @@ void Request::startConstruRequest(){
 		constructRequest();
 }
 
+bool	Request::finishedReadingHeader()
+{
+	size_t delimiter = _requestText.find("\r\n\r\n");
+	return (delimiter != std::string::npos);
+}
+
 void Request::readRequest()
 {
 	char	buffer[BUFFER_SIZE];
@@ -26,6 +32,10 @@ void Request::readRequest()
 	buffer[rb] = '\0';
 	_recvBytes += rb;
 	_requestText += std::string(buffer, rb);
+	if (finishedReadingHeader())
+	{
+		// find the content length
+	}
 	requestReadTooLong();
 	if (rb < BUFFER_SIZE - 1) // Finished reading
 		_doneReading = true;

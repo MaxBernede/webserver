@@ -32,8 +32,11 @@ void ServerRun::uploadToCgi(int writePipe)
 {
 	HTTPObject *obj = findHTTPObject(writePipe);
 	obj->writeToCgiPipe();
-	obj->_cgi->closeUploadPipe();
-	removeConnection(writePipe);
+	if (obj->getWriteFinished())
+	{
+		obj->_cgi->closeUploadPipe();
+		removeConnection(writePipe);
+	}
 }
 
 void ServerRun::sendRedirect(int clientFd) // this is a clientFd

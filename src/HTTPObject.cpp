@@ -8,6 +8,8 @@ HTTPObject::HTTPObject(int clientFd) :
 	_request = new Request(clientFd);
 	_response = new Response(clientFd);
 	_timeOut = false;
+	_totalBytesWritten = 0;
+	_writeFinished = false;
 }
 
 HTTPObject::~HTTPObject()
@@ -46,14 +48,15 @@ void	HTTPObject::writeToCgiPipe()
 {
 	std::string body = _request->getRawBody(); // Raw body with boundary strings
 	if (body.length()) {
-		size_t totalBytesWritten = 0;
 		ssize_t bytesWritten;
-		while (totalBytesWritten < body.length()) {
-			bytesWritten = write(_writeFd, body.c_str() + totalBytesWritten, body.length() - totalBytesWritten);
+		if (_totalBytesWritten < body.length()) {
+			bytesWritten = write(_writeFd, body.c_str() + _totalBytesWritten, body.length() - _totalBytesWritten);
 			if (bytesWritten == -1)
 				throw(Exception("Write failed", 1));
-			totalBytesWritten += bytesWritten;
+			_totalBytesWritten += bytesWritten;
 		}
+		if (_totalBytesWritten == body.length())
+			_writeFinished = true;
 	}
 }
 
@@ -127,4 +130,9 @@ TimePoint HTTPObject::getStartTime()
 bool	HTTPObject::getTimeOut()
 {
 	return (_timeOut);
+}
+
+bool	HTTPObject::getWriteFinished()
+{
+	return (_writeFinished);
 }

@@ -72,7 +72,7 @@ void Request::parseRequest(const std::string& headers) {
 	std::string			line;
 
 	parseFirstLine(iss);
-	while (std::getline(iss, line)) {
+	while (std::ge/index.htmltline(iss, line)) {
 		if (line == "\r")
 			break;
 		size_t pos = line.find(':');
