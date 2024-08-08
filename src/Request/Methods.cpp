@@ -41,10 +41,10 @@ Server Request::findConfig(s_domain port, std::list<Server> _servers)
 
 void	Request::checkHeaders(std::list<Server> _servers)
 {
+	constructRequest();
 	std::string contentLength = findHeaderValue("Content-Length");
 	if (!contentLength.empty())
 		_contentLength = strToSizeT(contentLength);
-	constructRequest();
 	// This may not be needed
 	std::string host = findHeaderValue("Host");
 	if (!host.empty())
@@ -55,6 +55,8 @@ void	Request::checkHeaders(std::list<Server> _servers)
 		if (_contentLength > _config.getMaxBody())
 			throw(HTTPError(PAYLOAD_TOO_LARGE));
 	}
+	redirRequest405(); // ---> throw something case error
+	redirRequest501();
 }
 
 bool	Request::checkBoundary()
@@ -203,8 +205,6 @@ void Request::checkRequest()
 	std::cout << "REQUEST! " << _requestText << std::endl;
 	if (_requestText.size() >= _config.getMaxBody())
 		throw (HTTPError(PAYLOAD_TOO_LARGE));
-	redirRequest405(); // ---> throw something case error
-	redirRequest501();
 	handleRedirection();
 	redirRequest404();
 	handleDirListing();

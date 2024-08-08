@@ -58,8 +58,9 @@ void	HTTPObject::writeToCgiPipe()
 		if (_totalBytesWritten == body.length())
 			_writeFinished = true;
 	}
+	else
+		_writeFinished = true;
 }
-
 
 void	HTTPObject::runCgi()
 {
