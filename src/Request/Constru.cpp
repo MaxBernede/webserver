@@ -72,7 +72,7 @@ void Request::parseRequest(const std::string& headers) {
 	std::string			line;
 
 	parseFirstLine(iss);
-	while (std::ge/index.htmltline(iss, line)) {
+	while (std::getline(iss, line)) {
 		if (line == "\r")
 			break;
 		size_t pos = line.find(':');
@@ -103,7 +103,13 @@ void Request::fillBoundary(std::string text){
 }
 
 //Constructor that parses everything
-Request::Request(int clientFd) : _clientFd(clientFd), _doneReading(false), _errorCode(ErrorCode::OK), _errorPageFound(false){
+Request::Request(int clientFd) :
+				_clientFd(clientFd),
+				_doneReading(false),
+				_errorCode(ErrorCode::OK),
+				_errorPageFound(false),
+				_contentLength(0)
+{
 	_method.push_back("NULL");
 	_method.push_back("000");
 	_method.push_back("HTTP/1.1");

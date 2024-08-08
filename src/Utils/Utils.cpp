@@ -51,3 +51,11 @@ std::vector<std::string> getDirectoryContent(const char *name)
 	closedir(dirp);
 	return v;
 }
+
+size_t	strToSizeT(std::string str)
+{
+	std::stringstream stream(str);
+	size_t output;
+	stream >> output;
+	return (output);
+}

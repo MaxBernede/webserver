@@ -12,6 +12,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <iostream>
+#include <sstream>
+#include <string>
 
 #define MAX_BODY_SIZE 2147483648
 //#define MAX_BODY_SIZE 1048
@@ -61,12 +63,16 @@ class Request
 
 		void		fillBoundary(std::string text);
 		std::string	getValues(std::string key);
-		void		readRequest();
+		void		readRequest(std::list<Server> _servers);
 		void		parseFirstLine(std::istringstream &iss);
 		void		parseBody(std::istringstream &iss, std::string &line);
 		void 		parseRequest(const std::string& headers);
 		void		checkRequest();
 		bool		finishedReadingHeader();
+		std::string	findHeaderValue(std::string key);
+		void		checkHeaders(std::list<Server> _servers);
+		Server		findConfig(s_domain port, std::list<Server> _servers);
+		void 		findBoundary();
 
 		//GET
 		std::string	getFile();
@@ -75,6 +81,7 @@ class Request
 		int			getClientFd();
 		int			getRequestPort();
 		s_domain	getRequestDomain(); //dup of getrequesthost
+		s_domain	getRequestDomain(std::string host_val);
 		std::string	getRequestHost();
 		std::string	getRequestStr();
 		std::string	getMethod(size_t index);
@@ -91,6 +98,7 @@ class Request
 		void		execAction();
 		std::string	getBoundary();
 		std::string	getRawBody(); // for CGI Pipe
+		bool		checkBoundary();
 
 		// SET
 		void		setFileName(std::string newName);
@@ -144,4 +152,5 @@ class Request
 		ErrorCode	_errorCode;
 		std::string	_filePath;
 		bool		_errorPageFound;
+		size_t		_contentLength;
 };

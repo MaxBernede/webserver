@@ -89,10 +89,11 @@ void ServerRun::handleRequest(int clientFd)
 		_httpObjects[clientFd] = newObj;
 	}
 	if (_httpObjects[clientFd]->_request->isDoneReading() == false)
-		_httpObjects[clientFd]->_request->readRequest();
+		_httpObjects[clientFd]->_request->readRequest(_servers);
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
 		// _httpObjects[clientFd]->_request->printAllData();
+		std::cout << "GETS here??\n";
 		_httpObjects[clientFd]->_request->startConstruRequest();
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = findConfig(Domain);

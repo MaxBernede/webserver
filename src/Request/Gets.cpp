@@ -115,6 +115,25 @@ s_domain Request::getRequestDomain(){
 	throw (HTTPError(INTERNAL_SRV_ERR));
 }
 
+s_domain Request::getRequestDomain(std::string host_val){
+	s_domain Domain;
+	size_t colonIndex = host_val.find_last_of(":");
+	if (colonIndex != std::string::npos)
+	{
+		// std::cout << "HOST: " << host << std::endl;
+		std::string port = host_val.substr(colonIndex + 1);
+		// std::cout << "port: " << port << std::endl;
+		Domain.port = std::stoi(port);
+		std::string ip = host_val.substr(0, colonIndex);
+		// std::cout << "ip: " << ip << std::endl;
+		if (ip == "localhost")
+			ip = "127.0.0.1";
+		Domain.host = ip;
+		return (Domain);
+	}
+	throw (HTTPError(INTERNAL_SRV_ERR));
+}
+
 std::string	Request::getFilePath()
 {
 	return (_filePath);

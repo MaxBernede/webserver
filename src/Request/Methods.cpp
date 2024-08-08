@@ -9,17 +9,65 @@ void Request::requestReadTooLong(){
 	}
 }
 
-void Request::startConstruRequest(){
+void	Request::startConstruRequest(){
 		constructRequest();
 }
 
-bool	Request::finishedReadingHeader()
+bool Request::finishedReadingHeader()
 {
-	size_t delimiter = _requestText.find("\r\n\r\n");
-	return (delimiter != std::string::npos);
+	return (_requestText.find("\r\n\r\n") != std::string::npos);
 }
 
-void Request::readRequest()
+std::string	Request::findHeaderValue(std::string key) {
+	std::size_t filenamePos = _requestText.find(key + ":");                          // Find the position of the filename in the JSON body
+	if (filenamePos == std::string::npos)
+		return "";
+
+	filenamePos += key.size() + 2;                                                                  // Move past "filename=\"" to get to the start of the actual filename
+	std::size_t endQuotePos = _requestText.find("\r", filenamePos);
+	if (endQuotePos == std::string::npos)
+		return "";                                                 // Closing quote not found, throw an HTTP error
+
+	return _requestText.substr(filenamePos, endQuotePos - filenamePos);                  // Extract and return the filename
+}
+
+Server Request::findConfig(s_domain port, std::list<Server> _servers)
+{
+	for (Server server : _servers){
+		std::string name = server.getName();
+		for (s_domain p : server.getPorts()){
+			if (p.port == port.port && (p.host == port.host || name == port.host))
+				return (server);
+		}
+	}
+	throw (HTTPError(INTERNAL_SRV_ERR));
+}
+
+void	Request::checkHeaders(std::list<Server> _servers)
+{
+	std::string contentLength = findHeaderValue("Content-Length");
+	if (!contentLength.empty())
+		_contentLength = strToSizeT(contentLength);
+	std::string host = findHeaderValue("Host");
+	std::cout << "HOST!!! " << host << std::endl;
+	if (!host.empty())
+	{
+		s_domain Domain = this->getRequestDomain(host);
+		_config = findConfig(Domain, _servers);
+		configConfig();
+		if (_contentLength > _config.getMaxBody())
+			throw(HTTPError(PAYLOAD_TOO_LARGE));
+	}
+	if (_contentLength > 0)
+		fillBoundary(_requestText);
+}
+
+bool	Request::checkBoundary()
+{
+	return (_requestText.find(_boundary + "--") != std::string::npos);
+}
+
+void Request::readRequest(std::list<Server> _servers)
 {
 	char	buffer[BUFFER_SIZE];
 	int		rb = read(_clientFd, buffer, BUFFER_SIZE - 1);
@@ -33,12 +81,14 @@ void Request::readRequest()
 	_recvBytes += rb;
 	_requestText += std::string(buffer, rb);
 	if (finishedReadingHeader())
-	{
-		// find the content length
-	}
-	requestReadTooLong();
-	if (rb < BUFFER_SIZE - 1) // Finished reading
+		checkHeaders(_servers);
+	if (finishedReadingHeader() && _contentLength == 0)
 		_doneReading = true;
+	if (_contentLength > 0 && checkBoundary())
+	{
+		_doneReading = true;
+	}
+	// requestReadTooLong();	
 }
 
 bool Request::isCgi()
@@ -150,6 +200,7 @@ void	Request::handleDirListing()
 void Request::checkRequest()
 {
 	Logger::log("Checking file...", LogLevel::INFO);
+	std::cout << "REQUEST! " << _requestText << std::endl;
 	if (_requestText.size() >= _config.getMaxBody())
 		throw (HTTPError(PAYLOAD_TOO_LARGE));
 	redirRequest405(); // ---> throw something case error
