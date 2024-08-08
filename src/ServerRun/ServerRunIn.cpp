@@ -7,8 +7,8 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	socklen_t len = sizeof(sockaddr_in);
 
 	connFd = accept(listenerFd, (struct sockaddr *)cli_addr, &len);
-	if (connFd == -1)
-		throw (Exception("Error: accept() failed and returned -1", 1));
+	if (connFd == -1 && !(errno == EAGAIN || errno == EWOULDBLOCK))
+		throw (Exception("Error: accept() failed and returned -1", errno));
 	Logger::log("New client connection accepted at fd: " + std::to_string(connFd), LogLevel::DEBUG);
 	addQueue(CLIENT_CONNECTION_READY, CLIENTFD, connFd);
 }

@@ -1,4 +1,4 @@
-NAME := exe
+NAME := webserv
 CXX := c++
 
 CXXFLAGS = -std=c++20 -Wall -Wextra -g #-flto

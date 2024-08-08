@@ -18,8 +18,6 @@ Socket::Socket(std::string name)
 	{
 		throw (Exception("Error with getaddrinfo()", errno));
 	}
-
-
 	bool bound = false;
 	for (tmp = res; tmp != nullptr; tmp = tmp->ai_next)
 	{
