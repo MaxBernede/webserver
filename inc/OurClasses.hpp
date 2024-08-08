@@ -31,21 +31,21 @@ enum ErrorCode {
 	DIRECTORY_LISTING = 90
 };
 
-class	invalidFile : public std::exception{
-	public:
-		const char	*what() const noexcept override {
-			return "Could not open file, resort to default config";
-		}
+class	invalidFile : public std::exception {
+public:
+	const char* what() const noexcept override {
+		return "Could not open file, resort to default config";
+	}
 };
 
-class	syntaxError : public std::exception{
-	public:
-		const char	*what() const noexcept override {
-			return "Syntax error, resort to default config";
-		}
+class	syntaxError : public std::exception {
+public:
+	const char* what() const noexcept override {
+		return "Syntax error, resort to default config";
+	}
 };
 
-enum methods{
+enum methods {
 	GET,
 	POST,
 	DELETE,
@@ -58,17 +58,17 @@ enum methods{
 	ENUM_SIZE
 };
 
-typedef struct t_domain{
+typedef struct t_domain {
 	uint16_t	port;
 	std::string	host;
 }	s_domain;
 
-typedef struct t_ePage{
+typedef struct t_ePage {
 	uint16_t	err;
-	std::string	url; 
+	std::string	url;
 }	s_ePage;
 
-typedef struct t_redirect{
+typedef struct t_redirect {
 	uint16_t	returnValue;
 	std::string	redirFrom;
 	std::string	redirTo;

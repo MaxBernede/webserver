@@ -2,7 +2,7 @@
 
 
 //Explain that path is root + path in config
-std::string Request::getEndPath(){
+std::string Request::getEndPath() {
 	std::string path = getPath();
 	// try {
 	// 	Location loc = _config.getLocationByName("upload/");
@@ -18,7 +18,7 @@ std::string Request::getEndPath(){
 }
 
 //check if location, then return true or false
-bool Request::methodAccepted(std::string method){
+bool Request::methodAccepted(std::string method) {
 	if (method == "DELETE")
 		return _config.getMethod(DELETE);
 	if (method == "POST")
@@ -26,7 +26,7 @@ bool Request::methodAccepted(std::string method){
 	return false;
 }
 
-std::string Request::findFileName(std::string method){
+std::string Request::findFileName(std::string method) {
 	if (method == "DELETE")
 		return getDeleteFilename(_requestText);
 	if (method == "POST")
@@ -34,13 +34,13 @@ std::string Request::findFileName(std::string method){
 	return "";
 }
 
-bool checkInsecure(std::string fileName){
+bool checkInsecure(std::string fileName) {
 	if (fileName.find("..") != std::string::npos)
 		return true;
 	return false;
 }
 
-void Request::execAction(){
+void Request::execAction() {
 	std::string method = getMethod(0);
 	Logger::log("Request exec: " + method, INFO);
 

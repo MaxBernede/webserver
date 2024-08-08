@@ -4,7 +4,7 @@
 //Find filename in the body content
 //Find the last " and return whats in between
 
-std::string getFileNameFromBody(std::string const &content){
+std::string getFileNameFromBody(std::string const& content) {
 	Logger::log(content, WARNING);
 	std::string key = "filename=\"";
 	size_t key_pos = content.find(key);

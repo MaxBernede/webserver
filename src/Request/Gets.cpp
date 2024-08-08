@@ -1,18 +1,18 @@
 #include "Request.hpp"
 
-int Request::getClientFd(){
+int Request::getClientFd() {
 	return (_clientFd);
 }
 
-std::vector<std::pair<std::string, std::string>> Request::getContent(){
+std::vector<std::pair<std::string, std::string>> Request::getContent() {
 	return (_request);
 }
 
-std::string Request::getRequestStr(){
+std::string Request::getRequestStr() {
 	return (_requestText);
 }
 
-std::string Request::getFile(){
+std::string Request::getFile() {
 	return _file;
 }
 
@@ -43,32 +43,32 @@ std::string	Request::getRequestHost()
 	return ("");
 }
 
-std::string Request::getFileNameProtected( void ){
+std::string Request::getFileNameProtected(void) {
 	if (_file != "")
 		return _file;
 	return (_config.getIndex());
 }
 
 //Return the first word after GET (usually the html) otherwise empty
-std::string Request::getFileName( void ){
+std::string Request::getFileName(void) {
 	return _file;
 }
 
 //Return the value of the found key, otherwise empty string
-std::string Request::getValues(std::string key){
+std::string Request::getValues(std::string key) {
 	for (const auto& pair : _request)
 		if (pair.first == key) return pair.second;
 	return "";
 }
 
 // Method[3], 0 = Methode(Post, delete, etc..), 1 = Link (html/ cgi/ .ico), 2 = HTTP version
-std::string Request::getMethod(size_t index){
+std::string Request::getMethod(size_t index) {
 	if (index >= _method.size())
 		return "";
 	return _method[index];
 }
 
-Server	Request::getConfig(){
+Server	Request::getConfig() {
 	return _config;
 }
 
@@ -79,11 +79,11 @@ void Request::setErrorCode(ErrorCode err)
 	_errorCode = err;
 }
 
-ErrorCode Request::getErrorCode(){
+ErrorCode Request::getErrorCode() {
 	return _errorCode;
 }
 
-std::string Request::getErrorString(){
+std::string Request::getErrorString() {
 	auto it = httpStatus.find(_errorCode);
 	if (it != httpStatus.end())
 		return it->second;
@@ -110,7 +110,7 @@ std::string Request::getErrorString(){
 // 	throw (HTTPError(INTERNAL_SRV_ERR));
 // }
 
-s_domain Request::getRequestDomain(std::string host_val){
+s_domain Request::getRequestDomain(std::string host_val) {
 	s_domain Domain;
 	size_t colonIndex = host_val.find_last_of(":");
 	if (colonIndex != std::string::npos)
@@ -145,7 +145,7 @@ std::string	Request::getServerName()
 }
 
 //True or False, HEAD included so no read after from serverRun
-bool Request::isEmptyResponse(){
+bool Request::isEmptyResponse() {
 	std::string m = getMethod(0);
 	return (m == "DELETE" || m == "POST" || m == "HEAD");
 }

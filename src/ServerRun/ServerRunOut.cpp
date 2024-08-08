@@ -3,7 +3,7 @@
 void ServerRun::sendResponse(int readFd) // Using readFd
 {
 	Logger::log("Sending response", INFO);
-	HTTPObject *obj = findHTTPObject(readFd);
+	HTTPObject* obj = findHTTPObject(readFd);
 	obj->sendResponseWithHeaders();
 	removeConnection(readFd);
 	int clientFd = obj->getClientFd();
@@ -14,7 +14,7 @@ void ServerRun::sendResponse(int readFd) // Using readFd
 void ServerRun::sendCgiResponse(int pipeFd) // Using pipeFd read side
 {
 	Logger::log("Sending response from CGI", INFO);
-	HTTPObject *obj = findHTTPObject(pipeFd);
+	HTTPObject* obj = findHTTPObject(pipeFd);
 	obj->_response->rSend();
 	removeConnection(pipeFd);
 	int clientFd = obj->getClientFd();
@@ -30,7 +30,7 @@ void ServerRun::sendError(int clientFd)
 
 void ServerRun::uploadToCgi(int writePipe)
 {
-	HTTPObject *obj = findHTTPObject(writePipe);
+	HTTPObject* obj = findHTTPObject(writePipe);
 	obj->writeToCgiPipe();
 	if (obj->getWriteFinished())
 	{
@@ -51,28 +51,28 @@ void ServerRun::dataOut(s_poll_data pollData, struct pollfd pollFd)
 {
 	switch (pollData._pollState)
 	{
-		case CGI_READ_DONE:
-			sendCgiResponse(pollFd.fd);
-			break ;
-		case FILE_READ_DONE:
-			sendResponse(pollFd.fd);
-			break ;
-		case EMPTY_RESPONSE:
-			sendError(pollFd.fd);
-			break;
-		case HTTP_ERROR:
-			sendError(pollFd.fd);
-			break;
-		case HTTP_REDIRECT:
-			sendRedirect(pollFd.fd);
-			break ;
-		case CGI_WRITE_TO_PIPE:
-			uploadToCgi(pollFd.fd); // write to cgi pipe
-			break ;
-		case AUTO_INDEX:
-			sendAutoIndex(pollFd.fd);
-		default:
-			break ;
+	case CGI_READ_DONE:
+		sendCgiResponse(pollFd.fd);
+		break;
+	case FILE_READ_DONE:
+		sendResponse(pollFd.fd);
+		break;
+	case EMPTY_RESPONSE:
+		sendError(pollFd.fd);
+		break;
+	case HTTP_ERROR:
+		sendError(pollFd.fd);
+		break;
+	case HTTP_REDIRECT:
+		sendRedirect(pollFd.fd);
+		break;
+	case CGI_WRITE_TO_PIPE:
+		uploadToCgi(pollFd.fd); // write to cgi pipe
+		break;
+	case AUTO_INDEX:
+		sendAutoIndex(pollFd.fd);
+	default:
+		break;
 	}
 }
 

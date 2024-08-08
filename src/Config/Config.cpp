@@ -2,18 +2,18 @@
 #include "Server.hpp"
 #include "Utils.hpp"
 
-void confPort(std::string value, Server &serv){
+void confPort(std::string value, Server& serv) {
 	s_domain port;
 	std::string ip = value.substr(0, value.find_first_of(":"));
 	std::string num = value.substr((value.find_first_of(":") + 1), (value.length() - ip.length() - 1));
 	num.pop_back();
 	if (ip == "localhost")
 		port.host = "127.0.0.1";
-	else{
+	else {
 		if (ip.find_first_not_of("1234567890.") != std::string::npos)
 			throw syntaxError();
 		int j = 0;
-		for (size_t i = 0; ip[i]; i++){
+		for (size_t i = 0; ip[i]; i++) {
 			if (ip[i] == '.')
 				j++;
 			if (j > 3)
@@ -31,7 +31,7 @@ void confPort(std::string value, Server &serv){
 	serv.setPort(port);
 }
 
-void confName(std::string value, Server &serv){
+void confName(std::string value, Server& serv) {
 	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		throw syntaxError();
 	value.pop_back();
@@ -39,7 +39,7 @@ void confName(std::string value, Server &serv){
 	serv.setName(value);
 }
 
-void confRoot(std::string value, Server &serv){
+void confRoot(std::string value, Server& serv) {
 	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		throw syntaxError();
 	value.pop_back();
@@ -47,14 +47,14 @@ void confRoot(std::string value, Server &serv){
 	serv.setRoot(value);
 }
 
-void confMethods(std::string value, Server &serv){
-	std::string const meth[8] = {"GET", "POST", "DELETE", "PUT",
-		"PATCH", "CONNECT", "OPTIONS", "TRACE"};
-	while (value != ";"){
+void confMethods(std::string value, Server& serv) {
+	std::string const meth[8] = { "GET", "POST", "DELETE", "PUT",
+		"PATCH", "CONNECT", "OPTIONS", "TRACE" };
+	while (value != ";") {
 		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
 		for (int i = 0; i < 8; i++)
 		{
-			if (tmp == meth[i]){
+			if (tmp == meth[i]) {
 				serv.setMethod(i, true);
 				break;
 			}
@@ -68,7 +68,7 @@ void confMethods(std::string value, Server &serv){
 	// std::cout << "METHODS OK" << std::endl;
 }
 
-void confCGI(std::string value, Server &serv){
+void confCGI(std::string value, Server& serv) {
 	if (value == "yes;" || value == "y;")
 		serv.setCGI(true);
 	else if (value == "no;" || value == "n;")
@@ -78,7 +78,7 @@ void confCGI(std::string value, Server &serv){
 	// std::cout << "CGI OK" << std::endl;
 }
 
-void confMaxBody(std::string value, Server &serv){
+void confMaxBody(std::string value, Server& serv) {
 	if (value.length() > 10)
 		throw syntaxError();
 	value.pop_back();
@@ -87,20 +87,20 @@ void confMaxBody(std::string value, Server &serv){
 	if (value.find_first_not_of("1234567890BKM") != std::string::npos)
 		throw syntaxError();
 	uint64_t val = (uint64_t)std::stol(value);
-	switch (value.back()){
-		case 'M':
-			val *= (1 << 10);
-			[[fallthrough]];
-		case 'K':
-			val *= (1 << 10);
-		break ;
+	switch (value.back()) {
+	case 'M':
+		val *= (1 << 10);
+		[[fallthrough]];
+	case 'K':
+		val *= (1 << 10);
+		break;
 	}
 	// std::cout << "BODY OK" << std::endl;
 	serv.setMaxBody(val);
 }
 
-void confErrorPage(std::string value, Server &serv){
-	while (value != ";"){
+void confErrorPage(std::string value, Server& serv) {
+	while (value != ";") {
 		std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
 		if (num.length() != 3 || num.find_first_not_of("1234567890") != std::string::npos)
 			throw syntaxError();
@@ -122,7 +122,7 @@ void confErrorPage(std::string value, Server &serv){
 
 }
 
-void confIndex(std::string value, Server &serv){
+void confIndex(std::string value, Server& serv) {
 	value.pop_back();
 	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
 		throw syntaxError();
@@ -130,7 +130,7 @@ void confIndex(std::string value, Server &serv){
 	// std::cout << "INDEX OK" << std::endl;
 }
 
-void confAutoIndex(std::string value, Server &serv){
+void confAutoIndex(std::string value, Server& serv) {
 	if (value == "on;")
 		serv.setAutoIndex(true);
 	else if (value == "off;")
@@ -140,27 +140,31 @@ void confAutoIndex(std::string value, Server &serv){
 	// std::cout << "AUTOINDEX OK" << std::endl;
 }
 
-void confRedirect(std::string value, Server &serv){
+void confRedirect(std::string value, Server& serv) {
 	std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-	if (num.length() != 3 || num.find_first_not_of("1234567890") != std::string::npos){
-		throw syntaxError();}
+	if (num.length() != 3 || num.find_first_not_of("1234567890") != std::string::npos) {
+		throw syntaxError();
+	}
 	value.erase(0, num.length());
 	while (value.find_first_of("\t\n\v\f\r ") == 0)
 		value.erase(0, 1);
 	std::string from = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-	if (from.length() == 0){
-		throw syntaxError();}
+	if (from.length() == 0) {
+		throw syntaxError();
+	}
 	value.erase(0, from.length());
 	while (value.find_first_of("\t\n\v\f\r ") == 0)
 		value.erase(0, 1);
 	std::string to = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-	if (to.length() == 0){
-		throw syntaxError();}
+	if (to.length() == 0) {
+		throw syntaxError();
+	}
 	value.erase(0, to.length());
 	while (value.find_first_of("\t\n\v\f\r ") == 0)
 		value.erase(0, 1);
-	if (value != ";"){
-		throw syntaxError();}
+	if (value != ";") {
+		throw syntaxError();
+	}
 	s_redirect redir;
 	redir.returnValue = std::stoi(num);
 	redir.redirFrom = from;
@@ -169,7 +173,7 @@ void confRedirect(std::string value, Server &serv){
 	serv.setRedirect(redir);
 }
 
-void	confPath(std::string value, Server &serv){
+void	confPath(std::string value, Server& serv) {
 	value.pop_back();
 	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
 		throw syntaxError();
@@ -179,7 +183,7 @@ void	confPath(std::string value, Server &serv){
 	serv.setPath(value);
 }
 
-void addLocation(std::list<std::string> &body, Server &serv){
+void addLocation(std::list<std::string>& body, Server& serv) {
 	Location loc(body);
 	serv.setLocation(loc);
 }

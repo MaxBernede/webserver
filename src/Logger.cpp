@@ -11,16 +11,17 @@ void Logger::log(const std::string& message, LogLevel level) {
 	std::lock_guard<std::mutex> lock(mtx);
 	std::string colorCode;
 	switch (level) {
-		case INFO:	colorCode = BLUE; break;
-		case WARNING: colorCode = YELLOW; break;
-		case ERROR:   colorCode = RED; break;
-		case DEBUG:   colorCode = WHITE; break;
-		default:	  colorCode = WHITE; break;
+	case INFO:	colorCode = BLUE; break;
+	case WARNING: colorCode = YELLOW; break;
+	case ERROR:   colorCode = RED; break;
+	case DEBUG:   colorCode = WHITE; break;
+	default:	  colorCode = WHITE; break;
 	}
 	std::string logMessage = getTimestamp() + " [" + levelToString(level) + "] " + message;
 	if (logFile.is_open()) {
 		logFile << logMessage << std::endl;
-	} else {
+	}
+	else {
 		std::cout << colorCode << logMessage << RESET << std::endl;
 	}
 }
@@ -49,10 +50,10 @@ std::string Logger::getTimestamp() {
 
 std::string Logger::levelToString(LogLevel level) {
 	switch (level) {
-		case INFO:	return "INFO";
-		case WARNING: return "WARNING";
-		case ERROR:   return "ERROR";
-		case DEBUG:   return "DEBUG";
-		default:	  return "UNKNOWN";
+	case INFO:	return "INFO";
+	case WARNING: return "WARNING";
+	case ERROR:   return "ERROR";
+	case DEBUG:   return "DEBUG";
+	default:	  return "UNKNOWN";
 	}
 }

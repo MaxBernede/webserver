@@ -13,33 +13,33 @@ typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 class Request;
 
 class CGI {
-	private:
-		int							_pid;
-		int							_responsePipe[2]; // pipe where CGI sends data
-		int							_uploadPipe[2]; // post data to CGI child process
-		Request						*_request;
-		int							_clientFd;
-		std::vector<std::string>	_cgiEnvArr;
-		char* const					*_cgiEnvCStr;
-		TimePoint					_forkTime;
+private:
+	int							_pid;
+	int							_responsePipe[2]; // pipe where CGI sends data
+	int							_uploadPipe[2]; // post data to CGI child process
+	Request* _request;
+	int							_clientFd;
+	std::vector<std::string>	_cgiEnvArr;
+	char* const* _cgiEnvCStr;
+	TimePoint					_forkTime;
 
-	public:
-		CGI(Request *request, int clientFd);
-		~CGI(void);
+public:
+	CGI(Request* request, int clientFd);
+	~CGI(void);
 
-		// Cgi methods
-		void	run();
-		void	makeEnvCStr();
-		void	makeEnvArr();
-		bool 	waitCgiChild();
-		bool	isTimeOut();
-		void	killChild();
-		void	closeUploadPipe();
-		// Getters 
-		int		getReadFd();
-		int		getWriteFd();
-		int		getClientFd();
-		Request	*getRequest();
+	// Cgi methods
+	void	run();
+	void	makeEnvCStr();
+	void	makeEnvArr();
+	bool 	waitCgiChild();
+	bool	isTimeOut();
+	void	killChild();
+	void	closeUploadPipe();
+	// Getters 
+	int		getReadFd();
+	int		getWriteFd();
+	int		getClientFd();
+	Request* getRequest();
 
 };
 
@@ -65,5 +65,5 @@ SCRIPT_NAME 	The interpreted pathname of the current CGI (relative to the docume
 SERVER_ADMIN 	The email address for your server's webmaster
 SERVER_NAME 	Your server's fully qualified domain name (e.g. www.cgi101.com)
 SERVER_PORT 	The port number your server is listening on
-SERVER_SOFTWARE 	The server software you're using (e.g. Apache 1.3) 
+SERVER_SOFTWARE 	The server software you're using (e.g. Apache 1.3)
 */

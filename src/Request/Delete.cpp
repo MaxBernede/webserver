@@ -1,7 +1,7 @@
 #include "Request.hpp"
 
 
-void Request::handleDirDelete(std::string path){
+void Request::handleDirDelete(std::string path) {
 	if (path.back() != '/')
 		throw (HTTPError(PAGE_NOT_FOUND));
 
@@ -34,7 +34,7 @@ void Request::remove(std::string path)
 	throw (HTTPError(OK));
 }
 
-void Request::removeDir(std::string path){
+void Request::removeDir(std::string path) {
 	try {
 		std::size_t num = std::filesystem::remove_all(path);
 		Logger::log("Removed: " + std::to_string(num) + " total files", INFO);
@@ -58,17 +58,17 @@ std::string Request::getDeleteFilename(const std::string& httpRequest) {
 	// Find the position of the filename in the JSON body
 	std::size_t filenamePos = jsonBody.find("\"filename\":\"");
 	if (filenamePos == std::string::npos)
-		throw HTTPError(BAD_REQUEST); 
+		throw HTTPError(BAD_REQUEST);
 
 	filenamePos += 12; // Move past "\"filename\":\""
 	std::size_t endQuotePos = jsonBody.find("\"", filenamePos);
 	if (endQuotePos == std::string::npos)
-		throw HTTPError(BAD_REQUEST); 
+		throw HTTPError(BAD_REQUEST);
 
 	return jsonBody.substr(filenamePos, endQuotePos - filenamePos);
 }
 
-void Request::handleDelete(std::string path, std::string file){
+void Request::handleDelete(std::string path, std::string file) {
 	if (file == "")
 		throw (HTTPError(OK));
 

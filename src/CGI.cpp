@@ -1,6 +1,6 @@
 #include "CGI.hpp"
 
-CGI::CGI(Request *request, int clientFd) : _request(request), _clientFd(clientFd)
+CGI::CGI(Request* request, int clientFd) : _request(request), _clientFd(clientFd)
 {
 	makeEnvArr();
 	makeEnvCStr();
@@ -26,7 +26,7 @@ void CGI::run()
 		close(_responsePipe[0]); // close read-end of response pipe
 		dup2(_responsePipe[1], STDOUT_FILENO); // write to response pipe
 		std::string cgiFilePath = _request->getConfig().getRoot() + _request->getFileName();
-		char *argv[2] = {(char *)cgiFilePath.c_str(), NULL};
+		char* argv[2] = { (char*)cgiFilePath.c_str(), NULL };
 		execve(cgiFilePath.c_str(), argv, _cgiEnvCStr);
 		// if execve fails
 		delete[] _cgiEnvCStr;
@@ -45,13 +45,13 @@ bool 	CGI::waitCgiChild()
 	int exitCode;
 	int status = waitpid(_pid, &exitCode, WNOHANG);
 	if (status == -1)
-		throw(Exception("Error while waiting for cgi with pid " + std::to_string(_pid) , 1));
+		throw(Exception("Error while waiting for cgi with pid " + std::to_string(_pid), 1));
 	else if (status == 0) // cgi not done
 		return (false);
 	else
 	{
 		if (exitCode != 0)
-	 		throw(Exception("Error while running cgi with pid " + std::to_string(_pid), 1));
+			throw(Exception("Error while running cgi with pid " + std::to_string(_pid), 1));
 		Logger::log("Cgi child process finished", LogLevel::INFO);
 		return (true);
 	}
@@ -59,9 +59,9 @@ bool 	CGI::waitCgiChild()
 
 void CGI::makeEnvArr()
 {
-	std::vector<std::string> envArr {
+	std::vector<std::string> envArr{
 		"CONTENT_LENGTH=" + _request->getValues("Content-Length"),
-		"CONTENT_TYPE=" +  _request->getValues("Content-Type"),
+		"CONTENT_TYPE=" + _request->getValues("Content-Type"),
 		"GATEWAY_INTERFACE=CGI/1.1", // fixed
 		"PATH_INFO=",
 		"PATH_TRANSLATED=",
@@ -84,9 +84,9 @@ void CGI::makeEnvArr()
 
 void CGI::makeEnvCStr()
 {
-	char **env = new char*[_cgiEnvArr.size() + 1];
+	char** env = new char* [_cgiEnvArr.size() + 1];
 	for (size_t i = 0; i < _cgiEnvArr.size(); ++i)
-		env[i] = (char *)this->_cgiEnvArr[i].c_str(); // setting strings, but not allocated so _cgiEnvArr must remain
+		env[i] = (char*)this->_cgiEnvArr[i].c_str(); // setting strings, but not allocated so _cgiEnvArr must remain
 	env[_cgiEnvArr.size()] = NULL;
 	_cgiEnvCStr = env;
 }
@@ -132,7 +132,7 @@ int CGI::getClientFd()
 	return (_clientFd);
 }
 
-Request *CGI::getRequest()
+Request* CGI::getRequest()
 {
 	return (_request);
 }

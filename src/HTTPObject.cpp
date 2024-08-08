@@ -1,9 +1,9 @@
 #include "HTTPObject.hpp"
 
-HTTPObject::HTTPObject(int clientFd) : 
-				_clientFd(clientFd),
-				_startTime(std::chrono::high_resolution_clock::now()),
-				_cgi(NULL)
+HTTPObject::HTTPObject(int clientFd) :
+	_clientFd(clientFd),
+	_startTime(std::chrono::high_resolution_clock::now()),
+	_cgi(NULL)
 {
 	_request = new Request(clientFd);
 	_response = new Response(clientFd);
@@ -82,7 +82,7 @@ void	HTTPObject::checkTimeOut()
 	std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>
 		(std::chrono::high_resolution_clock::now() - _startTime);
 	std::chrono::seconds ten(10);
-	if (sec > ten){
+	if (sec > ten) {
 		_timeOut = true;
 		if (this->isCgi())
 			this->_cgi->killChild();

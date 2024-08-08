@@ -9,13 +9,13 @@ Response::Response(int clientFd) : _clientFd(clientFd), _ready(false)
 Response::~Response() {}
 
 //! check the fck is going on with the 204 No response 2 headers?
-void Response::addHeaders(Request *request)
+void Response::addHeaders(Request* request)
 {
 	std::ostringstream oss;
-	std::string http= request->getMethod(2);
+	std::string http = request->getMethod(2);
 	std::string code = std::to_string(request->getErrorCode());
 	std::string message = httpStatus[request->getErrorCode()]; // TODO There is no message for directory listing
-	oss << http << " " << code << " " << message ;
+	oss << http << " " << code << " " << message;
 	oss << "\nConnection: close";
 	oss << "\r\n\r\n";
 	oss << _responseText;
@@ -48,7 +48,7 @@ void Response::sendRedir()
 		Logger::log("Error with send!", LogLevel::ERROR);
 }
 
-void Response::setReady( void )
+void Response::setReady(void)
 {
 	_ready = true;
 }
@@ -61,10 +61,10 @@ void Response::setResponseString(std::string response)
 int Response::setRedirectStr(int status, std::string from, std::list<s_redirect> redirs)
 {
 	std::string to = "";
-	for (s_redirect r : redirs){
-		if (r.redirFrom == from){
+	for (s_redirect r : redirs) {
+		if (r.redirFrom == from) {
 			to = r.redirTo;
-			break ;
+			break;
 		}
 	}
 	if (to == "")
@@ -82,14 +82,14 @@ int Response::setRedirectStr(int status, std::string from, std::list<s_redirect>
 	return (status);
 }
 
-void Response::setDirectoryListing(Request *request)
+void Response::setDirectoryListing(Request* request)
 {
 	std::string	name = request->getConfig().getBasePath() + request->getConfig().getRoot() + request->getFileName();
 	if (!exists(name))
 		throw (HTTPError(PAGE_NOT_FOUND));
 	std::vector<std::string>	v = getDirectoryContent(name.c_str());
 	std::ostringstream oss;
-	 addHeaders(request);
+	addHeaders(request);
 	oss << _responseText;
 	oss << DIR_LIST_START;
 	oss << name;
@@ -97,7 +97,7 @@ void Response::setDirectoryListing(Request *request)
 	for (std::string s : v)
 	{
 		std::string link = name + s;
-		if (isDirectory(link.c_str())){
+		if (isDirectory(link.c_str())) {
 			s += '/';
 		}
 		oss << "<li><a href=\"" << s << "\">";

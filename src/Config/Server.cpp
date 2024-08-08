@@ -2,61 +2,61 @@
 #include "Logger.hpp"
 
 // add check for empty line
-bool servBlockStart(std::string buf){
+bool servBlockStart(std::string buf) {
 	if (buf.empty())
 		return false;
 	if (buf.back() != '{')
 		return false;
 	if (buf.find("server") != 0)
 		return false;
-	for (size_t i = 6; i < (buf.size() - 1); i++){
+	for (size_t i = 6; i < (buf.size() - 1); i++) {
 		if (buf[i] != 32 && !(buf[i] >= 9 && buf[i] <= 13))
 			return false;
 	}
 	return true;
 }
 
-static std::string findKey(std::string str){
+static std::string findKey(std::string str) {
 	if (str.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		return str.substr(0, str.find_first_of("\t\n\v\f\r "));
 	else
 		return str.substr(0, (str.length() - 1));
 }
 
-void	Server::confErr(){
+void	Server::confErr() {
 	for (std::list<s_ePage>::iterator i = _errorPages.begin();
-		i != _errorPages.end(); i++){
-			i->url = _root + i->url;
+		i != _errorPages.end(); i++) {
+		i->url = _root + i->url;
 	}
 }
 
-Server	pushBlock(std::list<std::string> block){
+Server	pushBlock(std::list<std::string> block) {
 	Server serv;
-	void (*ptr[11])(std::string, Server&) = {&confPort, &confName, &confRoot, &confMethods, &confCGI,
-		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex, &confRedirect, &confPath};
-	std::string const keys[11] = {"listen", "serverName", "root", "allowedMethods", "cgiAllowed",
-			"clientMaxBodySize", "errorPage", "index", "autoIndex", "return", "path"};
-	bool clear[11] = {false, false, false, false, false,
-		false, false, false, false, false, false};
+	void (*ptr[11])(std::string, Server&) = { &confPort, &confName, &confRoot, &confMethods, &confCGI,
+		&confMaxBody, &confErrorPage, &confIndex, &confAutoIndex, &confRedirect, &confPath };
+	std::string const keys[11] = { "listen", "serverName", "root", "allowedMethods", "cgiAllowed",
+			"clientMaxBodySize", "errorPage", "index", "autoIndex", "return", "path" };
+	bool clear[11] = { false, false, false, false, false,
+		false, false, false, false, false, false };
 	std::list<std::string>::iterator it = block.begin();
-	while (it != block.end()){
+	while (it != block.end()) {
 		std::string str = *it;
 		while (str.find_first_of("\t\n\v\f\r ") == 0)
 			str.erase(0, 1);
-		if (str.front() == '#'){
+		if (str.front() == '#') {
 			it++;
 			continue;
 		}
-		if (str.find("location ") == 0 && str.back() == '{'){
+		if (str.find("location ") == 0 && str.back() == '{') {
 			std::list<std::string> body;
-			while (true){
+			while (true) {
 				str = *it;
 				while (str.find_first_of("\t\n\v\f\r ") == 0)
 					str.erase(0, 1);
 				body.push_back(str);
 				it++;
 				if (str.front() == '}' && str.length() == 1)
-					break ;
+					break;
 				else if (it == block.end())
 					throw syntaxError();
 			}
@@ -66,14 +66,14 @@ Server	pushBlock(std::list<std::string> block){
 		else {
 			if (str.back() != ';')
 				throw syntaxError();
-			try{
+			try {
 				std::string key = findKey(str);
 				str.erase(0, key.length());
 				while (str.find_first_of("\t\n\v\f\r ") == 0)
 					str.erase(0, 1);
-				for (int i = 0; i < 11; i++){
-					if (key == keys[i]){
-						if (clear[i] == false){
+				for (int i = 0; i < 11; i++) {
+					if (key == keys[i]) {
+						if (clear[i] == false) {
 							serv.clearData(i);
 							clear[i] = true;
 						}
@@ -84,7 +84,7 @@ Server	pushBlock(std::list<std::string> block){
 						throw syntaxError();
 				}
 			}
-			catch(std::exception const &e){
+			catch (std::exception const& e) {
 				std::cout << e.what() << std::endl;
 				Server def;
 				return def;
@@ -99,27 +99,27 @@ Server	pushBlock(std::list<std::string> block){
 	return serv;
 }
 
-std::list<Server>	init_serv(std::ifstream &conf){
+std::list<Server>	init_serv(std::ifstream& conf) {
 	std::list<Server> server;
 	std::string buf;
 	std::list<std::string> block;
 	bool location = false;
 
-	while (!conf.eof()){
+	while (!conf.eof()) {
 		std::getline(conf, buf);
-		if (servBlockStart(buf)){
-			try{
-				while (true){
+		if (servBlockStart(buf)) {
+			try {
+				while (true) {
 					std::getline(conf, buf);
 					if (buf.empty())
-						continue ;
-					if (buf.find("location ") == 0 && buf.back() == '{'){
+						continue;
+					if (buf.find("location ") == 0 && buf.back() == '{') {
 						if (location == false)
 							location = true;
 						else
 							throw syntaxError();
 					}
-					if (buf.front() == '}' && buf.length() == 1){
+					if (buf.front() == '}' && buf.length() == 1) {
 						if (location == false)
 							break;
 						else
@@ -132,7 +132,7 @@ std::list<Server>	init_serv(std::ifstream &conf){
 				server.push_back(pushBlock(block));
 				block.clear();
 			}
-			catch(std::exception &e){
+			catch (std::exception& e) {
 				std::cout << e.what() << std::endl;
 				Server def;
 				def.setPath(def.getRoot());
@@ -144,7 +144,7 @@ std::list<Server>	init_serv(std::ifstream &conf){
 	return server;
 }
 
-static std::list<s_domain> defaultPorts(){
+static std::list<s_domain> defaultPorts() {
 	std::list<s_domain> ports;
 	s_domain def;
 	def.port = 8080;
@@ -157,11 +157,11 @@ static std::list<s_domain> defaultPorts(){
 	return ports;
 }
 
-static std::string defaultName(){
+static std::string defaultName() {
 	return "webserv.com";
 }
 
-static std::list<s_ePage> defaultErrorPages(){
+static std::list<s_ePage> defaultErrorPages() {
 	std::list<s_ePage> errorPages;
 	s_ePage fofo;
 	fofo.err = 404;
@@ -174,20 +174,20 @@ static std::list<s_ePage> defaultErrorPages(){
 	return errorPages;
 }
 
-Server::Server():
+Server::Server() :
 	Config(),
 	_ports(defaultPorts()),
 	_name(defaultName()),
 	_root(_basePath + "html/"),
 	_maxBody(1048576),
-	_errorPages(defaultErrorPages()){
+	_errorPages(defaultErrorPages()) {
 	_path = "";
 }
 
 Server::~Server() {
 }
 
-Server &Server::operator=(const Server &obj) {
+Server& Server::operator=(const Server& obj) {
 	this->_ports = obj.getPorts();
 	this->_name = obj.getName();
 	this->_root = obj.getRoot();
@@ -204,31 +204,31 @@ Server &Server::operator=(const Server &obj) {
 	return *this;
 }
 
-Server::Server(const Server &obj) : Config(obj){
+Server::Server(const Server& obj) : Config(obj) {
 	*this = obj;
 }
 
-std::list<s_domain> Server::getPorts()	const{
+std::list<s_domain> Server::getPorts()	const {
 	return _ports;
 }
 
-std::string Server::getName()	const{
+std::string Server::getName()	const {
 	return _name;
 }
 
-std::string Server::getRoot()	const{
+std::string Server::getRoot()	const {
 	return _root;
 }
 
-uint64_t Server::getMaxBody()	const{
+uint64_t Server::getMaxBody()	const {
 	return _maxBody;
 }
 
-std::list<s_ePage> Server::getErrorPages()	const{
+std::list<s_ePage> Server::getErrorPages()	const {
 	return _errorPages;
 }
 
-std::list<Location> Server::getLocation() const{
+std::list<Location> Server::getLocation() const {
 	return _location;
 }
 
@@ -242,80 +242,80 @@ Location Server::getLocationByName(const std::string& name) const {
 	throw std::runtime_error("Location not found: " + name);
 }
 
-void Server::clearPort(){
+void Server::clearPort() {
 	_ports.clear();
 }
 
-void Server::clearName(){
+void Server::clearName() {
 }
 
-void Server::clearRoot(){
+void Server::clearRoot() {
 }
 
-void Server::clearMethods(){
+void Server::clearMethods() {
 	for (int i = GET; i <= TRACE; i++)
 		_methods[i] = false;
 }
 
-void Server::clearCGI(){
+void Server::clearCGI() {
 }
 
-void Server::clearMaxBody(){
+void Server::clearMaxBody() {
 }
 
-void Server::clearEPage(){
+void Server::clearEPage() {
 	_errorPages.clear();
 }
 
-void Server::clearIndex(){
+void Server::clearIndex() {
 	_index.clear();
 }
 
-void Server::clearAutoIndex(){
+void Server::clearAutoIndex() {
 }
 
-void Server::clearRedirect(){
+void Server::clearRedirect() {
 }
 
-void Server::clearPath(){
+void Server::clearPath() {
 }
 
-void Server::clearData(int index){
-	void (Server::*ptr[11])(void) = 
-		{&Server::clearPort, &Server::clearName, &Server::clearRoot, &Server::clearMethods, &Server::clearCGI, &Server::clearMaxBody,
-			&Server::clearEPage, &Server::clearIndex, &Server::clearAutoIndex, &Server::clearRedirect, &Server::clearPath};
+void Server::clearData(int index) {
+	void (Server:: * ptr[11])(void) =
+	{ &Server::clearPort, &Server::clearName, &Server::clearRoot, &Server::clearMethods, &Server::clearCGI, &Server::clearMaxBody,
+		&Server::clearEPage, &Server::clearIndex, &Server::clearAutoIndex, &Server::clearRedirect, &Server::clearPath };
 	(this->*ptr[index])();
 }
 
-void Server::setPort(s_domain port){
+void Server::setPort(s_domain port) {
 	_ports.push_back(port);
 }
 
-void Server::setName(std::string name){
+void Server::setName(std::string name) {
 	_name = name;
 }
 
-void Server::setRoot(std::string root){
+void Server::setRoot(std::string root) {
 	_root = root;
 }
 
-void Server::setMaxBody(uint64_t body){
+void Server::setMaxBody(uint64_t body) {
 	_maxBody = body;
 }
 
-void Server::setErrorPages(s_ePage ePage){
-	_errorPages.push_back(ePage);	
+void Server::setErrorPages(s_ePage ePage) {
+	_errorPages.push_back(ePage);
 }
 
-void Server::setLocation(Location &location){
+void Server::setLocation(Location& location) {
 	_location.push_back(location);
 }
 
-void Server::configLocation(){
+void Server::configLocation() {
 	std::list<Location>::iterator it = _location.begin();
-	while (it != _location.end()){
+	while (it != _location.end()) {
 		(*it).autoConfig(*this);
-		it++;	
+		it++;
 	}
 }
 

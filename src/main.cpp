@@ -8,7 +8,7 @@ int main(int argc, char** argv) {
 
 	std::list<Server> server;
 
-	try{
+	try {
 		if (argc != 2)
 			throw invalidFile();
 		std::ifstream conf(argv[1], std::ios::in);
@@ -16,16 +16,11 @@ int main(int argc, char** argv) {
 			throw invalidFile();
 		server = init_serv(conf);
 	}
-	catch(std::exception const &e){
+	catch (std::exception const& e) {
 		Server def;
 		server.push_front(def);
 	}
-	// for (Server s : server){
-	// 	std::cout << s << std::endl;
-	// }
-	// initialise ServerRun obj
 	ServerRun runningServer(server);
-	// Run server loop
 	runningServer.serverRunLoop();
 	return 0;
 }

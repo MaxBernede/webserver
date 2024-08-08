@@ -8,5 +8,5 @@
 
 #include "HTTPError.hpp"
 
-bool 		verifyPath(std::string &inputPath);
+bool 		verifyPath(std::string& inputPath);
 bool		isFile(std::string filePath);

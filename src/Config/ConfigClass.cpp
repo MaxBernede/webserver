@@ -1,9 +1,9 @@
 #include "ConfigClass.hpp"
 // #include "Webserver.hpp"
 
-static std::vector<bool> defaultMethods(){
+static std::vector<bool> defaultMethods() {
 	std::vector<bool> methods;
-	for (int i = GET; i <= TRACE; i++){
+	for (int i = GET; i <= TRACE; i++) {
 		if (i == GET || i == POST || i == DELETE)
 			methods.push_back(true);
 		else
@@ -12,32 +12,32 @@ static std::vector<bool> defaultMethods(){
 	return methods;
 }
 
-static std::string defaultIndex(){
+static std::string defaultIndex() {
 	return "";
 }
 
-static std::list<s_redirect> defaultRedirect(){
+static std::list<s_redirect> defaultRedirect() {
 	std::list<s_redirect> redirect;
 	redirect.clear();
 	return redirect;
 }
 
-Config::Config():
+Config::Config() :
 	_methods(defaultMethods()),
 	_redirect(defaultRedirect()),
 	_autoIndex(true),
 	_index(defaultIndex()),
-	_cgi(true), 
-	_basePath(getPath()){
+	_cgi(true),
+	_basePath(getPath()) {
 }
 
-Config::~Config(){}
+Config::~Config() {}
 
-Config::Config(const Config &obj){
+Config::Config(const Config& obj) {
 	*this = obj;
 }
 
-Config &Config::operator=(const Config &obj){
+Config& Config::operator=(const Config& obj) {
 	this->_methods = obj.getMethods();
 	this->_redirect = obj.getRedirect();
 	this->_autoIndex = obj.getAutoIndex();
@@ -48,63 +48,63 @@ Config &Config::operator=(const Config &obj){
 	return *this;
 }
 
-std::vector<bool>	Config::getMethods() const{
+std::vector<bool>	Config::getMethods() const {
 	return _methods;
 }
 
-bool	Config::getMethod(int i) const{
+bool	Config::getMethod(int i) const {
 	return _methods[i];
 }
 
-std::list<s_redirect>	Config::getRedirect() const{
+std::list<s_redirect>	Config::getRedirect() const {
 	return _redirect;
 }
 
-bool	Config::getAutoIndex() const{
+bool	Config::getAutoIndex() const {
 	return _autoIndex;
 }
 
-std::string	Config::getIndex() const{
+std::string	Config::getIndex() const {
 	return _index;
 }
 
-bool	Config::getCGI() const{
+bool	Config::getCGI() const {
 	return _cgi;
 }
 
-std::string	Config::getPath() const{
+std::string	Config::getPath() const {
 	return _path;
 }
 
-std::string Config::getBasePath() const{
+std::string Config::getBasePath() const {
 	return _basePath;
 }
 
-void	Config::setMethod(int method, bool value){
+void	Config::setMethod(int method, bool value) {
 	_methods[method] = value;
 }
 
-void	Config::setRedirect(s_redirect redir){
+void	Config::setRedirect(s_redirect redir) {
 	_redirect.push_back(redir);
 }
 
-void	Config::setRedirect(std::list<s_redirect> redir){
+void	Config::setRedirect(std::list<s_redirect> redir) {
 	// _redirect.push_back(redir);
 	_redirect = redir;
 }
 
-void	Config::setAutoIndex(bool autoIndex){
+void	Config::setAutoIndex(bool autoIndex) {
 	_autoIndex = autoIndex;
 }
 
-void	Config::setIndex(std::string index){
+void	Config::setIndex(std::string index) {
 	_index = index;
 }
 
-void	Config::setCGI(bool CGI){
+void	Config::setCGI(bool CGI) {
 	_cgi = CGI;
 }
 
-void	Config::setPath(std::string path){
+void	Config::setPath(std::string path) {
 	_path = path;
 }

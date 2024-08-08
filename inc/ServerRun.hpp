@@ -47,49 +47,49 @@ typedef struct t_poll_data
 
 class ServerRun
 {
-	private:
-		std::list<Server> _servers; // Server blocks from config file
-		std::vector<Socket *> _listenSockets; // Listener sockets 
-		std::unordered_map<int, HTTPObject *> _httpObjects;
-		std::unordered_map<int, s_poll_data> _pollData; // int: polFd
-		std::vector<struct pollfd> _pollFds; // vector to pass to poll
+private:
+	std::list<Server> _servers; // Server blocks from config file
+	std::vector<Socket*> _listenSockets; // Listener sockets 
+	std::unordered_map<int, HTTPObject*> _httpObjects;
+	std::unordered_map<int, s_poll_data> _pollData; // int: polFd
+	std::vector<struct pollfd> _pollFds; // vector to pass to poll
 
-	public:
-		ServerRun(const std::list<Server> config);
-		~ServerRun( void );
+public:
+	ServerRun(const std::list<Server> config);
+	~ServerRun(void);
 
-		void	serverRunLoop( void );
-		void	createListenerSockets(std::vector<s_domain> listens, std::string name);
-		void	addQueue(pollState state, fdType type, int fd);
+	void	serverRunLoop(void);
+	void	createListenerSockets(std::vector<s_domain> listens, std::string name);
+	void	addQueue(pollState state, fdType type, int fd);
 
-		void	acceptNewConnection(int listenerFd);
-		void	handleRequest(int clientFd);
-		void	executeRequest(int clientFd);
-		void	removeConnection(int fd);
+	void	acceptNewConnection(int listenerFd);
+	void	handleRequest(int clientFd);
+	void	executeRequest(int clientFd);
+	void	removeConnection(int fd);
 
-		void	dataIn(s_poll_data pollData, struct pollfd pollFd); // read from client
-		void	dataOut(s_poll_data pollData, struct pollfd pollFd); // write to client
+	void	dataIn(s_poll_data pollData, struct pollfd pollFd); // read from client
+	void	dataOut(s_poll_data pollData, struct pollfd pollFd); // write to client
 
-		void 	handleStaticFileRequest(int clientFd);
-		void	DirectoryListing(int clientFd);
-		void	redirectToError(ErrorCode ErrCode, int clientFd); // Redirect to 404, 405
-		int 	httpRedirect(ErrorCode status, int clientfd);
-		void	handleHTTPError(ErrorCode err, int fd);
-		void	uploadToCgi(int writePipe);
-		void	handleCgiRequest(int clientFd);
+	void 	handleStaticFileRequest(int clientFd);
+	void	DirectoryListing(int clientFd);
+	void	redirectToError(ErrorCode ErrCode, int clientFd); // Redirect to 404, 405
+	int 	httpRedirect(ErrorCode status, int clientfd);
+	void	handleHTTPError(ErrorCode err, int fd);
+	void	uploadToCgi(int writePipe);
+	void	handleCgiRequest(int clientFd);
 
 
 	// Send functions
 	void sendAutoIndex(int cleintFd);
-		void	readFile(int fd);
-		void	readPipe(int fd);
+	void	readFile(int fd);
+	void	readPipe(int fd);
 
-		// Send functions
-		void	sendResponse(int readFd);
-		void	sendCgiResponse(int pipeFd);
-		void	sendRedirect(int clientFd);
-		void	sendError(int clietnFd);
+	// Send functions
+	void	sendResponse(int readFd);
+	void	sendCgiResponse(int pipeFd);
+	void	sendRedirect(int clientFd);
+	void	sendError(int clietnFd);
 
-		void	cleanUp(int clientFd);
-		HTTPObject	*findHTTPObject(int fd);
+	void	cleanUp(int clientFd);
+	HTTPObject* findHTTPObject(int fd);
 };

@@ -35,10 +35,10 @@ ServerRun::ServerRun(const std::list<Server> config)
 	}
 }
 
-ServerRun::~ServerRun( void )
+ServerRun::~ServerRun(void)
 {
 	// delete everything
-	for (Socket	*it : _listenSockets)
+	for (Socket* it : _listenSockets)
 	{
 		close(it->getFd());
 		delete it;
@@ -47,7 +47,7 @@ ServerRun::~ServerRun( void )
 
 void ServerRun::createListenerSockets(std::vector<s_domain> listens, std::string name)
 {
-	Socket *new_socket;
+	Socket* new_socket;
 	Logger::log("Creaing listening sockets\n", LogLevel::INFO);
 	for (s_domain listen : listens)
 	{
@@ -55,7 +55,8 @@ void ServerRun::createListenerSockets(std::vector<s_domain> listens, std::string
 		{
 			new_socket = new Socket(listen);
 			_listenSockets.push_back(new_socket);
-		} catch (const Exception &e)
+		}
+		catch (const Exception& e)
 		{
 			std::cout << e.what() << std::endl;
 		}
@@ -64,13 +65,14 @@ void ServerRun::createListenerSockets(std::vector<s_domain> listens, std::string
 	{
 		new_socket = new Socket(name);
 		_listenSockets.push_back(new_socket);
-	} catch (const Exception &e)
+	}
+	catch (const Exception& e)
 	{
 		std::cout << e.what() << std::endl;
 	}
 	if (_listenSockets.empty())
 		throw(Exception("No available port on the defined host", 1));
-	
+
 	for (int i = 0; i < (int)_listenSockets.size(); i++)
 		addQueue(LISTENER, SOCKET, _listenSockets[i]->getFd()); // add listener sockets to queue
 }
@@ -80,7 +82,7 @@ void ServerRun::addQueue(pollState state, fdType type, int fd)
 	s_poll_data newPollItem;
 	struct pollfd newPollFd;
 
-	newPollFd = {fd, POLLIN | POLLOUT, 0};
+	newPollFd = { fd, POLLIN | POLLOUT, 0 };
 	newPollItem._pollState = state;
 	newPollItem._fdType = type;
 	_pollFds.push_back(newPollFd);
@@ -103,7 +105,7 @@ void ServerRun::serverRunLoop(void)
 			int fd = _pollFds[i].fd;
 			try
 			{
-				HTTPObject *obj = findHTTPObject(fd);
+				HTTPObject* obj = findHTTPObject(fd);
 				if (obj != nullptr && !obj->getTimeOut())
 					obj->checkTimeOut();
 				if (_pollFds[i].revents & POLLIN)
@@ -119,12 +121,12 @@ void ServerRun::serverRunLoop(void)
 				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollState == CGI_READ_DONE)
 					dataOut(_pollData[fd], _pollFds[i]);					// Write to client
 			}
-			catch(const Exception& e)
+			catch (const Exception& e)
 			{
 				Logger::log(e.what(), LogLevel::ERROR);
 			}
-			catch(const HTTPError& e)
-			{ 
+			catch (const HTTPError& e)
+			{
 				ErrorCode err = e.getErrorCode();
 				Logger::log(e.what(), LogLevel::ERROR);
 				if (_pollData[fd]._fdType == CLIENTFD)
@@ -165,14 +167,14 @@ void ServerRun::removeConnection(int fd)
 		if (_pollFds[i].fd == fd)
 		{
 			_pollFds.erase(_pollFds.begin() + i);
-			break ;
+			break;
 		}
 	}
 	if (_pollData.count(fd))
 		_pollData.erase(fd);
 }
 
-HTTPObject *ServerRun::findHTTPObject(int fd)
+HTTPObject* ServerRun::findHTTPObject(int fd)
 {
 	for (auto& pair : _httpObjects)
 	{

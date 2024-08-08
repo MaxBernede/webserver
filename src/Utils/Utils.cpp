@@ -17,35 +17,35 @@ std::string getExtension(std::string fileName)
 	return "";
 }
 
-bool exists (const std::string& name){
+bool exists(const std::string& name) {
 	struct stat buffer;
-	return (stat (name.c_str(), &buffer) == 0); 
+	return (stat(name.c_str(), &buffer) == 0);
 }
 
-std::string boolstring(const bool& src){
+std::string boolstring(const bool& src) {
 	if (!src)
 		return "false";
 	else
 		return "true";
 }
 
-int isDirectory(const char *path)
+int isDirectory(const char* path)
 {
 	struct stat path_stat;
-   if (stat(path, &path_stat) != 0)
-	   return 0;
+	if (stat(path, &path_stat) != 0)
+		return 0;
 	return S_ISDIR(path_stat.st_mode);
 }
 
-std::vector<std::string> getDirectoryContent(const char *name)
+std::vector<std::string> getDirectoryContent(const char* name)
 {
 	std::vector<std::string>	v;
-	DIR	*dirp = opendir(name);
+	DIR* dirp = opendir(name);
 	if (dirp == nullptr) {
 		Logger::log("Error opening dir: " + std::string(name), WARNING);
 		return v; // Return an empty vector or handle the error as needed
 	}
-	struct dirent	*dp;
+	struct dirent* dp;
 	while ((dp = readdir(dirp)) != NULL)
 		v.push_back(dp->d_name);
 	closedir(dirp);

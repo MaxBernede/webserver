@@ -1,18 +1,18 @@
 #include "Location.hpp"
 #include "ConfigClass.hpp"
 #include "Webserver.hpp"
-Location::Location(std::list<std::string> &body){
+Location::Location(std::list<std::string>& body) {
 	for (std::string s : body)
 		_body.push_back(s);
 }
 
-Location::~Location(){}
+Location::~Location() {}
 
-Location::Location(const Location &obj) :Config(obj), _body(obj._body){
+Location::Location(const Location& obj) :Config(obj), _body(obj._body) {
 	*this = obj;
 }
 
-Location &Location::operator=(const Location &obj){
+Location& Location::operator=(const Location& obj) {
 	this->_name = obj.getName();
 	this->_methods = obj.getMethods();
 	this->_redirect = obj.getRedirect();
@@ -25,27 +25,27 @@ Location &Location::operator=(const Location &obj){
 	return *this;
 }
 
-std::string	Location::getName() const{
+std::string	Location::getName() const {
 	return _name;
 }
 
-std::string	Location::getRoot() const{
+std::string	Location::getRoot() const {
 	return _root;
 }
 
-void	Location::setName(std::string name){
+void	Location::setName(std::string name) {
 	_name = name;
 }
 
-void	Location::setMethod(int method, bool value){
+void	Location::setMethod(int method, bool value) {
 	_methods[method] = value;
 }
 
-void	Location::setRoot(std::string root){
+void	Location::setRoot(std::string root) {
 	_root = root;
 }
 
-static std::string	extractName(std::string const &src){
+static std::string	extractName(std::string const& src) {
 	std::string name = src;
 	name.erase(0, 9);
 	name.erase(name.length() - 2, 2);
@@ -55,17 +55,17 @@ static std::string	extractName(std::string const &src){
 	// std::cout << "NAME LOCATION OK" << std::endl;
 }
 
-void	confMethods(std::string value, Location &loc){
-	std::string const meth[8] = {"GET", "POST", "DELETE", "PUT",
-		"PATCH", "CONNECT", "OPTIONS", "TRACE"};
-	for (int i = 0; i < 8; i++){
+void	confMethods(std::string value, Location& loc) {
+	std::string const meth[8] = { "GET", "POST", "DELETE", "PUT",
+		"PATCH", "CONNECT", "OPTIONS", "TRACE" };
+	for (int i = 0; i < 8; i++) {
 		loc.setMethod(i, false);
 	}
-	while (value != ";"){
+	while (value != ";") {
 		std::string tmp = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
 		for (int i = 0; i < 8; i++)
 		{
-			if (tmp == meth[i]){
+			if (tmp == meth[i]) {
 				loc.setMethod(i, true);
 				break;
 			}
@@ -79,27 +79,31 @@ void	confMethods(std::string value, Location &loc){
 	// std::cout << "METHODS LOCATION OK" << std::endl;
 }
 
-void	confRedirect(std::string value, Location &loc){
+void	confRedirect(std::string value, Location& loc) {
 	std::string num = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-	if (num.length() != 3 || num.find_first_not_of("1234567890") != std::string::npos){
-		throw syntaxError();}
+	if (num.length() != 3 || num.find_first_not_of("1234567890") != std::string::npos) {
+		throw syntaxError();
+	}
 	value.erase(0, num.length());
 	while (value.find_first_of("\t\n\v\f\r ") == 0)
 		value.erase(0, 1);
 	std::string from = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-	if (from.length() == 0){
-		throw syntaxError();}
+	if (from.length() == 0) {
+		throw syntaxError();
+	}
 	value.erase(0, from.length());
 	while (value.find_first_of("\t\n\v\f\r ") == 0)
 		value.erase(0, 1);
 	std::string to = value.substr(0, value.find_first_of("\t\n\v\f\r ;"));
-	if (to.length() == 0){
-		throw syntaxError();}
+	if (to.length() == 0) {
+		throw syntaxError();
+	}
 	value.erase(0, to.length());
 	while (value.find_first_of("\t\n\v\f\r ") == 0)
 		value.erase(0, 1);
-	if (value != ";"){
-		throw syntaxError();}
+	if (value != ";") {
+		throw syntaxError();
+	}
 	s_redirect redir;
 	redir.returnValue = std::stoi(num);
 	redir.redirFrom = from;
@@ -108,7 +112,7 @@ void	confRedirect(std::string value, Location &loc){
 	loc.setRedirect(redir);
 }
 
-void	confRoot(std::string value, Location &loc){
+void	confRoot(std::string value, Location& loc) {
 	if (value.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		throw syntaxError();
 	value.pop_back();
@@ -116,7 +120,7 @@ void	confRoot(std::string value, Location &loc){
 	loc.setRoot(value);
 }
 
-void	confAutoIndex(std::string value, Location &loc){
+void	confAutoIndex(std::string value, Location& loc) {
 	if (value == "on;")
 		loc.setAutoIndex(true);
 	else if (value == "off;")
@@ -126,7 +130,7 @@ void	confAutoIndex(std::string value, Location &loc){
 	// std::cout << "AUTOINDEX LOCATION OK" << std::endl;
 }
 
-void	confIndex(std::string value, Location &loc){
+void	confIndex(std::string value, Location& loc) {
 	value.pop_back();
 	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
 		throw syntaxError();
@@ -134,7 +138,7 @@ void	confIndex(std::string value, Location &loc){
 	loc.setIndex(value);
 }
 
-void	confCGI(std::string value, Location &loc){
+void	confCGI(std::string value, Location& loc) {
 	if ((value == "yes;" || value == "y;"))
 		loc.setCGI(true);
 	else if (value == "no;" || value == "n;")
@@ -144,7 +148,7 @@ void	confCGI(std::string value, Location &loc){
 	// std::cout << "CGI LOCATION OK" << std::endl;
 }
 
-void	confPath(std::string value, Location &loc){
+void	confPath(std::string value, Location& loc) {
 	value.pop_back();
 	if (value.find_first_of("\t\n\v\f\r ;") != std::string::npos)
 		throw syntaxError();
@@ -154,14 +158,14 @@ void	confPath(std::string value, Location &loc){
 	loc.setPath(value);
 }
 
-static std::string findKey(std::string str){
+static std::string findKey(std::string str) {
 	if (str.find_first_of("\t\n\v\f\r ") != std::string::npos)
 		return str.substr(0, str.find_first_of("\t\n\v\f\r "));
 	else
 		return str.substr(0, (str.length() - 1));
 }
 
-void	Location::autoConfig(Server &serv){
+void	Location::autoConfig(Server& serv) {
 	std::list<std::string>::iterator it = _body.begin();
 	std::string temp = serv.getRoot();
 	_name = extractName(*it);
@@ -173,31 +177,33 @@ void	Location::autoConfig(Server &serv){
 	_path = "";
 	it++;
 	_body.pop_back();
-	void (*ptr[7])(std::string, Location&) = {&confMethods, &confRedirect,
-		&confRoot, &confAutoIndex, &confIndex, &confCGI, &confPath};
-	std::string const keys[7] = {"allowedMethods", "return",
-		"root", "autoIndex", "index", "cgiAllowed", "path"};
-	while (it != _body.end()){
+	void (*ptr[7])(std::string, Location&) = { &confMethods, &confRedirect,
+		&confRoot, &confAutoIndex, &confIndex, &confCGI, &confPath };
+	std::string const keys[7] = { "allowedMethods", "return",
+		"root", "autoIndex", "index", "cgiAllowed", "path" };
+	while (it != _body.end()) {
 		std::string str = *it;
 		while (str.find_first_of("\t\n\v\f\r ") == 0)
 			str.erase(0, 1);
-		if (str.front() == '#'){
+		if (str.front() == '#') {
 			it++;
-			continue ;
+			continue;
 		}
-		if (str.back() != ';'){
-			throw syntaxError();}
+		if (str.back() != ';') {
+			throw syntaxError();
+		}
 		std::string key = findKey(str);
 		str.erase(0, key.length());
 		while (str.find_first_of("\t\n\v\f\r ") == 0)
 			str.erase(0, 1);
-		for (int i = 0; i < 7; i++){
-			if (key == keys[i]){
+		for (int i = 0; i < 7; i++) {
+			if (key == keys[i]) {
 				(*ptr[i])(str, *this);
 				break;
 			}
-			if (i == 6){
-				throw syntaxError();}
+			if (i == 6) {
+				throw syntaxError();
+			}
 		}
 		it++;
 	}
