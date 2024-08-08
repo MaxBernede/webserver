@@ -79,8 +79,8 @@ void Request::parseRequest(const std::string& headers) {
 		if (pos != std::string::npos)
 			_request.emplace_back(create_pair(line, pos));
 	}
-	if (std::getline(iss, line))
-		parseBody(iss, line);
+	// if (std::getline(iss, line))
+	// 	parseBody(iss, line);
 }
 
 void Request::fillBoundary(std::string text){
