@@ -30,7 +30,7 @@ void CGI::run()
 		execve(cgiFilePath.c_str(), argv, _cgiEnvCStr);
 		// if execve fails
 		delete[] _cgiEnvCStr;
-		std::cout << "Running CGI script failed (execve), path: " << cgiFilePath << std::endl;
+		Logger::log("Running CGI script failed (execve), path: " + cgiFilePath, LogLevel::ERROR);
 		exit(1); // exit child process with 1, upon failure
 	}
 	else //parent (main) process

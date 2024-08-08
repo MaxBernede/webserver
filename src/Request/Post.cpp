@@ -53,7 +53,7 @@ void Request::createFile(std::string const &content, std::string path, std::stri
 	//Logger::log("Write: " + fileContent, WARNING);
 	try {
 		writeBinaryDataToFile(path, fileContent);
-		std::cout << "File written successfully." << std::endl;
+		Logger::log("File written successfully.", LogLevel::INFO);
 		throw HTTPError(NO_CONTENT);
 	} catch (const std::ios_base::failure& e) {
 		std::cerr << "Error writing file: " << e.what() << std::endl;

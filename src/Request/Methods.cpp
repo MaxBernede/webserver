@@ -55,7 +55,6 @@ bool Request::isBoundary(const std::string &line){
 	return line.find(_boundary) != std::string::npos;
 }
 
-
 void Request::printAllData(){
 	Logger::log("Application started", INFO);
 	std::cout << "Boundary: " << _boundary << std::endl;

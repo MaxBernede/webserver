@@ -319,32 +319,32 @@ void Server::configLocation(){
 	}
 }
 
-std::ostream & operator<< (std::ostream &out, const Server& src){
+// std::ostream & operator<< (std::ostream &out, const Server& src){
 
-	for (s_domain port : src.getPorts()){
-		out << "port\t" << port.host << "\t" << port.port << std::endl;
-	}
-	out << "name\t" << src.getName() << std::endl;
-	out << "root\t" << src.getRoot() << std::endl;
-	out << "methods\t";
-	for (int i = GET; i <= TRACE; i++){
-		out << boolstring(src.getMethod(i)) << "\t";
-	}
-	out << std::endl;
-	out << "cgi\t" << boolstring(src.getCGI()) << std::endl;
-	out << "max_body\t" << src.getMaxBody() << " bytes" << std::endl;
-	for (s_ePage ePage : src.getErrorPages()){
-		out << "Error\t" << ePage.err << "\t" << ePage.url << std::endl;
-	}
-	out << "Index\t" << src.getIndex() << std::endl;
-	out << "auto Index\t" << boolstring(src.getAutoIndex()) << std::endl;
-	for (s_redirect redir : src.getRedirect()){
-		out << "Value\t" << redir.returnValue << "\tFROM " << redir.redirFrom 
-			<< "\tTO " << redir.redirTo << std::endl;
-	}
-	out << "Path\t" << src.getPath() << std::endl;
-	for (Location l : src.getLocation()){
-		out << l << std::endl;
-	}
-	return out;
-}
+// 	for (s_domain port : src.getPorts()){
+// 		out << "port\t" << port.host << "\t" << port.port << std::endl;
+// 	}
+// 	out << "name\t" << src.getName() << std::endl;
+// 	out << "root\t" << src.getRoot() << std::endl;
+// 	out << "methods\t";
+// 	for (int i = GET; i <= TRACE; i++){
+// 		out << boolstring(src.getMethod(i)) << "\t";
+// 	}
+// 	out << std::endl;
+// 	out << "cgi\t" << boolstring(src.getCGI()) << std::endl;
+// 	out << "max_body\t" << src.getMaxBody() << " bytes" << std::endl;
+// 	for (s_ePage ePage : src.getErrorPages()){
+// 		out << "Error\t" << ePage.err << "\t" << ePage.url << std::endl;
+// 	}
+// 	out << "Index\t" << src.getIndex() << std::endl;
+// 	out << "auto Index\t" << boolstring(src.getAutoIndex()) << std::endl;
+// 	for (s_redirect redir : src.getRedirect()){
+// 		out << "Value\t" << redir.returnValue << "\tFROM " << redir.redirFrom 
+// 			<< "\tTO " << redir.redirTo << std::endl;
+// 	}
+// 	out << "Path\t" << src.getPath() << std::endl;
+// 	for (Location l : src.getLocation()){
+// 		out << l << std::endl;
+// 	}
+// 	return out;
+// }

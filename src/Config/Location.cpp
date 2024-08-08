@@ -207,23 +207,23 @@ void	Location::autoConfig(Server &serv){
 	// std::cout << "LOCATION OK" << std::endl;
 }
 
-std::ostream & operator<< (std::ostream &out, const Location& src){
+// std::ostream & operator<< (std::ostream &out, const Location& src){
 
-	out << "LOCATION\n";
-	out << "\tname\t" << src.getName() << std::endl;
-	out << "\troot\t" << src.getRoot() << std::endl;
-	out << "\tmethods\t";
-	for (int i = GET; i <= TRACE; i++){
-		out << boolstring(src.getMethod(i)) << "\t";
-	}
-	out << std::endl;
-	out << "\tcgi\t" << boolstring(src.getCGI()) << std::endl;
-	out << "\tIndex\t" << src.getIndex() << std::endl;
-	out << "\tauto Index\t" << boolstring(src.getAutoIndex()) << std::endl;
-	for (s_redirect redir : src.getRedirect()){
-		out << "\tValue\t" << redir.returnValue << "\tFROM " << redir.redirFrom 
-			<< "\tTO " << redir.redirTo << std::endl;
-	}
-	out << "\tPATH\t" << src.getPath() << std::endl;
-	return out;
-}
+// 	out << "LOCATION\n";
+// 	out << "\tname\t" << src.getName() << std::endl;
+// 	out << "\troot\t" << src.getRoot() << std::endl;
+// 	out << "\tmethods\t";
+// 	for (int i = GET; i <= TRACE; i++){
+// 		out << boolstring(src.getMethod(i)) << "\t";
+// 	}
+// 	out << std::endl;
+// 	out << "\tcgi\t" << boolstring(src.getCGI()) << std::endl;
+// 	out << "\tIndex\t" << src.getIndex() << std::endl;
+// 	out << "\tauto Index\t" << boolstring(src.getAutoIndex()) << std::endl;
+// 	for (s_redirect redir : src.getRedirect()){
+// 		out << "\tValue\t" << redir.returnValue << "\tFROM " << redir.redirFrom 
+// 			<< "\tTO " << redir.redirTo << std::endl;
+// 	}
+// 	out << "\tPATH\t" << src.getPath() << std::endl;
+// 	return out;
+// }

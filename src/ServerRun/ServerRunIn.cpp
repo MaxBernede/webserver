@@ -92,7 +92,7 @@ void ServerRun::handleRequest(int clientFd)
 		_httpObjects[clientFd]->_request->readRequest();
 	if (_httpObjects[clientFd]->_request->isDoneReading() == true)
 	{
-		_httpObjects[clientFd]->_request->printAllData();
+		// _httpObjects[clientFd]->_request->printAllData();
 		_httpObjects[clientFd]->_request->startConstruRequest();
 		s_domain Domain = _httpObjects[clientFd]->_request->getRequestDomain();
 		Server config = findConfig(Domain);

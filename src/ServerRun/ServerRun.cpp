@@ -48,7 +48,7 @@ ServerRun::~ServerRun( void )
 void ServerRun::createListenerSockets(std::vector<s_domain> listens, std::string name)
 {
 	Socket *new_socket;
-	std::cout << "Creaing listening sockets\n";
+	Logger::log("Creaing listening sockets\n", LogLevel::INFO);
 	for (s_domain listen : listens)
 	{
 		try
