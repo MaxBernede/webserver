@@ -110,7 +110,7 @@ class Request
 
 		void		searchErrorPage();
 		void		handleDelete(std::string, std::string);
-		void		handlePost(std::string, std::string);
+		void		handlePost(const std::string &, const std::string &);
 		void		handleDirDelete(std::string path);
 		std::string	getEndPath();
 		bool		methodAccepted(std::string method);

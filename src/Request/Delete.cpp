@@ -3,10 +3,11 @@
 
 void Request::handleDirDelete(std::string path){
 	if (path.back() != '/')
-		throw (HTTPError(CONFLICT));
+		throw (HTTPError(PAGE_NOT_FOUND));
 
 	if (access(path.c_str(), W_OK) != 0)
 		throw (HTTPError(FORBIDDEN));
+
 	removeDir(path);
 }
 
@@ -14,6 +15,7 @@ void Request::remove(std::string path)
 {
 	if (access(path.c_str(), W_OK) != 0)
 		throw (HTTPError(FORBIDDEN));
+
 	if (std::remove(path.c_str()) == 0)
 	{
 		Logger::log("File deleted successfully", INFO);
@@ -59,10 +61,12 @@ std::string Request::getDeleteFilename(const std::string& httpRequest) {
 void Request::handleDelete(std::string path, std::string file){
 	if (file == "")
 		throw (HTTPError(OK));
+
 	std::string fullPath = path + file;
 	std::cout << "Handling delete: ... " << fullPath << std::endl;
 	if (!exists(fullPath))
 		throw (HTTPError(PAGE_NOT_FOUND));
+
 	Logger::log("File exist and will be deleted", INFO);
 	try {
 		if (std::filesystem::is_regular_file(fullPath))
