@@ -25,7 +25,6 @@ public:
 	void 		addToBuffer(std::string buffer);
 	void		setResponseString(std::string response);
 	void 		setReady(void);
-	void 		rSend(Request* request);
 	void 		rSend();
 	void		sendRedir();
 	void		setDirectoryListing(Request* request);

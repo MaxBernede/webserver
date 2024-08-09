@@ -57,7 +57,6 @@ class Request
 public:
 	//constructors
 	Request(int clientFd);
-	Request(void);
 	~Request();
 	void		constructRequest();
 
@@ -65,16 +64,13 @@ public:
 	std::string	getValues(std::string key);
 	void		readRequest(std::list<Server> _servers);
 	void		parseFirstLine(std::istringstream& iss);
-	void		parseBody(std::istringstream& iss, std::string& line);
 	void 		parseRequest(const std::string& headers);
 	void		checkRequest();
 	bool		finishedReadingHeader();
 	void		checkHeaders(std::list<Server> _servers);
 	Server		findConfig(s_domain port, std::list<Server> _servers);
-	void 		findBoundary();
 
 	//GET
-	std::string	getFile();
 	std::string	getFileName();
 	std::string	getServerName();
 	int			getClientFd();
