@@ -31,7 +31,6 @@ void	Request::checkHeaders(std::list<Server> _servers)
 		_contentLength = strToSizeT(contentLength);
 	if (_contentLength > _config.getMaxBody())
 		throw(HTTPError(PAYLOAD_TOO_LARGE));
-
 	redirRequest405();
 	redirRequest501();
 	handleRedirection();
@@ -70,6 +69,11 @@ void Request::readRequest(std::list<Server> _servers)
 	if (_contentLength > 0 && checkBoundary()) // if request with body (e.g. POST)
 	{
 		Logger::log("POST Request finished reading", LogLevel::INFO);
+		_doneReading = true;
+	}
+	if (_contentLength > 0 && getBoundary() == "") // if request with body but no boundary
+	{
+		Logger::log("POST Request finished reading, No boundary", LogLevel::INFO);
 		_doneReading = true;
 	}
 	if (getMethod(0) == "DELETE" && rb < BUFFER_SIZE - 1)
