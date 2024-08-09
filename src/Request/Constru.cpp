@@ -41,6 +41,17 @@ void Request::parseFirstLine(std::istringstream &iss)
 		_request.emplace_back(create_pair(line, pos));
 }
 
+void Request::addNecessaryHeaders(){
+	if (getValues("Date") == "")
+		_request.emplace_back(create_pair("Date:tmp", 5));
+	if (getValues("Content-Lenght") == "")
+		_request.emplace_back(create_pair("Content-Lenght:tmp", 15));
+	if (getValues("Server") == "")
+		_request.emplace_back(create_pair("Server:tmp", 7));
+	if (getValues("Last-modified") == "")
+		_request.emplace_back(create_pair("Last-modified:tmp", 14));
+}
+
 // it works as : get the first line based on space
 // then check for the ':' however if there is a boundary and its found, keep everything between as body
 void Request::parseRequest(const std::string &headers)
@@ -52,16 +63,19 @@ void Request::parseRequest(const std::string &headers)
 	parseFirstLine(iss);
 	while (std::getline(iss, line))
 	{
-		if (line == "\r")
+		if (line == "\r") // Because getline doesnt take the \n
 			break;
 
 		size_t pos = line.find(':');
 		if (pos == 0 || pos == line.size() - 2) // -2 because it HAVE TO be a \r\n at the end
-			throw(HTTPError(BAD_REQUEST)); // Error catched if empty var name or data
+			throw(HTTPError(BAD_REQUEST));		// Error catched if empty var name or data
 
 		if (pos != std::string::npos)
 			_request.emplace_back(create_pair(line, pos));
+		else							   //! kinda dangerous ?
+			throw(HTTPError(BAD_REQUEST)); // There is a line but no delimiter \r\n
 	}
+	addNecessaryHeaders();
 }
 
 void Request::fillBoundary(std::string text)

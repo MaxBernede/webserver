@@ -59,6 +59,7 @@ public:
 	Request(int clientFd);
 	~Request();
 	void		constructRequest();
+	void		addNecessaryHeaders();
 
 	void		fillBoundary(std::string text);
 	std::string	getValues(std::string key);
@@ -128,6 +129,8 @@ public:
 	void		configConfig();
 
 	void		printAllData();
+	
+	void		printHeaders();
 
 private:
 	std::vector<std::string>	_method;
