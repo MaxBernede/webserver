@@ -2,8 +2,8 @@ NAME := webserv
 CXX := c++
 
 CXXFLAGS = -std=c++20 -Wall -Wextra -g #-flto
-CXXFLAGS += -fsanitize=address
-# CXXFLAGS += -Werror
+# CXXFLAGS += -fsanitize=address
+CXXFLAGS += -Werror
 RM := rm -rf
 
 SRC_DIR := src

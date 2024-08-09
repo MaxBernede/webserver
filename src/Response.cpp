@@ -8,13 +8,14 @@ Response::Response(int clientFd) : _clientFd(clientFd), _ready(false)
 
 Response::~Response() {}
 
-//! check the fck is going on with the 204 No response 2 headers?
 void Response::addHeaders(Request* request)
 {
 	std::ostringstream oss;
 	std::string http = request->getMethod(2);
 	std::string code = std::to_string(request->getErrorCode());
-	std::string message = httpStatus[request->getErrorCode()]; // TODO There is no message for directory listing
+	if (request->getErrorCode() == DIRECTORY_LISTING)
+		code = "200";
+	std::string message = httpStatus[request->getErrorCode()];
 	oss << http << " " << code << " " << message;
 	oss << "\nConnection: close";
 	oss << "\r\n\r\n";
