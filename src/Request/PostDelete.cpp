@@ -4,15 +4,6 @@
 //Explain that path is root + path in config
 std::string Request::getEndPath() {
 	std::string path = getPath();
-	// try {
-	// 	Location loc = _config.getLocationByName("upload/");
-	// 	path += loc.getPath();
-	// }
-	// catch (const std::runtime_error& e) {
-	// 	std::cerr << e.what() << std::endl;
-	// 	path += _config.getPath();
-	// }
-	//Logger::log("Total path is : " + path);
 	path += _config.getPath();
 	return path;
 }
@@ -35,9 +26,7 @@ std::string Request::findFileName(std::string method) {
 }
 
 bool checkInsecure(std::string fileName) {
-	if (fileName.find("..") != std::string::npos)
-		return true;
-	return false;
+	return (fileName.find("..") != std::string::npos);
 }
 
 void Request::execAction() {

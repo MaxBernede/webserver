@@ -25,11 +25,6 @@ void	Request::checkHeaders(std::list<Server> _servers)
 	s_domain Domain = getRequestDomain(getValues("Host"));
 	_config = findConfig(Domain, _servers);
 	configConfig();
-	if (_requestText.size() > _config.getMaxBody())
-	{
-		_doneReading = true;
-		throw(HTTPError(URI_TOO_LONG));
-	}
 	// error checking, redirection, dir listing
 	std::string contentLength = getValues("Content-Length");
 	if (!contentLength.empty())
@@ -61,6 +56,13 @@ void Request::readRequest(std::list<Server> _servers)
 	}
 	buffer[rb] = '\0';
 	_requestText += std::string(buffer, rb);
+
+	if (_requestText.size() > _config.getMaxBody())
+	{
+		_doneReading = true;
+		throw(HTTPError(URI_TOO_LONG));
+	}
+
 	if (finishedReadingHeader())
 		checkHeaders(_servers);
 	if (finishedReadingHeader() && _contentLength == 0) // if request without body (e.g. GET)

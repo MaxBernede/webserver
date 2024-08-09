@@ -19,11 +19,6 @@ std::string Request::getOtherFilename() {
 
 void Request::handlePost(const std::string& path, const std::string& file)
 {
-	// std::string body = getValues("Body");
-
-	// if (body.empty())
-	// 	throw (HTTPError(UNPROCESSABLE));
-
 	Logger::log("Creating the file", INFO);
 	createFile(_requestText, path, file);
 }
@@ -59,25 +54,24 @@ void Request::createFile(const std::string& content, std::string path, std::stri
 	if (file.empty())
 		throw HTTPError(BAD_REQUEST);
 
+
+	//!ugly as fck
 	// Find the empty lines
 	size_t pos = content.find("\r\n\r\n");
 	if (pos == std::string::npos) {
 		std::cerr << "Error: No empty line found in content" << std::endl;
 		throw HTTPError(BAD_REQUEST);
 	}
-
 	std::string fileContent = content.substr(pos + 4); // Skip the two newlines
-
 	pos = fileContent.find("\r\n\r\n");
 	if (pos == std::string::npos) {
 		std::cerr << "Error: No empty line found in content" << std::endl;
 		throw HTTPError(BAD_REQUEST);
 	}
-
 	fileContent = fileContent.substr(pos + 4); // Skip the two newlines
 
 
-	//Logger::log("Write: " + fileContent, WARNING);
+	
 	try {
 		writeBinaryDataToFile(path, fileContent);
 		std::cout << "File created successfully." << std::endl;

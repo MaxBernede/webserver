@@ -1,17 +1,5 @@
 #include "Request.hpp"
 
-void Request::setFileName(std::string newName) {
-	_file = newName;
-}
-
-//getmethod or replace by the config
-void Request::setFile() {
-	_file = getMethod(1);
-	_file.erase(0, 1);
-	if (_file == "")
-		_file = _config.getIndex();
-}
-
 //Create a pair out of the line and the int pos of the delimiter (: for every lines or space for the first line)
 std::pair<std::string, std::string> create_pair(const std::string& line, size_t pos) {
 	std::string	key = line.substr(0, pos);
@@ -23,21 +11,6 @@ std::pair<std::string, std::string> create_pair(const std::string& line, size_t 
 	if (!value.empty() && value[0] == ' ')
 		value = value.substr(1); // Remove leading space if present
 	return std::make_pair(key, value);
-}
-
-void Request::parseBody(std::istringstream& iss, std::string& line) {
-	std::string body = "Body ";
-
-	if (_boundary != "" && isBoundary(line)) {
-		while (std::getline(iss, line)) {
-			if (_boundary != "" && isBoundary(line)) {
-				_request.emplace_back(create_pair(body, 4));
-				break;
-			}
-			body += line;
-			body += "\n";
-		}
-	}
 }
 
 //save as well the GET request in the all datas AND the _method
@@ -79,8 +52,6 @@ void Request::parseRequest(const std::string& headers) {
 		if (pos != std::string::npos)
 			_request.emplace_back(create_pair(line, pos));
 	}
-	// if (std::getline(iss, line))
-	// 	parseBody(iss, line);
 }
 
 void Request::fillBoundary(std::string text) {
@@ -126,20 +97,4 @@ void Request::constructRequest() {
 	parseRequest(_requestText);
 	setFile();
 	checkErrors();
-}
-
-std::string Request::getRawBody()
-{
-	std::string delimiter = "\r\n\r\n";
-	size_t pos = _requestText.find(delimiter);
-
-	if (pos == std::string::npos)
-	{
-		// Delimiter not found, which implies no body or incorrectly formatted input
-		return "";
-	}
-	// Skip past the delimiter
-	pos += delimiter.length();
-	// Return the body starting right after the delimiter
-	return _requestText.substr(pos);
 }
