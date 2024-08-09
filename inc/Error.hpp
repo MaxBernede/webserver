@@ -32,7 +32,7 @@
 	</head> \
 	<body> \
 		<div class=\"error-container\"> \
-			<h1>Error "
+			<h1>HTTP Status "
 
 #define END_HTML "</h1> \
 			<a href=\"../\">Back to Home</a> \

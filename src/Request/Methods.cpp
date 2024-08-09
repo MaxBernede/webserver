@@ -25,12 +25,18 @@ void	Request::checkHeaders(std::list<Server> _servers)
 	s_domain Domain = getRequestDomain(getValues("Host"));
 	_config = findConfig(Domain, _servers);
 	configConfig();
+	if (_requestText.size() > _config.getMaxBody())
+	{
+		_doneReading = true;
+		throw(HTTPError(URI_TOO_LONG));
+	}
 	// error checking, redirection, dir listing
 	std::string contentLength = getValues("Content-Length");
 	if (!contentLength.empty())
 		_contentLength = strToSizeT(contentLength);
 	if (_contentLength > _config.getMaxBody())
 		throw(HTTPError(PAYLOAD_TOO_LARGE));
+
 	redirRequest405();
 	redirRequest501();
 	handleRedirection();
