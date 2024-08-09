@@ -19,28 +19,35 @@ Server Request::findConfig(s_domain port, std::list<Server> _servers)
 
 void	Request::checkHeaders(std::list<Server> _servers)
 {
-	// parse headers
-	constructRequest();
-	// set config based on host
-	s_domain Domain = getRequestDomain(getValues("Host"));
-	_config = findConfig(Domain, _servers);
-	configConfig();
-	// error checking, redirection, dir listing
-	std::string contentLength = getValues("Content-Length");
-	if (!contentLength.empty())
-		_contentLength = strToSizeT(contentLength);
-	if (_contentLength > _config.getMaxBody())
-		throw(HTTPError(PAYLOAD_TOO_LARGE));
-	redirRequest405();
-	redirRequest501();
-	handleRedirection();
-	redirRequest404();
-	handleDirListing();
+	if (!getHeaderStatus())
+	{
+		// parse headers
+		constructRequest();
+		// set config based on host
+		s_domain Domain = getRequestDomain(getValues("Host"));
+		_config = findConfig(Domain, _servers);
+		configConfig();
+		// error checking, redirection, dir listing
+		std::string contentLength = getValues("Content-Length");
+		if (!contentLength.empty())
+			_contentLength = strToSizeT(contentLength);
+		if (_contentLength > _config.getMaxBody())
+			throw(HTTPError(PAYLOAD_TOO_LARGE));
+		redirRequest405();
+		redirRequest501();
+		handleRedirection();
+		redirRequest404();
+		handleDirListing();
+	}
 }
 
-bool	Request::checkBoundary()
+bool	Request::checkEndOfBody()
 {
-	return (_requestText.find(_boundary + "--") != std::string::npos);
+	std::string body = getRawBody();
+	if (_boundary.empty()) // plain text post request
+		return (body.length() == _contentLength); // end of body reach when body size = content length
+	else // post with boundary
+		return (_requestText.find(_boundary + "--") != std::string::npos); // end of body reach when last boundary is found
 }
 
 void Request::readRequest(std::list<Server> _servers)
@@ -51,22 +58,22 @@ void Request::readRequest(std::list<Server> _servers)
 	if (rb < 0) {
 		_doneReading = true;
 		Logger::log("Error reading request", LogLevel::ERROR);
+		std::cout << "7\n";
 		throw (HTTPError(ErrorCode::BAD_REQUEST));
 	}
 	buffer[rb] = '\0';
 	_requestText += std::string(buffer, rb);
 
 	if (_requestText.size() > _config.getMaxBody())
-	{
-		_doneReading = true;
 		throw(HTTPError(URI_TOO_LONG));
-	}
 
 	if (finishedReadingHeader())
+	{
 		checkHeaders(_servers);
+	}
 	if (finishedReadingHeader() && _contentLength == 0) // if request without body (e.g. GET)
 		_doneReading = true;
-	if (_contentLength > 0 && checkBoundary()) // if request with body (e.g. POST)
+	if (_contentLength > 0 && checkEndOfBody()) // if request with body (e.g. POST)
 	{
 		Logger::log("POST Request finished reading", LogLevel::INFO);
 		_doneReading = true;
@@ -183,16 +190,8 @@ void	Request::handleDirListing()
 		throw (HTTPError(ErrorCode::DIRECTORY_LISTING));
 }
 
-void Request::checkRequest()
-{
-	Logger::log("Checking file...", LogLevel::INFO);
-	handleRedirection();
-	redirRequest404();
-	handleDirListing();
-}
 
-
-void Request::handleRedirection() {
+void	Request::handleRedirection() {
 	std::list<s_redirect> redirs = _config.getRedirect();
 	std::string fileName = getFileNameProtected();
 
@@ -230,7 +229,7 @@ void	Request::configConfig() {
 	}
 }
 
-void Request::checkVersion() {
+void	Request::checkVersion() {
 	std::string v = getMethod(2);
 
 	if (v[5] != '1' && v[5] != '2') {
