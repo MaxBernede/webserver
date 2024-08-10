@@ -16,6 +16,7 @@ std::string getHTTPDate() {
 	return oss.str();
 }
 
+// to use if we use the path on the file otherwise useless
 std::string getLastModified(const std::string& file_path) {
 	struct stat file_stat;
 	if (stat(file_path.c_str(), &file_stat) == 0) {
@@ -45,7 +46,8 @@ void Response::addHeaders(Request* request)
 	oss << http << " " << code << " " << message << "\r\n";
 	oss << contentLength;
 	oss << date;
-	oss << lastModified;
+	//oss << lastModified;
+	oss << "Content-Type: text/html; charset=UTF-8" << "\r\n";
 	oss << "Connection: close" << "\r\n";
 	oss << "\r\n";
 	oss << _responseText;

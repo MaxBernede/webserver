@@ -119,7 +119,7 @@ void Request::constructRequest()
 	Logger::log("Request is being parsed...", INFO);
 	if (_requestText.empty())
 		throw(HTTPError(BAD_REQUEST));
-	// Logger::log(_requestText, ERROR);
+	Logger::log("Request text is:\n" + _requestText, WARNING);
 	fillBoundary(_requestText);
 	parseRequest(_requestText);
 	setFile();
