@@ -81,8 +81,8 @@ void	HTTPObject::checkTimeOut()
 {
 	std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>
 		(std::chrono::high_resolution_clock::now() - _startTime);
-	std::chrono::seconds ten(10);
-	if (sec > ten) {
+	std::chrono::seconds timeLimit(5);
+	if (sec > timeLimit) {
 		_timeOut = true;
 		if (this->isCgi())
 			this->_cgi->killChild();

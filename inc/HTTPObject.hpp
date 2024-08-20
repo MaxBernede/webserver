@@ -29,18 +29,15 @@ public:
 	HTTPObject(int clientFd);
 	~HTTPObject();
 
-	void	sendRedirection(void);
 	void	sendAutoIndex();
 
 	// changed to the second one!
-	void	sendResponse(void);
 	void	sendResponseWithHeaders();
 	void	writeToCgiPipe();
 	void	createCgi();
 	void	runCgi(void);
 	bool	isCgi();
 	void	checkTimeOut();
-	// void	sendRedirection()
 
 	// Getters & Setters
 	void		setConfig();

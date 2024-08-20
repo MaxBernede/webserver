@@ -35,7 +35,6 @@ void CGI::run()
 	}
 	else //parent (main) process
 	{
-		_forkTime = std::chrono::high_resolution_clock::now();
 		close(_responsePipe[1]); // close write-end of the response pipe (send)
 	}
 }
@@ -99,15 +98,6 @@ void	CGI::killChild()
 			Logger::log("failed to kill child", ERROR);
 		waitpid(_pid, nullptr, 0); // Wait for the child process to terminate
 	}
-}
-
-bool CGI::isTimeOut()
-{
-	auto _end = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double> _timePassed = _end - _forkTime;
-	if (_timePassed.count() > 10)
-		return (true);
-	return (false);
 }
 
 void	CGI::closeUploadPipe()

@@ -20,8 +20,7 @@ private:
 	Request* _request;
 	int							_clientFd;
 	std::vector<std::string>	_cgiEnvArr;
-	char* const* _cgiEnvCStr;
-	TimePoint					_forkTime;
+	char* const*				_cgiEnvCStr;
 
 public:
 	CGI(Request* request, int clientFd);
@@ -32,7 +31,6 @@ public:
 	void	makeEnvCStr();
 	void	makeEnvArr();
 	bool 	waitCgiChild();
-	bool	isTimeOut();
 	void	killChild();
 	void	closeUploadPipe();
 	// Getters 

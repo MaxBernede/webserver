@@ -3,7 +3,7 @@
 
 void Socket::fillStruct(struct addrinfo& hints) {
 	memset(&hints, 0, sizeof(hints));
-	hints.ai_socktype = 0;
+	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_family = AF_INET;
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE; // fills in your local host ip for you, saves you from having to hard code it
@@ -13,9 +13,10 @@ Socket::Socket(std::string name)
 {
 	struct addrinfo hints, * res, * tmp;
 	fillStruct(hints);
-	int status = getaddrinfo(name.c_str(), "http", &hints, &res);
+	int status = getaddrinfo(name.c_str(), NULL, &hints, &res);
 	if (status != 0)
 	{
+		std::strerror(errno);
 		throw (Exception("Error with getaddrinfo()", errno));
 	}
 	bool bound = false;
@@ -43,13 +44,12 @@ Socket::Socket(std::string name)
 	}
 	freeaddrinfo(res);
 	if (!bound)
-		throw (Exception("Socket failed to bind :(\t" + name, 1));
+		throw (Exception("Socket failed to bind \t" + name, 1));
 	if (listen(_fd, SOMAXCONN))
 	{
 		close(_fd);
 		throw (Exception("listening failed on socketfd fd: " + std::to_string(_fd) + " on  ): " + name, 1));
 	}
-	//Logger::log("Sockets created with fd " + std::to_string(_fd) + " on port: " + std::to_string(port));
 }
 
 Socket::Socket(s_domain domain)
