@@ -123,6 +123,7 @@ void ServerRun::serverRunLoop(void)
 			}
 			catch (const Exception& e)
 			{
+				cleanUp(fd);
 				Logger::log(e.what(), LogLevel::ERROR);
 			}
 			catch (const HTTPError& e)

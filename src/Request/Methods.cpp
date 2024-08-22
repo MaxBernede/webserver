@@ -14,7 +14,8 @@ Server Request::findConfig(s_domain port, std::list<Server> _servers)
 				return (server);
 		}
 	}
-	throw (HTTPError(INTERNAL_SRV_ERR));
+	throw (Exception("Config not found", 400));
+	// throw (HTTPError(INTERNAL_SRV_ERR));
 }
 
 void	Request::checkHeaders(std::list<Server> _servers)
