@@ -28,6 +28,7 @@ void Request::parseFirstLine(std::istringstream &iss)
 		{
 			_method[1] = "400";
 			_method[2] = "HTTP/1.1";
+			std::cout << "1\n";
 			throw(HTTPError(BAD_REQUEST));
 		}
 		_method[i] = arg;
@@ -102,10 +103,12 @@ void Request::fillBoundary(std::string text)
 
 // Constructor that parses everything
 Request::Request(int clientFd) : _clientFd(clientFd),
-								 _doneReading(false),
-								 _errorCode(ErrorCode::OK),
-								 _errorPageFound(false),
-								 _contentLength(0)
+								_doneReading(false),
+								_errorCode(ErrorCode::OK),
+								_errorPageFound(false),
+								_contentLength(0),
+								_readBytes(0),
+								_parsedHeader(false)
 {
 	_method.push_back("NULL");
 	_method.push_back("000");
@@ -118,10 +121,13 @@ void Request::constructRequest()
 {
 	Logger::log("Request is being parsed...", INFO);
 	if (_requestText.empty())
+	{
 		throw(HTTPError(BAD_REQUEST));
+	}
 	Logger::log("Request text is:\n" + _requestText, WARNING);
 	fillBoundary(_requestText);
 	parseRequest(_requestText);
 	setFile();
 	checkErrors();
+	_parsedHeader = true;
 }

@@ -140,3 +140,8 @@ std::string	Request::getBoundary()
 {
 	return (_boundary);
 }
+
+bool	Request::getHeaderStatus()
+{
+	return (_parsedHeader);
+}

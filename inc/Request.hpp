@@ -66,7 +66,6 @@ public:
 	void		readRequest(std::list<Server> _servers);
 	void		parseFirstLine(std::istringstream& iss);
 	void 		parseRequest(const std::string& headers);
-	void		checkRequest();
 	bool		finishedReadingHeader();
 	void		checkHeaders(std::list<Server> _servers);
 	Server		findConfig(s_domain port, std::list<Server> _servers);
@@ -93,8 +92,8 @@ public:
 	void		execAction();
 	std::string	getBoundary();
 	std::string	getRawBody(); // for CGI Pipe
-	bool		checkBoundary();
-
+	bool		getHeaderStatus();
+	bool		checkEndOfBody();
 	// SET
 	void		setFileName(std::string newName);
 	void		setFile();
@@ -145,4 +144,8 @@ private:
 	std::string	_filePath;
 	bool		_errorPageFound;
 	size_t		_contentLength;
+	size_t		_readBytes;
+	std::string	_rawHeaders;
+	std::string	_rawBody;
+	bool		_parsedHeader;
 };

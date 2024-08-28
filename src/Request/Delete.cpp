@@ -51,19 +51,28 @@ std::string Request::getDeleteFilename(const std::string& httpRequest) {
 	Logger::log(httpRequest, WARNING);
 	std::size_t jsonStart = httpRequest.find("\r\n\r\n");
 	if (jsonStart == std::string::npos)
+	{
+		std::cout << "4\n";
 		throw HTTPError(BAD_REQUEST);
+	}
 	jsonStart += 4; // Move past the "\r\n\r\n"
 
 	std::string jsonBody = httpRequest.substr(jsonStart);
 	// Find the position of the filename in the JSON body
 	std::size_t filenamePos = jsonBody.find("\"filename\":\"");
 	if (filenamePos == std::string::npos)
+	{
+		std::cout << "5\n";
 		throw HTTPError(BAD_REQUEST);
+	}
 
 	filenamePos += 12; // Move past "\"filename\":\""
 	std::size_t endQuotePos = jsonBody.find("\"", filenamePos);
 	if (endQuotePos == std::string::npos)
+	{
+		std::cout << "6\n";
 		throw HTTPError(BAD_REQUEST);
+	}
 
 	return jsonBody.substr(filenamePos, endQuotePos - filenamePos);
 }

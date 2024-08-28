@@ -20,7 +20,7 @@ bool Request::methodAccepted(std::string method) {
 std::string Request::findFileName(std::string method) {
 	if (method == "DELETE")
 		return getDeleteFilename(_requestText);
-	if (method == "POST")
+	if (method == "POST" && !_boundary.empty()) // POST with a boundary
 		return getOtherFilename();
 	return "";
 }
@@ -36,18 +36,26 @@ void Request::execAction() {
 	if (method != "DELETE" && method != "POST")
 		return;
 
-	if (!methodAccepted(method)) //check if method not accepted
-		throw HTTPError(METHOD_NOT_ALLOWED);
+	//!! this is already checked... remove
+	// if (!methodAccepted(method)) //check if method not accepted
+	// 	throw HTTPError(METHOD_NOT_ALLOWED);
 
 	std::string path = getEndPath(); // the path before filename 
 	Logger::log("endpath is : " + path, WARNING);
 
 	std::string fileName = findFileName(method);
 	Logger::log("filename is : " + fileName, WARNING);
-
+	if (fileName.empty() && method == "POST")
+	{
+		Logger::log("The following data was posted: \n" + getRawBody(), LogLevel::WARNING);
+		return ;
+	}
 	//Check size should have been already be done
 	if (checkInsecure(fileName) || checkInsecure(path))
+	{
+		std::cout << "13\n";
 		throw HTTPError(BAD_REQUEST); //Dangerous request
+	}
 
 	if (method == "POST" && exists(path + fileName))
 		throw HTTPError(CONFLICT);

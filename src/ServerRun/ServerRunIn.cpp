@@ -130,8 +130,7 @@ void ServerRun::readFile(int fd) // Static file fd
 		throw(HTTPError(ErrorCode::PAGE_NOT_FOUND));
 	if (readChars > 0)
 		obj->_response->addToBuffer(std::string(buffer, readChars));
-	if (readChars == 0)
-	{
+	if (readChars == 0) {
 		_pollData[fd]._pollState = FILE_READ_DONE;
 		obj->_response->setReady();
 		close(fd);
