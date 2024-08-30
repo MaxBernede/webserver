@@ -14,8 +14,7 @@ Server Request::findConfig(s_domain port, std::list<Server> _servers)
 				return (server);
 		}
 	}
-	throw (Exception("Config not found", 400));
-	// throw (HTTPError(INTERNAL_SRV_ERR));
+	throw (HTTPError(BAD_REQUEST));
 }
 
 void	Request::checkHeaders(std::list<Server> _servers)
@@ -59,7 +58,6 @@ void Request::readRequest(std::list<Server> _servers)
 	if (rb < 0) {
 		_doneReading = true;
 		Logger::log("Error reading request", LogLevel::ERROR);
-		std::cout << "7\n";
 		throw (HTTPError(ErrorCode::BAD_REQUEST));
 	}
 	buffer[rb] = '\0';
@@ -210,12 +208,10 @@ void	Request::configConfig() {
 		temp.erase(temp.find('/', 1) + 1);
 	std::list<Location> locs = _config.getLocation();
 	for (Location loc : locs) {
-		std::cout << "LOCATION CHECK\t" << temp << "\t" << loc.getRoot() << "\t" << _config.getRoot() << std::endl;
 		if (temp == loc.getName() || (temp == loc.getRoot() && loc.getRoot() != _config.getRoot())) {
-			// std::cout << "LOCATION FOUND" << temp << "\t" << loc.getRoot() << "\t" << _config.getRoot() << std::endl;
 			_config.setRoot(_config.getRoot() + loc.getRoot());
-			for (int i = GET; i <= TRACE; i++)
-				_config.setMethod(loc.getMethod(i), i);
+			for (int i = GET; i <= HEAD; i++)
+				_config.setMethod(i, loc.getMethod(i));
 			_config.setRedirect(loc.getRedirect());
 			_config.setAutoIndex(loc.getAutoIndex());
 			_config.setIndex(loc.getIndex());

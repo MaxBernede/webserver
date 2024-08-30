@@ -47,7 +47,6 @@ void Response::addHeaders(Request* request)
 	oss << contentLength;
 	oss << date;
 	//oss << lastModified;
-	oss << "Content-Type: text/html; charset=UTF-8" << "\r\n";
 	oss << "Connection: close" << "\r\n";
 	oss << "\r\n";
 	oss << _responseText;
@@ -69,7 +68,7 @@ void Response::addToBuffer(std::string buffer)
 void Response::rSend()
 {
 	Logger::log("Sending Response to client...");
-	Logger::log("TEXT:\n" + _responseText, LogLevel::DEBUG);
+	// Logger::log("TEXT:\n" + _responseText, LogLevel::DEBUG);
 	if (send(_clientFd, _responseText.c_str(), _responseText.length(), 0) == -1)
 		Logger::log("Error with sending response", LogLevel::ERROR);
 }
@@ -121,7 +120,6 @@ void Response::setDirectoryListing(Request* request)
 		throw (HTTPError(PAGE_NOT_FOUND));
 	std::vector<std::string>	v = getDirectoryContent(name.c_str());
 	std::ostringstream oss;
-	addHeaders(request);
 	oss << _responseText;
 	oss << DIR_LIST_START;
 	oss << name;
@@ -137,4 +135,5 @@ void Response::setDirectoryListing(Request* request)
 	}
 	oss << DIR_LIST_END;
 	_responseText = oss.str();
+	addHeaders(request);
 }

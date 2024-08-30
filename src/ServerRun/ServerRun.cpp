@@ -16,8 +16,6 @@ std::vector<s_domain>::iterator findDomain(std::vector<s_domain>::iterator start
 ServerRun::ServerRun(const std::list<Server> config)
 {
 
-	if (config.empty())
-		throw (Exception("No servers defined in the config file", 1));
 	_servers = config;
 	// looping over the sever bloacks
 	for (Server server : _servers)

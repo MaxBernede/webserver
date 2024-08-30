@@ -15,8 +15,11 @@ int main(int argc, char** argv) {
 		if (!conf.is_open())
 			throw invalidFile();
 		server = init_serv(conf);
+		if (server.empty())
+			throw (Exception("No servers defined in the config file", 1));
 	}
-	catch (std::exception const& e) {
+	catch (const std::exception &e) {
+		std::cout << e.what() << std::endl;
 		Server def;
 		server.push_front(def);
 	}
