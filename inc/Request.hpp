@@ -118,10 +118,12 @@ public:
 	bool		methodAccepted(std::string method);
 	std::string	findFileName(std::string method);
 	void		createFile(std::string const& content, std::string path, std::string file);
+	std::pair<std::string, std::string> create_pair(const std::string &line, size_t pos);
 
 	void		remove(std::string path);
 	void		removeDir(std::string path);
 
+	void		checkHostPresent();
 	void		checkErrors();
 	void		checkVersion();
 

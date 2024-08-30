@@ -239,6 +239,12 @@ void	Request::checkVersion() {
 	}
 }
 
+void Request::checkHostPresent(){
+	if (getValues("Host") == "")
+		throw (HTTPError(BAD_REQUEST));
+}
+
 void Request::checkErrors() {
 	checkVersion();
+	checkHostPresent();
 }
