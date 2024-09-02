@@ -111,7 +111,7 @@ void ServerRun::serverRunLoop(void)
 					// Only start reading CGI once the write end of the pipe is closed
 					if (_pollFds[i].revents & POLLHUP && _pollData[fd]._pollState == CGI_READ_WAITING)
 					{
-						if (obj != nullptr && !obj->getTimeOut())
+						if (obj != nullptr && !obj->getTimeOut() && obj->_cgi->waitCgiChild())
 							_pollData[fd]._pollState = CGI_READ_READING;
 					}
 					dataIn(_pollData[fd], _pollFds[i]);						//Read from client

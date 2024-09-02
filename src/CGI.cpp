@@ -30,6 +30,7 @@ void CGI::run()
 		execve(cgiFilePath.c_str(), argv, _cgiEnvCStr);
 		// if execve fails
 		delete[] _cgiEnvCStr;
+		std::cerr << "Running CGI script failed (execve), path: " << cgiFilePath << std::endl;
 		exit(1); // exit child process with 1, upon failure
 	}
 	else //parent (main) process
@@ -38,22 +39,38 @@ void CGI::run()
 	}
 }
 
-bool 	CGI::waitCgiChild()
+bool CGI::waitCgiChild()
 {
 	int exitCode;
 	int status = waitpid(_pid, &exitCode, WNOHANG);
 	if (status == -1)
+	{
 		throw(Exception("Error while waiting for cgi with pid " + std::to_string(_pid), 1));
+	}
 	else if (status == 0) // cgi not done
-		return (false);
+	{
+		return false;
+	}
 	else
 	{
-		if (exitCode != 0)
-			throw(Exception("Error while running cgi with pid " + std::to_string(_pid), 1));
+		if (WIFEXITED(exitCode)) // Child exited normally
+		{
+			if (WEXITSTATUS(exitCode) != 0) // Non-zero exit status
+			{
+				throw(Exception("Error: CGI script with pid " + std::to_string(_pid) + " exited with status " + std::to_string(WEXITSTATUS(exitCode)), 1));
+			}
+		}
+		else if (WIFSIGNALED(exitCode)) // Child terminated by a signal
+		{
+
+			Logger::log("Error: CGI script with pid " + std::to_string(_pid) + " was killed by signal " + std::to_string(WTERMSIG(exitCode)), LogLevel::ERROR);
+			throw(HTTPError(INTERNAL_SRV_ERR));
+		}
 		Logger::log("Cgi child process finished", LogLevel::INFO);
-		return (true);
+		return true;
 	}
 }
+
 
 void CGI::makeEnvArr()
 {
