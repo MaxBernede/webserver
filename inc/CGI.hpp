@@ -5,6 +5,7 @@
 #include <vector>
 #include <signal.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 #define ENV_SIZE 18
 
@@ -21,10 +22,11 @@ private:
 	int							_clientFd;
 	std::vector<std::string>	_cgiEnvArr;
 	char* const*				_cgiEnvCStr;
+	std::string					_filePath;
 
 public:
 	CGI(Request* request, int clientFd);
-	~CGI(void);
+	~CGI();
 
 	// Cgi methods
 	void	run();
@@ -33,6 +35,7 @@ public:
 	bool 	waitCgiChild();
 	void	killChild();
 	void	closeUploadPipe();
+	bool	isExecutable();
 	// Getters 
 	int		getReadFd();
 	int		getWriteFd();

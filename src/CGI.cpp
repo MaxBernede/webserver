@@ -2,17 +2,37 @@
 
 CGI::CGI(Request* request, int clientFd) : _request(request), _clientFd(clientFd)
 {
+	_filePath = _request->getConfig().getRoot() + _request->getFileName();
+	if (!isExecutable()) // No execution rights for the file
+	{
+		Logger::log("No execution rights on CGI file", LogLevel::ERROR);
+		throw(HTTPError(INTERNAL_SRV_ERR));
+	}
 	makeEnvArr();
 	makeEnvCStr();
-	if (pipe(_responsePipe) < 0)
-		throw (Exception("Pipe failed", 1));
-	if (pipe(_uploadPipe) < 0)
-		throw(Exception("Pipe failed", 1));
+	if (pipe(_responsePipe) < 0 || pipe(_uploadPipe) < 0)
+	{
+		Logger::log("Pipe failed", LogLevel::ERROR);
+		throw(HTTPError(INTERNAL_SRV_ERR));
+	}
 }
 
-CGI::~CGI(void)
+CGI::~CGI()
 {
 	delete[] _cgiEnvCStr;
+}
+
+bool CGI::isExecutable()
+{
+	struct stat fileStat;
+	
+ 	// Retrieve file status
+    if (stat(_filePath.c_str(), &fileStat) != 0) {
+        std::cerr << "Error retrieving file status." << std::endl;
+        return false;
+    }
+	// Check executable permission for the owner
+    return (fileStat.st_mode & S_IXUSR) != 0;
 }
 
 void CGI::run()
@@ -25,12 +45,11 @@ void CGI::run()
 		dup2(_uploadPipe[0], STDIN_FILENO); // read from upload pipe 
 		close(_responsePipe[0]); // close read-end of response pipe
 		dup2(_responsePipe[1], STDOUT_FILENO); // write to response pipe
-		std::string cgiFilePath = _request->getConfig().getRoot() + _request->getFileName();
-		char* argv[2] = { (char*)cgiFilePath.c_str(), NULL };
-		execve(cgiFilePath.c_str(), argv, _cgiEnvCStr);
+		char* argv[2] = { (char*)_filePath.c_str(), NULL };
+		execve(_filePath.c_str(), argv, _cgiEnvCStr);
 		// if execve fails
 		delete[] _cgiEnvCStr;
-		std::cerr << "Running CGI script failed (execve), path: " << cgiFilePath << std::endl;
+		std::cerr << "Running CGI script failed (execve), path: " << _filePath << std::endl;
 		exit(1); // exit child process with 1, upon failure
 	}
 	else //parent (main) process
