@@ -29,7 +29,7 @@ private:
 
 public:
 	Server();
-	~Server();
+	// ~Server();
 	Server(const Server& obj);
 	Server& operator=(const Server& obj);
 

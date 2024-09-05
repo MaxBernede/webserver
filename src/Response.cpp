@@ -28,6 +28,26 @@ std::string getLastModified(const std::string& file_path) {
 	return "Not Found";
 }
 
+std::string getContentType(std::string extension, std::string method){
+	const std::map<std::string, std::string> types = {
+		{ "css", "text/css; charset=UTF-8" },
+		{ "js", "text/javascript; charset=UTF-8" },
+		{ "html", "text/html; charset=UTF-8" },
+		{ "htm", "text/html; charset=UTF-8" },
+		{ "csv", "text/csv" },
+		{ "png", "image/png" },
+		{ "jpeg", "image/jpeg" },
+		{ "gif", "image/gif" },
+	};
+	auto it = types.find(extension);
+	if (it != types.end()) {
+		return it->second;
+	}
+	if (method == "POST")
+		return "multipart/form-data";
+	return "error";
+}
+
 void Response::addHeaders(Request* request)
 {
 	std::ostringstream oss;
@@ -40,12 +60,18 @@ void Response::addHeaders(Request* request)
 	std::string contentLength = "Content-Length: " + std::to_string(_responseText.size()) + "\r\n";
 	std::string date = "Date: " + getHTTPDate() + "\r\n";
 	std::string lastModified = "Last-Modified: " + getLastModified(_file) + "\r\n";
-	
+	std::string extension = getExtension(request->getFileName());
+	std::string method = request->getMethod(0);
+	std::string contentType = "Content-Type: " + getContentType(extension, method) + "\r\n";
+
 	std::string message = httpStatus[request->getErrorCode()];
 
 	oss << http << " " << code << " " << message << "\r\n";
 	oss << contentLength;
 	oss << date;
+	if (contentType != "Content-Type: error\r\n")
+		oss << contentType;
+
 	//oss << lastModified;
 	oss << "Connection: close" << "\r\n";
 	oss << "\r\n";

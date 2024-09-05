@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <map>
 
 #include "Server.hpp"
 #include "Request.hpp"

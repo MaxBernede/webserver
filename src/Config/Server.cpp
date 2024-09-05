@@ -184,8 +184,8 @@ Server::Server() :
 	_path = "";
 }
 
-Server::~Server() {
-}
+// Server::~Server() {
+// }
 
 Server& Server::operator=(const Server& obj) {
 	this->_ports = obj.getPorts();
