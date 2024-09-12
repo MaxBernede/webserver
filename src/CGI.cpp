@@ -72,6 +72,7 @@ bool CGI::waitCgiChild()
 	}
 	else
 	{
+		std::cerr << "all good until here" << std::endl;
 		if (WIFEXITED(exitCode)) // Child exited normally
 		{
 			if (WEXITSTATUS(exitCode) != 0) // Non-zero exit status

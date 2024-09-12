@@ -38,6 +38,7 @@ std::string getContentType(std::string extension, std::string method){
 		{ "png", "image/png" },
 		{ "jpeg", "image/jpeg" },
 		{ "gif", "image/gif" },
+		{ "ico", "image/x-icon"}
 	};
 	auto it = types.find(extension);
 	if (it != types.end()) {
@@ -63,7 +64,6 @@ void Response::addHeaders(Request* request)
 	std::string extension = getExtension(request->getFileName());
 	std::string method = request->getMethod(0);
 	std::string contentType = "Content-Type: " + getContentType(extension, method) + "\r\n";
-
 	std::string message = httpStatus[request->getErrorCode()];
 
 	oss << http << " " << code << " " << message << "\r\n";
@@ -71,7 +71,6 @@ void Response::addHeaders(Request* request)
 	oss << date;
 	if (contentType != "Content-Type: error\r\n")
 		oss << contentType;
-
 	//oss << lastModified;
 	oss << "Connection: close" << "\r\n";
 	oss << "\r\n";
