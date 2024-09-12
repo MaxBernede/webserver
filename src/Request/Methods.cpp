@@ -181,6 +181,8 @@ void Request::redirRequest404()
 
 void	Request::handleDirListing()
 {
+	if (getMethod(0) != "GET")			//there can be only dir listing on GET
+		return;
 	if (_file == "")
 		_file = _config.getIndex();
 	if ((_file == "" || _file.back() == '/') && !_config.getAutoIndex())

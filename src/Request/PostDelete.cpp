@@ -47,7 +47,7 @@ void Request::execAction() {
 	// Logger::log("filename is : " + fileName, WARNING);
 	if (fileName.empty() && method == "POST")
 	{
-		// Logger::log("The following data was posted: \n" + getRawBody(), LogLevel::WARNING);
+		Logger::log("The following data was posted: \n" + getRawBody(), LogLevel::WARNING);
 		return ;
 	}
 	//Check size should have been already be done
