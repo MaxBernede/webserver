@@ -114,13 +114,13 @@ void ServerRun::serverRunLoop(void)
 					// 	if (obj != nullptr && !obj->getTimeOut() && obj->_cgi->waitCgiChild())
 					// 		_pollData[fd]._pollState = CGI_READ_READING;
 					// }
-					if (_pollData[fd]._pollState == CGI_READ_WAITING && obj->_cgi->waitCgiChild())
+					if (_pollData[fd]._pollState == CGI_READ_WAITING)
 					{
 					    // Check if the child process is done (waitCgiChild() returns true when child has exited)
-					    if (obj != nullptr && !obj->getTimeOut())
+					    if (obj != nullptr && obj->_cgi->waitCgiChild())
 					    {
-					            // Move to the reading state after the CGI process has terminated
-					            _pollData[fd]._pollState = CGI_READ_READING;
+					        // Move to the reading state after the CGI process has terminated
+					        _pollData[fd]._pollState = CGI_READ_READING;
 					    }
 					}
 					dataIn(_pollData[fd], _pollFds[i]);						//Read from client

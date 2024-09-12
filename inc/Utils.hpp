@@ -19,3 +19,4 @@ int							isDirectory(const char* path);
 std::vector<std::string>	getDirectoryContent(const char* name);
 void						createDirIfNoExist(std::string path);
 size_t						strToSizeT(std::string str);
+std::string					generateRandomColor();

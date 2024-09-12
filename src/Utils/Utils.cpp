@@ -59,3 +59,18 @@ size_t	strToSizeT(std::string str)
 	stream >> output;
 	return (output);
 }
+
+std::string generateRandomColor() {
+	std::srand(static_cast<unsigned int>(std::time(nullptr))); // Seed random number generator
+
+	std::stringstream colorStream;
+	colorStream << "#";
+	
+	// Generate a random value for R, G, B components and convert to hex
+	for (int i = 0; i < 3; ++i) {
+		int component = std::rand() % 256;  // Generate a value between 0 and 255
+		colorStream << std::hex << std::setw(2) << std::setfill('0') << component; // Convert to hex with leading zeros
+	}
+	
+	return colorStream.str();
+}

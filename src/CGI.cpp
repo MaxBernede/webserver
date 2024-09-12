@@ -61,6 +61,7 @@ void CGI::run()
 bool CGI::waitCgiChild()
 {
 	int exitCode;
+	std::cerr << "all good until here" << std::endl;
 	int status = waitpid(_pid, &exitCode, WNOHANG);
 	if (status == -1)
 	{
@@ -72,7 +73,6 @@ bool CGI::waitCgiChild()
 	}
 	else
 	{
-		std::cerr << "all good until here" << std::endl;
 		if (WIFEXITED(exitCode)) // Child exited normally
 		{
 			if (WEXITSTATUS(exitCode) != 0) // Non-zero exit status

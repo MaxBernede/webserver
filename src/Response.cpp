@@ -80,7 +80,7 @@ void Response::addHeaders(Request* request)
 
 void Response::errorResponseHTML(ErrorCode error) {
 	std::string text = httpStatus[int(error)];
-	_responseText = START_HTML + std::to_string(error) + ", " + text + END_HTML;
+	_responseText = START_HTML + generateRandomColor() + MID + std::to_string(error) + ", " + text + END_HTML;
 }
 
 //Read from the FD and fill the buffer with a max of 1024, then get the html out of it

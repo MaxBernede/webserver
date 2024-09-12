@@ -9,7 +9,9 @@
 			<style> \
 				body { \
 					font-family: Arial, sans-serif; \
-					background-color: #ff00ff; \
+					background-color: "
+					
+#define MID "; \
 					color: #212529; \
 					margin: 0; \
 					padding: 0; \
@@ -33,6 +35,8 @@
 	<body> \
 		<div class=\"error-container\"> \
 			<h1>HTTP Status "
+
+
 
 #define END_HTML "</h1> \
 			<a href=\"../\">Back to Home</a> \
