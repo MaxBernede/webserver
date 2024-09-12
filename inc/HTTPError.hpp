@@ -14,7 +14,7 @@ public:
 	// Constructor accepting message and error number
 	HTTPError(ErrorCode errorCode) : _errorCode(errorCode) {
 		_errorMessage = httpStatus[static_cast<int>(_errorCode)];
-		_errorMessage += " - error " + std::to_string(static_cast<int>(_errorCode));
+		_errorMessage += " - status " + std::to_string(static_cast<int>(_errorCode));
 	}
 
 	// Override what() function to include error number

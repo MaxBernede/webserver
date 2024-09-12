@@ -69,3 +69,4 @@ public:
 Server	pushBlock(std::list<std::string> block);
 bool	servBlockStart(std::string buf);
 std::list<Server>	init_serv(std::ifstream& conf);
+std::ostream & operator<< (std::ostream &out, const Server& src);

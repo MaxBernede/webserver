@@ -73,7 +73,9 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int Fd)
 
 int ServerRun::httpRedirect(ErrorCode status, int clientFd)
 {
+	
 	HTTPObject* obj = _httpObjects[clientFd];
+	_httpObjects[clientFd]->setConfig();
 	int Err = obj->_response->setRedirectStr(status, obj->_request->getFileNameProtected(), obj->_config.getRedirect());
 	Logger::log("HTTP Error Caught, Redirection Detected", LogLevel::DEBUG);
 	return (Err);

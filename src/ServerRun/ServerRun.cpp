@@ -125,7 +125,7 @@ void ServerRun::serverRunLoop(void)
 			catch (const HTTPError& e)
 			{
 				ErrorCode err = e.getErrorCode();
-				Logger::log(e.what(), LogLevel::ERROR);
+				Logger::log(e.what(), LogLevel::WARNING);
 				if (_pollData[fd]._fdType == CLIENTFD)
 					_httpObjects[fd]->_request->setErrorCode(err);
 				else
@@ -144,15 +144,17 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd)
 		DirectoryListing(fd);
 		_pollData[fd]._pollState = AUTO_INDEX;
 	}
-	else if (err >= MULTIPLE_CHOICE && err <= PERM_REDIR)
+	if (err >= MULTIPLE_CHOICE && err <= PERM_REDIR)
 	{
 		int ErrCode = httpRedirect(err, fd);
+		// std::cout << ErrCode << std::endl;
 		if (ErrCode == err)
 			_pollData[fd]._pollState = HTTP_REDIRECT;
-
+		else
+			err = ErrorCode(ErrCode);
 		_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
 	}
-	else if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
+	if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
 		redirectToError(err, fd);
 }
 
