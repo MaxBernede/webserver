@@ -62,7 +62,6 @@ void CGI::run()
 bool CGI::waitCgiChild()
 {
 	int exitCode;
-	std::cerr << "goes here" << std::endl;
 	int status = waitpid(_pid, &exitCode, WNOHANG);
 	if (status == -1)
 	{
