@@ -2,7 +2,7 @@
 
 void ServerRun::sendResponse(int readFd) // Using readFd
 {
-	Logger::log("Sending response", INFO);
+	// Logger::log("Sending response", INFO);
 	HTTPObject* obj = findHTTPObject(readFd);
 	obj->sendResponseWithHeaders();
 	removeConnection(readFd);
@@ -13,7 +13,7 @@ void ServerRun::sendResponse(int readFd) // Using readFd
 // Cgi response does not add header as this is done in the CGI script
 void ServerRun::sendCgiResponse(int pipeFd) // Using pipeFd read side
 {
-	Logger::log("Sending response from CGI", INFO);
+	// Logger::log("Sending response from CGI", INFO);
 	HTTPObject* obj = findHTTPObject(pipeFd);
 	obj->_response->rSend();
 	removeConnection(pipeFd);
@@ -23,7 +23,7 @@ void ServerRun::sendCgiResponse(int pipeFd) // Using pipeFd read side
 
 void ServerRun::sendError(int clientFd)
 {
-	Logger::log("Sending error page", INFO);
+	// Logger::log("Sending error page", INFO);
 	_httpObjects[clientFd]->sendResponseWithHeaders();
 	cleanUp(clientFd);
 }
@@ -41,7 +41,7 @@ void ServerRun::uploadToCgi(int writePipe)
 
 void ServerRun::sendRedirect(int clientFd) // this is a clientFd
 {
-	Logger::log("Sending redirection page", INFO);
+	// Logger::log("Sending redirection page", INFO);
 	_httpObjects[clientFd]->_response->rSend();
 	cleanUp(clientFd);
 }
@@ -85,7 +85,7 @@ void ServerRun::sendAutoIndex(int clientFd)
 
 void ServerRun::cleanUp(int clientFd)
 {
-	Logger::log("Cleaning up client connection", INFO);
+	// Logger::log("Cleaning up client connection", INFO);
 	close(clientFd);
 	removeConnection(clientFd);
 	if (_httpObjects.count(clientFd))

@@ -74,12 +74,12 @@ void Request::readRequest(std::list<Server> _servers)
 		_doneReading = true;
 	if (_contentLength > 0 && checkEndOfBody()) // if request with body (e.g. POST)
 	{
-		Logger::log("POST Request finished reading", LogLevel::INFO);
+		// Logger::log("POST Request finished reading", LogLevel::INFO);
 		_doneReading = true;
 	}
 	if (_contentLength > 0 && getBoundary() == "") // if request with body but no boundary
 	{
-		Logger::log("POST Request finished reading, No boundary", LogLevel::INFO);
+		// Logger::log("POST Request finished reading, No boundary", LogLevel::INFO);
 		_doneReading = true;
 	}
 	if (getMethod(0) == "DELETE" && rb < BUFFER_SIZE - 1)
@@ -108,7 +108,7 @@ bool Request::isBoundary(const std::string& line) {
 }
 
 void Request::printAllData() {
-	Logger::log("Application started", INFO);
+	// Logger::log("Application started", INFO);
 	std::cout << "Boundary: " << _boundary << std::endl;
 	std::cout << "Method: ";
 	for (const auto& method : _method)
@@ -171,7 +171,7 @@ void Request::redirRequest404()
 	if (_file == "")
 		_file = _config.getIndex();
 	_filePath = _config.getRoot() + _file;
-	Logger::log("file: " + _filePath, LogLevel::INFO);
+	// Logger::log("file: " + _filePath, LogLevel::INFO);
 	bool dirListing = _config.getAutoIndex();
 	if (access(_filePath.c_str(), F_OK) == -1 && dirListing == false)
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
@@ -196,7 +196,7 @@ void	Request::handleRedirection() {
 
 	for (s_redirect r : redirs) {
 		if (fileName == r.redirFrom) {
-			Logger::log("Is a redirect", LogLevel::WARNING);
+			// Logger::log("Is a redirect", LogLevel::WARNING);
 			throw(HTTPError(ErrorCode(r.returnValue)));
 		}
 	}

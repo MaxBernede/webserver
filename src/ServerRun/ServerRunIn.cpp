@@ -9,13 +9,13 @@ void ServerRun::acceptNewConnection(int listenerFd)
 	connFd = accept(listenerFd, (struct sockaddr*)cli_addr, &len);
 	if (connFd == -1 && !(errno == EAGAIN || errno == EWOULDBLOCK))
 		throw (Exception("Error: accept() failed and returned -1", errno));
-	Logger::log("New client connection accepted at fd: " + std::to_string(connFd), LogLevel::DEBUG);
+	// Logger::log("New client connection accepted at fd: " + std::to_string(connFd), LogLevel::DEBUG);
 	addQueue(CLIENT_CONNECTION_READY, CLIENTFD, connFd);
 }
 
 void ServerRun::handleCgiRequest(int clientFd)
 {
-	Logger::log("A CGI Request is being handled", LogLevel::INFO);
+	// Logger::log("A CGI Request is being handled", LogLevel::INFO);
 	_httpObjects[clientFd]->createCgi();
 	int readFd = _httpObjects[clientFd]->_cgi->getReadFd();
 	int writeFd = _httpObjects[clientFd]->_cgi->getWriteFd();
@@ -29,20 +29,20 @@ void ServerRun::handleCgiRequest(int clientFd)
 void ServerRun::handleStaticFileRequest(int clientFd)
 {
 	std::string filePath = _httpObjects[clientFd]->_request->getFilePath();
-	Logger::log("Opening static file: " + filePath, LogLevel::INFO);
+	// Logger::log("Opening static file: " + filePath, LogLevel::INFO);
 	int fileFd = open(filePath.c_str(), O_RDONLY);
 	if (fileFd < 0)
 	{
 		Logger::log("Failed opening file: " + filePath, LogLevel::ERROR);
 		throw (HTTPError(ErrorCode::PAGE_NOT_FOUND));
 	}
-	Logger::log("File successfully opened", INFO);
+	// Logger::log("File successfully opened", INFO);
 	_httpObjects[clientFd]->setReadFd(fileFd);
 	addQueue(FILE_READ_READING, READFD, fileFd);
 }
 
 void ServerRun::DirectoryListing(int clientFd) {
-	Logger::log("Auto index on.", LogLevel::DEBUG);
+	// Logger::log("Auto index on.", LogLevel::DEBUG);
 	HTTPObject* obj = _httpObjects[clientFd];
 	obj->_response->setDirectoryListing(_httpObjects[clientFd]->_request);
 }
@@ -50,7 +50,7 @@ void ServerRun::DirectoryListing(int clientFd) {
 // Handles error code when no error file exists
 void ServerRun::redirectToError(ErrorCode ErrCode, int Fd)
 {
-	Logger::log("Redirecting to Error...", LogLevel::WARNING);
+	// Logger::log("Redirecting to Error...", LogLevel::WARNING);
 
 	HTTPObject* obj;
 	if (_pollData[Fd]._fdType == CLIENTFD)
@@ -63,7 +63,7 @@ void ServerRun::redirectToError(ErrorCode ErrCode, int Fd)
 		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
 	else if (obj->_request->getErrorPageStatus() == false) // if no error file does not exst
 	{
-		Logger::log("Error page does not exist..Error code: " + std::to_string(ErrCode), LogLevel::WARNING);
+		// Logger::log("Error page does not exist..Error code: " + std::to_string(ErrCode), LogLevel::WARNING);
 		obj->_response->errorResponseHTML(ErrCode);
 		_pollData[obj->getClientFd()]._pollState = HTTP_ERROR;
 	}
@@ -84,7 +84,7 @@ void ServerRun::handleRequest(int clientFd)
 {
 	if (_httpObjects.find(clientFd) == _httpObjects.end())
 	{
-		Logger::log("Creating a new HTTPObject", LogLevel::INFO);
+		// Logger::log("Creating a new HTTPObject", LogLevel::INFO);
 		HTTPObject* newObj = new HTTPObject(clientFd);
 		_httpObjects[clientFd] = newObj;
 	}
@@ -102,7 +102,7 @@ void ServerRun::handleRequest(int clientFd)
 void ServerRun::executeRequest(int clientFd) {
 	if (_httpObjects[clientFd]->isCgi()) // GET and POST for CGI
 	{
-		Logger::log("CGI Request received...", LogLevel::INFO);
+		// Logger::log("CGI Request received...", LogLevel::INFO);
 		if (!_httpObjects[clientFd]->_config.getCGI())
 		{
 			Logger::log("CGI is not permitted for this server", LogLevel::ERROR);

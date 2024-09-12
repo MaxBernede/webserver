@@ -46,7 +46,7 @@ ServerRun::~ServerRun(void)
 void ServerRun::createListenerSockets(std::vector<s_domain> listens, std::string name)
 {
 	Socket* new_socket;
-	Logger::log("Creaing listening sockets\n", LogLevel::INFO);
+	// Logger::log("Creating listening sockets\n", LogLevel::INFO);
 	for (s_domain listen : listens)
 	{
 		try
@@ -56,7 +56,7 @@ void ServerRun::createListenerSockets(std::vector<s_domain> listens, std::string
 		}
 		catch (const Exception& e)
 		{
-			std::cout << e.what() << std::endl;
+			// std::cout << e.what() << std::endl;
 		}
 	}
 	try
@@ -66,7 +66,7 @@ void ServerRun::createListenerSockets(std::vector<s_domain> listens, std::string
 	}
 	catch (const Exception& e)
 	{
-		std::cout << e.what() << std::endl;
+		// std::cout << e.what() << std::endl;
 	}
 	if (_listenSockets.empty())
 		throw(Exception("No available port on the defined host", 1));
@@ -90,7 +90,7 @@ void ServerRun::addQueue(pollState state, fdType type, int fd)
 void ServerRun::serverRunLoop(void)
 {
 	int nCon = -1;
-	Logger::log("Server running... ", INFO);
+	// Logger::log("Server running... ", INFO);
 	while (true)
 	{
 		nCon = poll(_pollFds.data(), _pollFds.size(), 0);

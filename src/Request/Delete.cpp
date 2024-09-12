@@ -28,7 +28,7 @@ void Request::remove(std::string path)
 
 	if (std::remove(path.c_str()) == 0)
 	{
-		Logger::log("File deleted successfully", INFO);
+		// Logger::log("File deleted successfully", INFO);
 		throw (HTTPError(NO_CONTENT));
 	}
 	throw (HTTPError(OK));
@@ -36,8 +36,9 @@ void Request::remove(std::string path)
 
 void Request::removeDir(std::string path) {
 	try {
-		std::size_t num = std::filesystem::remove_all(path);
-		Logger::log("Removed: " + std::to_string(num) + " total files", INFO);
+		std::filesystem::remove_all(path);
+		// std::size_t num = std::filesystem::remove_all(path);
+		// Logger::log("Removed: " + std::to_string(num) + " total files", INFO);
 	}
 	catch (const std::filesystem::filesystem_error& e) {
 		std::cerr << "Error removing directory: " << e.what() << "\n";
@@ -48,7 +49,7 @@ void Request::removeDir(std::string path) {
 
 std::string Request::getDeleteFilename(const std::string& httpRequest) {
 	// Find the start of the JSON body
-	Logger::log(httpRequest, WARNING);
+	// Logger::log(httpRequest, WARNING);
 	std::size_t jsonStart = httpRequest.find("\r\n\r\n");
 	if (jsonStart == std::string::npos)
 	{
@@ -82,11 +83,11 @@ void Request::handleDelete(std::string path, std::string file) {
 		throw (HTTPError(OK));
 
 	std::string fullPath = path + file;
-	std::cout << "Handling delete: ... " << fullPath << std::endl;
+	// std::cout << "Handling delete: ... " << fullPath << std::endl;
 	if (!exists(fullPath))
 		throw (HTTPError(PAGE_NOT_FOUND));
 
-	Logger::log("File exist and will be deleted", INFO);
+	// Logger::log("File exist and will be deleted", INFO);
 	if (std::filesystem::is_regular_file(fullPath))
 		remove(fullPath);
 	else if (std::filesystem::is_directory(fullPath))

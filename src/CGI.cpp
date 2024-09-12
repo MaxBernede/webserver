@@ -63,6 +63,7 @@ bool CGI::waitCgiChild()
 	int exitCode;
 	std::cerr << "all good until here" << std::endl;
 	int status = waitpid(_pid, &exitCode, WNOHANG);
+	Logger::log("STATUS:\t" + std::to_string(status), LogLevel::ERROR);
 	if (status == -1)
 	{
 		throw(Exception("Error while waiting for cgi with pid " + std::to_string(_pid), 1));

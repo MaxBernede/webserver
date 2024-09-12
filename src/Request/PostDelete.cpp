@@ -31,7 +31,7 @@ bool checkInsecure(std::string fileName) {
 
 void Request::execAction() {
 	std::string method = getMethod(0);
-	Logger::log("Request exec: " + method, INFO);
+	// Logger::log("Request exec: " + method, INFO);
 
 	if (method != "DELETE" && method != "POST")
 		return;
@@ -41,19 +41,19 @@ void Request::execAction() {
 	// 	throw HTTPError(METHOD_NOT_ALLOWED);
 
 	std::string path = getEndPath(); // the path before filename 
-	Logger::log("endpath is : " + path, WARNING);
+	// Logger::log("endpath is : " + path, WARNING);
 
 	std::string fileName = findFileName(method);
-	Logger::log("filename is : " + fileName, WARNING);
+	// Logger::log("filename is : " + fileName, WARNING);
 	if (fileName.empty() && method == "POST")
 	{
-		Logger::log("The following data was posted: \n" + getRawBody(), LogLevel::WARNING);
+		// Logger::log("The following data was posted: \n" + getRawBody(), LogLevel::WARNING);
 		return ;
 	}
 	//Check size should have been already be done
 	if (checkInsecure(fileName) || checkInsecure(path))
 	{
-		std::cout << "13\n";
+		// std::cout << "13\n";
 		throw HTTPError(BAD_REQUEST); //Dangerous request
 	}
 

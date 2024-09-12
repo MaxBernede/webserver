@@ -2,19 +2,19 @@
 
 // POST requires as file name to save the file
 std::string Request::getOtherFilename() {
-	Logger::log(_requestText, WARNING);
+	// Logger::log(_requestText, WARNING);
 
 	std::size_t filenamePos = _requestText.find("filename=\"");                          // Find the position of the filename in the JSON body
 	if (filenamePos == std::string::npos)
 	{
-		std::cout << "8\n";
+		// std::cout << "8\n";
 		throw HTTPError(BAD_REQUEST);
 	}
 
 	filenamePos += 10;                                                                  // Move past "filename=\"" to get to the start of the actual filename
 	std::size_t endQuotePos = _requestText.find("\"", filenamePos);
 	if (endQuotePos == std::string::npos) {
-		std::cout << "9\n";
+		// std::cout << "9\n";
 		throw HTTPError(BAD_REQUEST);                                                   // Closing quote not found, throw an HTTP error
 	}
 
@@ -23,7 +23,7 @@ std::string Request::getOtherFilename() {
 
 void Request::handlePost(const std::string& path, const std::string& file)
 {
-	Logger::log("Creating the file", INFO);
+	// Logger::log("Creating the file", INFO);
 	createFile(_requestText, path, file);
 }
 
@@ -57,7 +57,7 @@ void Request::createFile(const std::string& content, std::string path, std::stri
 	// Just for some security
 	if (file.empty())
 	{
-		std::cout << "10\n";
+		// std::cout << "10\n";
 		throw HTTPError(BAD_REQUEST);
 	}
 
@@ -67,14 +67,14 @@ void Request::createFile(const std::string& content, std::string path, std::stri
 	size_t pos = content.find("\r\n\r\n");
 	if (pos == std::string::npos) {
 		std::cerr << "Error: No empty line found in content" << std::endl;
-		std::cout << "11\n";
+		// std::cout << "11\n";
 		throw HTTPError(BAD_REQUEST);
 	}
 	std::string fileContent = content.substr(pos + 4); // Skip the two newlines
 	pos = fileContent.find("\r\n\r\n");
 	if (pos == std::string::npos) {
 		std::cerr << "Error: No empty line found in content" << std::endl;
-		std::cout << "12\n";
+		// std::cout << "12\n";
 		throw HTTPError(BAD_REQUEST);
 	}
 	fileContent = fileContent.substr(pos + 4); // Skip the two newlines
@@ -83,7 +83,7 @@ void Request::createFile(const std::string& content, std::string path, std::stri
 	
 	try {
 		writeBinaryDataToFile(path, fileContent);
-		std::cout << "File created successfully." << std::endl;
+		// std::cout << "File created successfully." << std::endl;
 		throw HTTPError(CREATED);
 	}
 	catch (const std::ios_base::failure& e) {
