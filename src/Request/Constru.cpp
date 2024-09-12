@@ -30,7 +30,6 @@ void Request::parseFirstLine(std::istringstream &iss)
 		{
 			_method[1] = "400";
 			_method[2] = "HTTP/1.1";
-			// std::cout << "1\n";
 			throw(HTTPError(BAD_REQUEST));
 		}
 		_method[i] = arg;

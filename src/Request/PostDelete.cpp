@@ -36,10 +36,6 @@ void Request::execAction() {
 	if (method != "DELETE" && method != "POST")
 		return;
 
-	//!! this is already checked... remove
-	// if (!methodAccepted(method)) //check if method not accepted
-	// 	throw HTTPError(METHOD_NOT_ALLOWED);
-
 	std::string path = getEndPath(); // the path before filename 
 	// Logger::log("endpath is : " + path, WARNING);
 
@@ -53,7 +49,6 @@ void Request::execAction() {
 	//Check size should have been already be done
 	if (checkInsecure(fileName) || checkInsecure(path))
 	{
-		// std::cout << "13\n";
 		throw HTTPError(BAD_REQUEST); //Dangerous request
 	}
 
