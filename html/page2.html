@@ -36,9 +36,25 @@
 		},
 		body: JSON.stringify({ filename: filename }),
 	  })
-	  .then(response => response.json())
-	  .then(data => console.log('Success:', data))
-	  .catch((error) => console.error('Error:', error));
+	//   .then(response => response.json())
+	//   .then(data => console.log('Success:', data))
+	//   .catch((error) => console.error('Error:', error));
+	.then(response => {
+	if (!response.ok) {
+	  throw new Error('Network response was not ok');
+	}
+	// Since we're expecting an HTML response, use response.text()
+	return response.text();
+  	})
+  	.then(html => {
+	// Assuming you want to display the HTML response in the page
+	document.getElementById('response-container').innerHTML = html;
+	console.log('Success:', html);
+ 	})
+  	.catch((error) => {
+	console.error('Error:', error);
+	document.getElementById('response-container').innerHTML = '<p>Error occurred while processing the request.</p>';
+  	});
 	}
 </script>
 </html>
