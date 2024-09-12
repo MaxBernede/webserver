@@ -46,6 +46,7 @@ void CGI::run()
 		close(_responsePipe[0]); // close read-end of response pipe
 		dup2(_responsePipe[1], STDOUT_FILENO); // write to response pipe
 		char* argv[2] = { (char*)_filePath.c_str(), NULL };
+		std::cerr << _filePath << std::endl;
 		execve(_filePath.c_str(), argv, _cgiEnvCStr);
 		// if execve fails
 		delete[] _cgiEnvCStr;
@@ -61,9 +62,8 @@ void CGI::run()
 bool CGI::waitCgiChild()
 {
 	int exitCode;
-	std::cerr << "all good until here" << std::endl;
+	std::cerr << "goes here" << std::endl;
 	int status = waitpid(_pid, &exitCode, WNOHANG);
-	Logger::log("STATUS:\t" + std::to_string(status), LogLevel::ERROR);
 	if (status == -1)
 	{
 		throw(Exception("Error while waiting for cgi with pid " + std::to_string(_pid), 1));
@@ -87,7 +87,7 @@ bool CGI::waitCgiChild()
 			Logger::log("Error: CGI script with pid " + std::to_string(_pid) + " was killed by signal " + std::to_string(WTERMSIG(exitCode)), LogLevel::ERROR);
 			throw(HTTPError(INTERNAL_SRV_ERR));
 		}
-		Logger::log("Cgi child process finished", LogLevel::INFO);
+		// Logger::log("Cgi child process finished", LogLevel::INFO);
 		return true;
 	}
 }

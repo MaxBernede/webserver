@@ -36,7 +36,7 @@
 		},
 		body: JSON.stringify({ filename: filename }),
 	  })
-	//   .then(response => response.json())
+	  .then(response => response.text())
 	//   .then(data => console.log('Success:', data))
 	//   .catch((error) => console.error('Error:', error));
 	}

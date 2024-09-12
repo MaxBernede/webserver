@@ -108,21 +108,17 @@ void ServerRun::serverRunLoop(void)
 					obj->checkTimeOut();
 				if (_pollFds[i].revents & POLLIN)
 				{
-					// Only start reading CGI once the write end of the pipe is closed
 					// if (_pollFds[i].revents & POLLHUP && _pollData[fd]._pollState == CGI_READ_WAITING)
 					// {
-					// 	if (obj != nullptr && !obj->getTimeOut() && obj->_cgi->waitCgiChild())
-					// 		_pollData[fd]._pollState = CGI_READ_READING;
-					// }
-					if (_pollData[fd]._pollState == CGI_READ_WAITING)
+					//     // Check if the child process is done (waitCgiChild() returns true when child has exited)
+					std::cerr << "reaches here..." << std::endl;
+					std::cerr << "pollstate: " << _pollData[fd]._pollState << std::endl;
+					if (_pollData[fd]._pollState == CGI_READ_WAITING && obj->_cgi->waitCgiChild())
 					{
-					    // Check if the child process is done (waitCgiChild() returns true when child has exited)
-					    if (obj != nullptr && obj->_cgi->waitCgiChild())
-					    {
-					        // Move to the reading state after the CGI process has terminated
-					        _pollData[fd]._pollState = CGI_READ_READING;
-					    }
+					    // Move to the reading state after the CGI process has terminated
+					    _pollData[fd]._pollState = CGI_READ_READING;
 					}
+					// }
 					dataIn(_pollData[fd], _pollFds[i]);						//Read from client
 				}
 				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollState == CGI_READ_DONE)

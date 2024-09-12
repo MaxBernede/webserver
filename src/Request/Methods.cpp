@@ -219,7 +219,7 @@ void	Request::configConfig() {
 			_config.setPath(loc.getPath());
 			std::string newName = getFileNameProtected();
 			newName.erase(0, temp.length());
-			std::cout << newName << std::endl;
+			// std::cout << newName << std::endl;
 			_file = newName;
 			break;
 		}

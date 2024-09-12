@@ -143,7 +143,7 @@ void ServerRun::readPipe(int fd) // Pipe read-end fd
 
 	memset(buffer, '\0', BUFFER_SIZE);
 	HTTPObject* obj = findHTTPObject(fd);
-	Logger::log("Reading the pipe read end...", LogLevel::DEBUG);
+	// Logger::log("Reading the pipe read end...", LogLevel::DEBUG);
 	int readChars = read(fd, buffer, BUFFER_SIZE - 1);
 	if (readChars < 0)
 		throw(Exception("Read pipe failed!", 1));

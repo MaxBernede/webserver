@@ -133,7 +133,7 @@ int Response::setRedirectStr(int status, std::string from, std::list<s_redirect>
 	oss << "Location: ";
 	oss << to << "\r\n\r\n";
 	oss << REDIR_START << "<a href=\"" << to << "\">" << to << "</a>" << REDIR_END;
-	std::cout << oss.str() << std::endl;
+	// std::cout << oss.str() << std::endl;
 	_responseText = oss.str();
 	return (status);
 }
