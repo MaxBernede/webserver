@@ -126,6 +126,7 @@ public:
 	void		checkHostPresent();
 	void		checkErrors();
 	void		checkVersion();
+	void		checkContentLength();
 
 	void		configConfig();
 

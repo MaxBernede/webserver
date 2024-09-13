@@ -242,7 +242,27 @@ void Request::checkHostPresent(){
 		throw (HTTPError(BAD_REQUEST));
 }
 
+void Request::checkContentLength(){
+	// Logger::log("STOL", ERROR);
+	if (getValues("Content-Length") == "")
+		return;
+	try
+	{
+		long l = stol(getValues("Content-Length"));
+		if (l < 0)
+			throw (HTTPError(BAD_REQUEST));
+	}
+	catch (std::invalid_argument const& ex)
+	{
+		throw (HTTPError(BAD_REQUEST));
+	}
+	catch (std::out_of_range const& ex){
+		throw (HTTPError(BAD_REQUEST));
+	}
+}
+
 void Request::checkErrors() {
 	checkVersion();
 	checkHostPresent();
+	checkContentLength();
 }
