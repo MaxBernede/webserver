@@ -109,9 +109,7 @@ void ServerRun::serverRunLoop(void)
 				if (_pollData[fd]._pollState == CGI_READ_WAITING && obj != nullptr && obj->_cgi->waitCgiChild())
 					_pollData[fd]._pollState = CGI_READ_READING;
 				if (_pollFds[i].revents & POLLIN)
-				{
 					dataIn(_pollData[fd], _pollFds[i]);						//Read from client
-				}
 				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollState == CGI_READ_DONE)
 					dataOut(_pollData[fd], _pollFds[i]);					// Write to client
 			}
