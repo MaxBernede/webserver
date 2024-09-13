@@ -23,7 +23,13 @@ int main(int argc, char** argv) {
 		Server def;
 		server.push_front(def);
 	}
+	
+	try {
 	ServerRun runningServer(server);
 	runningServer.serverRunLoop();
+	}
+	catch (const std::exception &e) {
+		std::cout << e.what() << std::endl;
+	}
 	return 0;
 }

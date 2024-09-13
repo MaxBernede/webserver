@@ -76,9 +76,7 @@ bool CGI::waitCgiChild()
 		if (WIFEXITED(exitCode)) // Child exited normally
 		{
 			if (WEXITSTATUS(exitCode) != 0) // Non-zero exit status
-			{
-				throw(Exception("Error: CGI script with pid " + std::to_string(_pid) + " exited with status " + std::to_string(WEXITSTATUS(exitCode)), 1));
-			}
+				throw(HTTPError(INTERNAL_SRV_ERR));
 		}
 		else if (WIFSIGNALED(exitCode)) // Child terminated by a signal
 		{
