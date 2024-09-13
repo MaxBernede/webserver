@@ -106,12 +106,10 @@ void ServerRun::serverRunLoop(void)
 				HTTPObject* obj = findHTTPObject(fd);
 				if (obj != nullptr && !obj->getTimeOut())
 					obj->checkTimeOut();
-				if (_pollData[fd]._pollState == CGI_READ_WAITING && obj->_cgi->waitCgiChild())
+				if (_pollData[fd]._pollState == CGI_READ_WAITING && obj != nullptr && obj->_cgi->waitCgiChild())
 					_pollData[fd]._pollState = CGI_READ_READING;
 				if (_pollFds[i].revents & POLLIN)
 				{
-					if (_pollData[fd]._pollState == CGI_READ_WAITING && obj->_cgi->waitCgiChild())
-						_pollData[fd]._pollState = CGI_READ_READING;
 					dataIn(_pollData[fd], _pollFds[i]);						//Read from client
 				}
 				if (_pollFds[i].revents & POLLOUT || _pollData[fd]._pollState == CGI_READ_DONE)
