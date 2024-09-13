@@ -154,7 +154,7 @@ void ServerRun::handleHTTPError(ErrorCode err, int fd)
 			err = ErrorCode(ErrCode);
 		_httpObjects[fd]->_request->setErrorCode(ErrorCode(ErrCode));
 	}
-	if (err < MULTIPLE_CHOICE || err > PERM_REDIR)
+	if ((err < MULTIPLE_CHOICE || err > PERM_REDIR) && err != DIRECTORY_LISTING)
 		redirectToError(err, fd);
 }
 
