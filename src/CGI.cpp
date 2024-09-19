@@ -65,7 +65,8 @@ bool CGI::waitCgiChild()
 	int status = waitpid(_pid, &exitCode, WNOHANG);
 	if (status == -1)
 	{
-		throw(Exception("Error while waiting for cgi with pid " + std::to_string(_pid), 1));
+		std::cerr << "Error while waiting for cgi with pid " << std::to_string(_pid) << std::endl;
+		throw(HTTPError(INTERNAL_SRV_ERR));
 	}
 	else if (status == 0) // cgi not done
 	{
